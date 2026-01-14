@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+// Triggering deployment for mobile friendliness improvements
+import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import SubscriptionGuard from "@/components/SubscriptionGuard";
 import clsx from "clsx";
