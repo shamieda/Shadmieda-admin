@@ -14,7 +14,8 @@ import {
     User,
     ChevronLeft,
     ChevronRight,
-    FileText
+    FileText,
+    X
 } from "lucide-react";
 import clsx from "clsx";
 import { supabase } from "@/lib/supabase";
@@ -85,93 +86,117 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
     };
 
     return (
-        <aside className={clsx(
-            "bg-surface border-r border-white/5 h-screen flex flex-col fixed left-0 top-0 z-50 transition-all duration-300",
-            isCollapsed ? "w-20" : "w-64"
-        )}>
-            <div className="p-4 border-b border-white/5 flex flex-col items-center text-center relative">
-                <button
+        <>
+            {/* Mobile Overlay */}
+            {!isCollapsed && (
+                <div
+                    className="fixed inset-0 bg-black/60 z-40 lg:hidden animate-fade-in"
                     onClick={toggleSidebar}
-                    className="absolute -right-3 top-6 bg-primary text-black rounded-full p-1 shadow-lg hover:bg-yellow-400 transition-colors z-50"
-                >
-                    {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-                </button>
+                />
+            )}
 
-                <img src="/logo.png" alt="Shamieda Logo" className={clsx("mb-3 transition-all", isCollapsed ? "w-10" : "w-32")} />
-                {!isCollapsed && (
-                    <p className="text-xs text-gray-500 mt-1 animate-fade-in">
-                        {user ? (
-                            user.role === 'admin' || user.role === 'master' ? "Admin Access" :
-                                user.role === 'manager' ? "Manager Access" : "Staff Access"
-                        ) : (
-                            isStaff ? "Staff Access" : "Management Access"
-                        )}
-                    </p>
-                )}
-            </div>
+            <aside className={clsx(
+                "bg-surface border-r border-white/5 h-screen flex flex-col fixed left-0 top-0 z-50 transition-all duration-300",
+                isCollapsed ? "w-0 lg:w-20 -translate-x-full lg:translate-x-0" : "w-64 translate-x-0"
+            )}>
+                <div className="p-4 border-b border-white/5 flex flex-col items-center text-center relative">
+                    {/* Desktop Toggle Button */}
+                    <button
+                        onClick={toggleSidebar}
+                        className="hidden lg:flex absolute -right-3 top-6 bg-primary text-black rounded-full p-1 shadow-lg hover:bg-yellow-400 transition-colors z-50"
+                    >
+                        {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                    </button>
 
-            {user && (
-                <div className={clsx("border-b border-white/5 flex items-center gap-3 bg-white/5 transition-all", isCollapsed ? "p-2 justify-center" : "px-6 py-4")}>
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0 border border-primary/20 overflow-hidden">
-                        {user.avatar_url ? (
-                            <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
-                        ) : (
-                            <span className="text-xs font-bold uppercase">
-                                {user.full_name?.substring(0, 3) || <User className="w-6 h-6" />}
-                            </span>
-                        )}
-                    </div>
+                    {/* Mobile Close Button */}
                     {!isCollapsed && (
-                        <div className="flex-1 min-w-0 animate-fade-in">
-                            <p className="text-sm font-bold text-white truncate">{user.full_name}</p>
-                            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">{user.role}</p>
-                        </div>
-                    )}
-                    {!isCollapsed && <NotificationCenter />}
-                </div>
-            )}
-            {isCollapsed && user && (
-                <div className="flex justify-center py-2 border-b border-white/5">
-                    <NotificationCenter />
-                </div>
-            )}
-
-            <nav className="flex-1 p-2 space-y-2 overflow-y-auto overflow-x-hidden">
-                {menuItems.map((item) => {
-                    const isActive = pathname === item.href;
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            title={isCollapsed ? item.name : ""}
-                            className={clsx(
-                                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                                isActive
-                                    ? "bg-primary text-black shadow-lg shadow-yellow-500/10"
-                                    : "text-gray-400 hover:text-white hover:bg-white/5",
-                                isCollapsed && "justify-center px-2"
-                            )}
+                        <button
+                            onClick={toggleSidebar}
+                            className="lg:hidden absolute right-4 top-4 text-gray-500 hover:text-white transition-colors"
                         >
-                            <item.icon className={clsx("w-5 h-5 shrink-0", isActive ? "text-black" : "text-gray-500 group-hover:text-white")} />
-                            {!isCollapsed && <span className="truncate">{item.name}</span>}
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            <div className="p-4 border-t border-white/5">
-                <button
-                    onClick={handleLogout}
-                    title={isCollapsed ? "Log Keluar" : ""}
-                    className={clsx(
-                        "flex items-center gap-3 px-4 py-3 w-full text-left text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm font-medium",
-                        isCollapsed && "justify-center px-2"
+                            <X className="w-6 h-6" />
+                        </button>
                     )}
-                >
-                    <LogOut className="w-5 h-5 shrink-0" />
-                    {!isCollapsed && "Log Keluar"}
-                </button>
-            </div>
-        </aside>
+
+                    <img src="/logo.png" alt="Shamieda Logo" className={clsx("mb-3 transition-all", isCollapsed ? "w-0 lg:w-10" : "w-32")} />
+                    {!isCollapsed && (
+                        <p className="text-xs text-gray-500 mt-1 animate-fade-in">
+                            {user ? (
+                                user.role === 'admin' || user.role === 'master' ? "Admin Access" :
+                                    user.role === 'manager' ? "Manager Access" : "Staff Access"
+                            ) : (
+                                isStaff ? "Staff Access" : "Management Access"
+                            )}
+                        </p>
+                    )}
+                </div>
+
+                {user && (
+                    <div className={clsx("border-b border-white/5 flex items-center gap-3 bg-white/5 transition-all", isCollapsed ? "p-0 lg:p-2 justify-center" : "px-6 py-4")}>
+                        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0 border border-primary/20 overflow-hidden">
+                            {user.avatar_url ? (
+                                <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-xs font-bold uppercase">
+                                    {user.full_name?.substring(0, 3) || <User className="w-6 h-6" />}
+                                </span>
+                            )}
+                        </div>
+                        {!isCollapsed && (
+                            <div className="flex-1 min-w-0 animate-fade-in">
+                                <p className="text-sm font-bold text-white truncate">{user.full_name}</p>
+                                <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">{user.role}</p>
+                            </div>
+                        )}
+                        {!isCollapsed && <NotificationCenter />}
+                    </div>
+                )}
+                {isCollapsed && user && (
+                    <div className="hidden lg:flex justify-center py-2 border-b border-white/5">
+                        <NotificationCenter />
+                    </div>
+                )}
+
+                <nav className="flex-1 p-2 space-y-2 overflow-y-auto overflow-x-hidden">
+                    {menuItems.map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => {
+                                    if (window.innerWidth < 1024) toggleSidebar();
+                                }}
+                                title={(isCollapsed && window.innerWidth >= 1024) ? item.name : ""}
+                                className={clsx(
+                                    "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                                    isActive
+                                        ? "bg-primary text-black shadow-lg shadow-yellow-500/10"
+                                        : "text-gray-400 hover:text-white hover:bg-white/5",
+                                    isCollapsed && "justify-center px-2"
+                                )}
+                            >
+                                <item.icon className={clsx("w-5 h-5 shrink-0", isActive ? "text-black" : "text-gray-500 group-hover:text-white")} />
+                                {!isCollapsed && <span className="truncate">{item.name}</span>}
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                <div className="p-4 border-t border-white/5">
+                    <button
+                        onClick={handleLogout}
+                        title={isCollapsed ? "Log Keluar" : ""}
+                        className={clsx(
+                            "flex items-center gap-3 px-4 py-3 w-full text-left text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm font-medium",
+                            isCollapsed && "justify-center px-2"
+                        )}
+                    >
+                        <LogOut className="w-5 h-5 shrink-0" />
+                        {!isCollapsed && "Log Keluar"}
+                    </button>
+                </div>
+            </aside>
+        </>
     );
 }

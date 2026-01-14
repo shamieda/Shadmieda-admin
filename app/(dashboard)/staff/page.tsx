@@ -52,19 +52,19 @@ export default function StaffDashboard() {
     return (
         <div className="space-y-8">
             {/* Header */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Staff Dashboard</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white">Staff Dashboard</h1>
                     {loading ? (
                         <div className="flex items-center gap-2 text-gray-400 mt-1">
                             <Loader2 className="w-3 h-3 animate-spin" />
                             <p className="text-sm">Memuatkan...</p>
                         </div>
                     ) : (
-                        <p className="text-gray-400">Selamat datang, {userName || 'Staff'}.</p>
+                        <p className="text-gray-400 text-sm sm:text-base">Selamat datang, {userName || 'Staff'}.</p>
                     )}
                 </div>
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-black font-bold uppercase overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-black font-bold uppercase overflow-hidden border-2 border-primary/20 shadow-lg">
                     {avatarUrl ? (
                         <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
                     ) : (
@@ -98,71 +98,71 @@ export default function StaffDashboard() {
                         <p className="text-gray-500 text-sm italic">Ranking belum dijana untuk bulan ini.</p>
                     </div>
                 ) : (
-                    <div className="flex flex-row items-end justify-center gap-2 md:gap-8 lg:gap-16 pt-8 max-w-2xl mx-auto">
+                    <div className="flex flex-row items-end justify-center gap-1 sm:gap-4 md:gap-8 lg:gap-16 pt-8 max-w-2xl mx-auto">
                         {/* Rank 2 */}
                         <div className="flex flex-col items-center text-center flex-1 group">
                             {rankings[1] ? (
                                 <>
-                                    <div className="relative mb-4">
-                                        <div className="w-16 h-16 md:w-24 md:h-24 rounded-full p-1 bg-gradient-to-tr from-gray-400 to-gray-100 shadow-xl group-hover:scale-105 transition-transform">
-                                            <div className="w-full h-full rounded-full bg-surface overflow-hidden border-2 border-surface">
+                                    <div className="relative mb-2 sm:mb-4">
+                                        <div className="w-14 h-14 sm:w-20 md:w-24 rounded-full p-0.5 sm:p-1 bg-gradient-to-tr from-gray-400 to-gray-100 shadow-xl group-hover:scale-105 transition-transform">
+                                            <div className="w-full h-full rounded-full bg-surface overflow-hidden border border-surface">
                                                 {rankings[1].avatar_url ? (
                                                     <img src={rankings[1].avatar_url} alt={rankings[1].full_name} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-xl md:text-2xl font-bold bg-white/5 text-gray-400">
+                                                    <div className="w-full h-full flex items-center justify-center text-lg sm:text-2xl font-bold bg-white/5 text-gray-400">
                                                         {rankings[1].full_name.charAt(0)}
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-6 h-6 md:w-8 md:h-8 rounded-full bg-gray-300 text-black flex items-center justify-center font-black text-xs md:text-sm shadow-lg border-2 border-surface">
+                                        <div className="absolute -top-1 -right-1 w-5 h-5 sm:w-8 sm:h-8 rounded-full bg-gray-300 text-black flex items-center justify-center font-black text-[10px] sm:text-sm shadow-lg border-2 border-surface">
                                             2
                                         </div>
                                     </div>
-                                    <h3 className="text-white font-bold text-[10px] md:text-sm mb-0.5 truncate w-full px-1">{rankings[1].full_name}</h3>
-                                    <p className="text-[8px] md:text-[10px] text-gray-500 uppercase font-bold mb-2">Stesen: {rankings[1].position || 'Staff'}</p>
-                                    <div className="flex gap-0.5">
+                                    <h3 className="text-white font-bold text-[8px] sm:text-sm mb-0.5 truncate w-full px-1">{rankings[1].full_name}</h3>
+                                    <p className="text-[7px] sm:text-[10px] text-gray-500 uppercase font-bold mb-1 sm:mb-2">Stesen: {rankings[1].position || 'Staff'}</p>
+                                    <div className="hidden sm:flex gap-0.5">
                                         {[...Array(5)].map((_, i) => (
                                             <Medal key={i} className={clsx("w-2 h-2 md:w-3 md:h-3", i < 4 ? "text-yellow-500" : "text-gray-700")} />
                                         ))}
                                     </div>
                                 </>
                             ) : (
-                                <div className="w-16 h-16 md:w-24 md:h-24 rounded-full border-2 border-dashed border-white/5" />
+                                <div className="w-14 h-14 sm:w-20 md:w-24 rounded-full border-2 border-dashed border-white/5" />
                             )}
                         </div>
 
                         {/* Rank 1 */}
-                        <div className="flex flex-col items-center text-center flex-1 group -translate-y-6 md:-translate-y-10">
+                        <div className="flex flex-col items-center text-center flex-1 group -translate-y-4 sm:-translate-y-10">
                             {rankings[0] ? (
                                 <>
-                                    <div className="relative mb-4">
-                                        <div className="w-24 h-24 md:w-36 md:h-36 rounded-full p-1.5 bg-gradient-to-tr from-primary to-yellow-200 shadow-2xl shadow-primary/20 group-hover:scale-105 transition-transform">
+                                    <div className="relative mb-2 sm:mb-4">
+                                        <div className="w-20 h-20 sm:w-32 md:w-36 rounded-full p-1 sm:p-1.5 bg-gradient-to-tr from-primary to-yellow-200 shadow-2xl shadow-primary/20 group-hover:scale-105 transition-transform">
                                             <div className="w-full h-full rounded-full bg-surface overflow-hidden border-2 border-surface">
                                                 {rankings[0].avatar_url ? (
                                                     <img src={rankings[0].avatar_url} alt={rankings[0].full_name} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-3xl md:text-5xl font-bold bg-white/5 text-primary">
+                                                    <div className="w-full h-full flex items-center justify-center text-2xl sm:text-5xl font-bold bg-white/5 text-primary">
                                                         {rankings[0].full_name.charAt(0)}
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="absolute -top-2 -right-2 md:-top-3 md:-right-3 w-8 h-8 md:w-12 md:h-12 rounded-full bg-primary text-black flex items-center justify-center font-black text-sm md:text-xl shadow-lg border-2 border-surface">
+                                        <div className="absolute -top-1 -right-1 w-6 h-6 sm:w-12 sm:h-12 rounded-full bg-primary text-black flex items-center justify-center font-black text-xs sm:text-xl shadow-lg border-2 border-surface">
                                             1
                                         </div>
-                                        <Medal className="absolute -top-6 md:-top-10 left-1/2 -translate-x-1/2 w-6 h-6 md:w-10 md:h-10 text-primary animate-bounce" />
+                                        <Medal className="absolute -top-4 sm:-top-10 left-1/2 -translate-x-1/2 w-4 h-4 sm:w-10 sm:h-10 text-primary animate-bounce" />
                                     </div>
-                                    <h3 className="text-white font-black text-xs md:text-lg mb-0.5 truncate w-full px-1">{rankings[0].full_name}</h3>
-                                    <p className="text-[10px] md:text-xs text-primary font-bold uppercase mb-3">Stesen: {rankings[0].position || 'Staff'}</p>
-                                    <div className="flex gap-0.5 md:gap-1">
+                                    <h3 className="text-white font-black text-[10px] sm:text-lg mb-0.5 truncate w-full px-1">{rankings[0].full_name}</h3>
+                                    <p className="text-[8px] sm:text-xs text-primary font-bold uppercase mb-1 sm:mb-3">Stesen: {rankings[0].position || 'Staff'}</p>
+                                    <div className="hidden sm:flex gap-0.5 md:gap-1">
                                         {[...Array(5)].map((_, i) => (
                                             <Medal key={i} className="w-3 h-3 md:w-4 md:h-4 text-yellow-500" />
                                         ))}
                                     </div>
                                 </>
                             ) : (
-                                <div className="w-24 h-24 md:w-36 md:h-36 rounded-full border-2 border-dashed border-white/5" />
+                                <div className="w-20 h-20 sm:w-32 md:w-36 rounded-full border-2 border-dashed border-white/5" />
                             )}
                         </div>
 
@@ -170,32 +170,32 @@ export default function StaffDashboard() {
                         <div className="flex flex-col items-center text-center flex-1 group">
                             {rankings[2] ? (
                                 <>
-                                    <div className="relative mb-4">
-                                        <div className="w-16 h-16 md:w-24 md:h-24 rounded-full p-1 bg-gradient-to-tr from-orange-700 to-orange-400 shadow-xl group-hover:scale-105 transition-transform">
-                                            <div className="w-full h-full rounded-full bg-surface overflow-hidden border-2 border-surface">
+                                    <div className="relative mb-2 sm:mb-4">
+                                        <div className="w-14 h-14 sm:w-20 md:w-24 rounded-full p-0.5 sm:p-1 bg-gradient-to-tr from-orange-700 to-orange-400 shadow-xl group-hover:scale-105 transition-transform">
+                                            <div className="w-full h-full rounded-full bg-surface overflow-hidden border border-surface">
                                                 {rankings[2].avatar_url ? (
                                                     <img src={rankings[2].avatar_url} alt={rankings[2].full_name} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-xl md:text-2xl font-bold bg-white/5 text-orange-400">
+                                                    <div className="w-full h-full flex items-center justify-center text-lg sm:text-2xl font-bold bg-white/5 text-orange-400">
                                                         {rankings[2].full_name.charAt(0)}
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-6 h-6 md:w-8 md:h-8 rounded-full bg-orange-500 text-black flex items-center justify-center font-black text-xs md:text-sm shadow-lg border-2 border-surface">
+                                        <div className="absolute -top-1 -right-1 w-5 h-5 sm:w-8 sm:h-8 rounded-full bg-orange-500 text-black flex items-center justify-center font-black text-[10px] sm:text-sm shadow-lg border-2 border-surface">
                                             3
                                         </div>
                                     </div>
-                                    <h3 className="text-white font-bold text-[10px] md:text-sm mb-0.5 truncate w-full px-1">{rankings[2].full_name}</h3>
-                                    <p className="text-[8px] md:text-[10px] text-gray-500 uppercase font-bold mb-2">Stesen: {rankings[2].position || 'Staff'}</p>
-                                    <div className="flex gap-0.5">
+                                    <h3 className="text-white font-bold text-[8px] sm:text-sm mb-0.5 truncate w-full px-1">{rankings[2].full_name}</h3>
+                                    <p className="text-[7px] sm:text-[10px] text-gray-500 uppercase font-bold mb-1 sm:mb-2">Stesen: {rankings[2].position || 'Staff'}</p>
+                                    <div className="hidden sm:flex gap-0.5">
                                         {[...Array(5)].map((_, i) => (
                                             <Medal key={i} className={clsx("w-2 h-2 md:w-3 md:h-3", i < 3 ? "text-yellow-500" : "text-gray-700")} />
                                         ))}
                                     </div>
                                 </>
                             ) : (
-                                <div className="w-16 h-16 md:w-24 md:h-24 rounded-full border-2 border-dashed border-white/5" />
+                                <div className="w-14 h-14 sm:w-20 md:w-24 rounded-full border-2 border-dashed border-white/5" />
                             )}
                         </div>
                     </div>

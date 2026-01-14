@@ -93,30 +93,29 @@ export default function StaffListPage() {
 
     return (
         <div className="space-y-6" onClick={() => setActiveMenu(null)}>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
                 <div>
                     <h1 className="text-2xl font-bold text-white">Pengurusan Staff</h1>
                     <p className="text-gray-400 text-sm">Senarai pekerja dan rekod peribadi.</p>
                 </div>
-
                 <Link
                     href="/manager/staff/onboard"
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-black rounded-lg text-sm font-bold hover:bg-yellow-400 shadow-lg shadow-yellow-500/20 transition-all"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-primary text-black rounded-xl text-sm font-bold hover:bg-yellow-400 shadow-lg shadow-yellow-500/20 transition-all active:scale-95"
                 >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-5 h-5 sm:w-4 sm:h-4" />
                     Daftar Staff Baru
                 </Link>
             </div>
 
             {/* Search */}
-            <div className="relative max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+            <div className="relative max-w-md w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
                 <input
                     type="text"
                     placeholder="Cari nama staff atau IC..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-surface border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-white text-sm focus:outline-none focus:border-primary transition-all"
+                    className="w-full bg-surface border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white text-sm focus:outline-none focus:border-primary transition-all shadow-inner"
                 />
             </div>
 

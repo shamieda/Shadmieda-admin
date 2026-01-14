@@ -98,15 +98,15 @@ export default function ManagerDashboard() {
     return (
         <div className="space-y-8">
             {/* Header */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white">
                         {userRole === 'admin' ? 'Admin Dashboard' : 'Manager Dashboard'}
                     </h1>
-                    <p className="text-gray-400">Selamat datang, {userName || 'Manager'}.</p>
+                    <p className="text-gray-400 text-sm sm:text-base">Selamat datang, {userName || 'Manager'}.</p>
                 </div>
-                <div className="text-right">
-                    <p className="text-xs text-gray-500">Tarikh Hari Ini</p>
+                <div className="text-left sm:text-right w-full sm:w-auto p-3 sm:p-0 bg-white/5 sm:bg-transparent rounded-xl border border-white/5 sm:border-0">
+                    <p className="text-[10px] sm:text-xs text-gray-500 uppercase font-bold tracking-wider">Tarikh Hari Ini</p>
                     <p className="text-white font-bold">{todayDate}</p>
                 </div>
             </div>

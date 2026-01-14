@@ -249,8 +249,11 @@ export default function StaffTasksPage() {
         <div className="max-w-md mx-auto space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <div className="flex items-center gap-3 mb-1">
-                        <h1 className="text-2xl font-bold text-white">Senarai Tugas</h1>
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-2xl font-bold text-white">Senarai Tugas</h1>
+                            {loading && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+                        </div>
                         <button
                             onClick={() => {
                                 let defaultStation = userProfile?.position || 'Semua Staff';
@@ -259,38 +262,27 @@ export default function StaffTasksPage() {
                                 syncTasks(defaultStation);
                             }}
                             disabled={loading}
-                            className={`p-2 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all ${loading ? 'animate-spin' : ''}`}
-                            title="Reset Filter & Sync Tugasan"
+                            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all active:scale-95"
+                            title="Sync Tugasan"
                         >
-                            <RefreshCw className="w-4 h-4" />
+                            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin text-primary' : ''}`} />
                         </button>
                     </div>
 
-                    <div className="relative">
-                        <div className="flex items-center gap-2">
-                            <p className="text-gray-400 text-sm">Stesen: <span className="text-primary font-bold">{selectedStation}</span></p>
+                    {/* Station Pills - Horizontal Scroll */}
+                    <div className="flex overflow-x-auto gap-2 py-2 no-scrollbar -mx-4 px-4 mask-fade-right">
+                        {allStations.map((station: string) => (
                             <button
-                                onClick={() => setShowFilter(!showFilter)}
-                                className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-primary transition-colors"
-                                title="Tukar Stesen (Filter)"
+                                key={station}
+                                onClick={() => handleStationChange(station)}
+                                className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold transition-all border active:scale-95 ${selectedStation === station
+                                        ? 'bg-primary border-primary text-black shadow-lg shadow-yellow-500/20'
+                                        : 'bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+                                    }`}
                             >
-                                <Filter className="w-3 h-3" />
+                                {station}
                             </button>
-                        </div>
-
-                        {showFilter && (
-                            <div className="absolute top-full left-0 mt-2 bg-surface border border-white/10 rounded-lg shadow-xl p-2 z-20 min-w-[150px]">
-                                {allStations.map((station: string) => (
-                                    <button
-                                        key={station}
-                                        onClick={() => handleStationChange(station)}
-                                        className={`w-full text-left px-3 py-2 rounded text-sm hover:bg-white/10 ${selectedStation === station ? 'text-primary font-bold' : 'text-gray-400'}`}
-                                    >
-                                        {station}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                        ))}
                     </div>
                 </div>
                 <div className="text-right">

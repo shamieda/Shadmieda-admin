@@ -150,30 +150,60 @@ export default function StaffPayrollPage() {
             </div>
 
             {/* Main Salary Card */}
-            <div className="bg-surface border border-white/5 rounded-2xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="bg-surface border border-white/5 rounded-3xl p-6 sm:p-8 relative overflow-hidden bg-gradient-to-br from-surface to-black/50 group">
+                {/* Decorative background glow */}
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-all duration-700" />
+                <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/5 rounded-full blur-[60px]" />
 
                 <div className="relative z-10">
-                    <p className="text-gray-400 text-sm font-medium mb-1">Anggaran Gaji Bersih</p>
-                    <h2 className="text-4xl font-bold text-white mb-6">RM {estimatedSalary.toFixed(2)}</h2>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-black/30 p-4 rounded-xl border border-white/5">
-                            <p className="text-xs text-gray-500 mb-1">Gaji Asas (Pro-rated)</p>
-                            <p className="text-lg font-bold text-white">RM {currentBasic.toFixed(2)}</p>
-                            <p className="text-xs text-gray-500 mt-1">{daysWorked} / {targetDays} Hari</p>
+                    <div className="flex justify-between items-start mb-6">
+                        <div>
+                            <p className="text-gray-500 text-[10px] uppercase font-bold tracking-[0.2em] mb-1">Anggaran Gaji Bersih</p>
+                            <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+                                <span className="text-primary text-2xl mr-1">RM</span>
+                                {estimatedSalary.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </h2>
                         </div>
-                        <div className="bg-black/30 p-4 rounded-xl border border-white/5">
-                            <p className="text-xs text-gray-500 mb-1">Potongan / Penalti</p>
-                            <p className="text-lg font-bold text-red-400">- RM {penalty.toFixed(2)}</p>
-                            <p className="text-xs text-gray-500 mt-1">{lateCount} Kali Lewat</p>
+                        <div className="bg-primary/10 p-3 rounded-2xl border border-primary/20">
+                            <Wallet className="w-6 h-6 text-primary" />
+                        </div>
+                    </div>
+
+                    {/* Progress Bar for Days Worked */}
+                    <div className="mb-8 space-y-2">
+                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                            <span>Progres Hari Bekerja</span>
+                            <span className="text-white">{daysWorked} / {targetDays} HARI</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-black/40 rounded-full overflow-hidden border border-white/5 p-0.5">
+                            <div
+                                className="h-full bg-gradient-to-r from-primary to-yellow-200 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(255,193,7,0.3)]"
+                                style={{ width: `${Math.min((daysWorked / targetDays) * 100, 100)}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div className="bg-white/5 p-4 rounded-2xl border border-white/5 backdrop-blur-sm">
+                            <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">Gaji Asas (Pro-rated)</p>
+                            <p className="text-lg font-bold text-white">RM {currentBasic.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-white/5 p-4 rounded-2xl border border-white/5 backdrop-blur-sm">
+                            <p className="text-[10px] text-gray-500 font-bold uppercase mb-1">Potongan / Penalti</p>
+                            <p className={`text-lg font-bold ${penalty > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                                {penalty > 0 ? `- RM ${penalty.toFixed(2)}` : 'Sifar'}
+                            </p>
                         </div>
 
                         {onboardingDeduction > 0 && (
-                            <div className="bg-black/30 p-4 rounded-xl border border-white/5 col-span-2">
-                                <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><Package className="w-3 h-3" /> Onboarding Kit</p>
-                                <p className="text-lg font-bold text-purple-400">- RM {onboardingDeduction.toFixed(2)}</p>
-                                <p className="text-xs text-gray-500 mt-1">Ditolak sekali sahaja (Bulan Pertama)</p>
+                            <div className="bg-purple-500/5 p-4 rounded-2xl border border-purple-500/10 col-span-1 sm:col-span-2 flex items-center justify-between">
+                                <div>
+                                    <p className="text-[10px] text-purple-400 font-bold uppercase flex items-center gap-1">
+                                        <Package className="w-3 h-3" /> Onboarding Kit
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-0.5">Ditolak sekali sahaja bulan pertama</p>
+                                </div>
+                                <p className="text-lg font-bold text-purple-400 text-right">- RM {onboardingDeduction.toFixed(2)}</p>
                             </div>
                         )}
                     </div>
