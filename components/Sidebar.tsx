@@ -165,7 +165,10 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => {
-                                    if (window.innerWidth < 1024) toggleSidebar();
+                                    if (window.innerWidth < 1024) {
+                                        // Slight delay to ensure navigation starts and user sees the tap
+                                        setTimeout(toggleSidebar, 300);
+                                    }
                                 }}
                                 title={(isCollapsed && window.innerWidth >= 1024) ? item.name : ""}
                                 className={clsx(
