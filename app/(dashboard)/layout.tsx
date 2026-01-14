@@ -24,7 +24,7 @@ export default function DashboardLayout({
                     <img src="/logo.png" alt="Logo" className="h-8" />
                     <button
                         onClick={toggleSidebar}
-                        className="p-2 text-gray-400 hover:text-white transition-colors"
+                        className="p-3 mr-1 text-white bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors active:scale-95"
                     >
                         <Menu className="w-6 h-6" />
                     </button>
