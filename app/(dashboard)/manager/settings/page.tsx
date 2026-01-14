@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Store, Coins, ClipboardList, Users, Package, Trash2, Bell, UserCog } from "lucide-react";
 import dynamic from 'next/dynamic';
 import { supabase } from "@/lib/supabase";
+import { resetPayrollAction } from "@/app/actions/payroll";
 import { showSuccess, showError, confirmAction } from "@/lib/notifications";
 import {
     TaskTemplate,
@@ -59,6 +60,7 @@ export default function ManagerSettingsPage() {
 
     const [userRole, setUserRole] = useState<string | null>(null);
     const [currentUserEmail, setCurrentUserEmail] = useState("");
+    const [showResetModal, setShowResetModal] = useState(false);
 
     useEffect(() => {
         fetchSettings();
@@ -521,6 +523,25 @@ export default function ManagerSettingsPage() {
         }
     };
 
+    const handleResetData = async () => {
+        setLoading(true);
+        setShowResetModal(false);
+        try {
+            const result = await resetPayrollAction();
+            if (result.success) {
+                showSuccess("Sistem telah dibersihkan sepenuhnya. Semua data testing telah dipadam!");
+                fetchSettings(); // Refresh whatever might have changed
+            } else {
+                showError("Gagal memadam data: " + result.error);
+            }
+        } catch (error: any) {
+            console.error('Error resetting data:', error);
+            showError("Ralat sistem berlaku.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (userRole !== 'manager' && userRole !== 'admin' && userRole !== 'master') {
         return (
             <div className="flex items-center justify-center h-screen">
@@ -578,7 +599,7 @@ export default function ManagerSettingsPage() {
                     className={`px-4 py-2 text-sm font-bold whitespace-nowrap transition-colors flex items-center gap-2 ${activeTab === 'storage' ? 'text-primary border-b-2 border-primary' : 'text-gray-400 hover:text-white'}`}
                 >
                     <Trash2 className="w-4 h-4" />
-                    STORAGE
+                    DATA & STORAGE
                 </button>
                 <button
                     onClick={() => setActiveTab('notifications')}
@@ -663,6 +684,7 @@ export default function ManagerSettingsPage() {
                 <StorageManagementTab
                     loading={loading}
                     onCleanup={handleCleanupPhotos}
+                    onResetData={() => setShowResetModal(true)}
                 />
             )}
 
@@ -679,6 +701,44 @@ export default function ManagerSettingsPage() {
                     onUpdateEmail={handleUpdateEmail}
                     onUpdatePassword={handleUpdatePassword}
                 />
+            )}
+
+            {/* Global Reset Confirmation Modal */}
+            {showResetModal && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
+                    <div className="bg-surface border border-white/10 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
+                        <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Trash2 className="w-8 h-8 text-red-500" />
+                        </div>
+                        <h2 className="text-xl font-bold text-white mb-2">BERSIHKAN SISTEM?</h2>
+                        <p className="text-gray-400 mb-6 text-sm text-center">
+                            Adakah anda pasti? Tindakan ini akan memadam **SEMUA** rekod testing:
+                            <br /><br />
+                            • Permohonan Cuti (Leaves)<br />
+                            • Kehadiran (Attendance)<br />
+                            • Tugasan (Tasks)<br />
+                            • Pinjaman (Advances)<br />
+                            • Payroll & Notifikasi<br />
+                            <br />
+                            <strong className="text-red-400">Tindakan ini tidak boleh dipusing semula! Hanya gunakan jika anda bersedia untuk memulakan operasi sebenar.</strong>
+                        </p>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowResetModal(false)}
+                                className="flex-1 py-3 rounded-xl font-bold text-gray-400 hover:bg-white/5 transition-colors"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={handleResetData}
+                                className="flex-1 py-3 rounded-xl font-bold bg-red-500 text-white hover:bg-red-600 transition-colors"
+                            >
+                                Ya, Bersihkan Semua
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

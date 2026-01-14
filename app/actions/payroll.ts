@@ -11,32 +11,57 @@ export async function resetPayrollAction() {
     try {
         if (!supabaseAdmin) throw new Error("Supabase Admin client not initialized");
 
-        // 1. Verify User Authority
-        // Note: In a real app, you would check the session here.
-        // For now, we assume the dashboard RLS protects the page, 
-        // but we can add a basic check if needed.
+        console.log("[System Reset] Initiating full data wipe for testing cleanup...");
 
-        console.log("[Payroll Reset] Initiating data wipe...");
-
-        // 2. Delete ALL Attendance records
-        // This resets "Hari Bekerja" and "late_penalty" for everyone.
-        const { error: attError } = await supabaseAdmin
+        // 1. Delete ALL Attendance records
+        await supabaseAdmin
             .from('attendance')
             .delete()
-            .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete everything
+            .neq('id', '00000000-0000-0000-0000-000000000000');
 
-        if (attError) throw attError;
+        // 2. Delete ALL Leave Applications (Permohonan Cuti)
+        await supabaseAdmin
+            .from('leave_applications')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000');
 
-        // 3. Reset Onboarding Kit for all STAFF users
-        // This removes the "Onboarding Kit - RM90" deductions.
+        // 3. Delete ALL Tasks (Operations/Tugasan)
+        await supabaseAdmin
+            .from('tasks')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000');
+
+        // 4. Delete ALL Advance Requests (Pinjaman)
+        await supabaseAdmin
+            .from('advance_requests')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000');
+
+        // 5. Delete ALL Notifications & Broadcasts
+        await supabaseAdmin
+            .from('notifications')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000');
+
+        await supabaseAdmin
+            .from('broadcast_notifications')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000');
+
+        await supabaseAdmin
+            .from('payroll')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000');
+
+        // 6. Reset Onboarding Kit for all users
         const { error: userError } = await supabaseAdmin
             .from('users')
             .update({ onboarding_kit: [] })
-            .eq('role', 'staff');
+            .neq('role', 'master'); // Safety: don't touch master if they have data
 
         if (userError) throw userError;
 
-        console.log("[Payroll Reset] Success.");
+        console.log("[System Reset] Full cleanup successful.");
         return { success: true };
 
     } catch (error: any) {

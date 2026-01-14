@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Wallet, Send, AlertCircle, CheckCircle, DollarSign, Loader2, User, FileText, Printer, X, ChevronLeft, ChevronRight, Package, Trophy } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { getRankingsAction } from "@/app/actions/get-rankings";
-import { resetPayrollAction } from "@/app/actions/payroll";
 
 export default function PayrollPage() {
     const [month, setMonth] = useState(new Date().toISOString().substring(0, 7));
@@ -13,7 +12,6 @@ export default function PayrollPage() {
     const [loading, setLoading] = useState(true);
     const [shopSettings, setShopSettings] = useState<any>(null);
     const [selectedSlip, setSelectedSlip] = useState<any>(null);
-    const [showResetModal, setShowResetModal] = useState(false);
 
     useEffect(() => {
         fetchPayrollData();
@@ -134,25 +132,6 @@ export default function PayrollPage() {
         }
     };
 
-    const handleResetPayroll = async () => {
-        setLoading(true);
-        setShowResetModal(false);
-        try {
-            const result = await resetPayrollAction();
-            if (result.success) {
-                alert("Data testing telah dipadam sepenuhnya. Anda boleh mula memasukkan data sebenar!");
-                fetchPayrollData();
-            } else {
-                alert("Gagal memadam data: " + result.error);
-            }
-        } catch (error) {
-            console.error('Error resetting payroll:', error);
-            alert("Ralat sistem berlaku.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const sendWhatsApp = (staff: any) => {
         const message = `
 *SLIP GAJI SHAMIEDA FAMILY*
@@ -192,66 +171,30 @@ Terima kasih atas usaha anda!
                     <h1 className="text-2xl font-bold text-white">Pengurusan Gaji</h1>
                     <p className="text-gray-400 text-sm">Kira gaji, bonus, dan penalti secara automatik.</p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 bg-surface border border-white/10 rounded-lg p-1">
                     <button
-                        onClick={() => setShowResetModal(true)}
-                        className="hidden md:flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 px-4 py-2 rounded-lg text-sm font-bold transition-all border border-red-500/20"
+                        onClick={() => handleMonthChange('prev')}
+                        className="p-2 hover:bg-white/5 rounded-md text-gray-400 hover:text-white transition-colors"
                     >
-                        <AlertCircle className="w-4 h-4" />
-                        Reset Data Testing
+                        <ChevronLeft className="w-4 h-4" />
                     </button>
-                    <div className="flex items-center gap-2 bg-surface border border-white/10 rounded-lg p-1">
-                        <button
-                            onClick={() => handleMonthChange('prev')}
-                            className="p-2 hover:bg-white/5 rounded-md text-gray-400 hover:text-white transition-colors"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
-                        <div className="relative">
-                            <input
-                                type="month"
-                                value={month}
-                                onChange={(e) => setMonth(e.target.value)}
-                                className="bg-transparent text-white font-bold outline-none text-sm w-32 text-center cursor-pointer"
-                            />
-                        </div>
-                        <button
-                            onClick={() => handleMonthChange('next')}
-                            className="p-2 hover:bg-white/5 rounded-md text-gray-400 hover:text-white transition-colors"
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
+                    <div className="relative">
+                        <input
+                            type="month"
+                            value={month}
+                            onChange={(e) => setMonth(e.target.value)}
+                            className="bg-transparent text-white font-bold outline-none text-sm w-32 text-center cursor-pointer"
+                        />
                     </div>
+                    <button
+                        onClick={() => handleMonthChange('next')}
+                        className="p-2 hover:bg-white/5 rounded-md text-gray-400 hover:text-white transition-colors"
+                    >
+                        <ChevronRight className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
 
-            {/* Reset Confirmation Modal */}
-            {showResetModal && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
-                    <div className="bg-surface border border-white/10 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
-                        <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <AlertCircle className="w-8 h-8 text-red-500" />
-                        </div>
-                        <h2 className="text-xl font-bold text-white mb-2">Padam Data Testing?</h2>
-                        <p className="text-gray-400 mb-6 text-sm"> Adakah anda pasti? Ini akan memadam SEMUA data kehadiran dan menetapkan semula potongan onboarding untuk kegunaan sistem sebenar. <br /><br /><strong>Tindakan ini tidak boleh dipadam semual!</strong></p>
-
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setShowResetModal(false)}
-                                className="flex-1 py-3 rounded-xl font-bold text-gray-400 hover:bg-white/5 transition-colors"
-                            >
-                                Batal
-                            </button>
-                            <button
-                                onClick={handleResetPayroll}
-                                className="flex-1 py-3 rounded-xl font-bold bg-red-500 text-white hover:bg-red-600 transition-colors"
-                            >
-                                Ya, Padam Semua
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 text-gray-500">

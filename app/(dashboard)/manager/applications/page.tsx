@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Calendar, CheckCircle, XCircle, Clock, User, Check, X, Filter } from "lucide-react";
+import { FileText, Calendar, CheckCircle, XCircle, Clock, User, Check, X, Filter, AlertCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
 import { createNotificationAction } from "@/app/actions/notifications";
