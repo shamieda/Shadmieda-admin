@@ -97,7 +97,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
             <aside className={clsx(
                 "bg-surface border-r border-white/5 h-[100dvh] flex flex-col fixed left-0 top-0 z-[100] transition-all duration-300",
-                isCollapsed ? "w-0 lg:w-20 -translate-x-full lg:translate-x-0" : "w-64 translate-x-0"
+                isCollapsed ? "w-64 lg:w-20 -translate-x-full lg:translate-x-0" : "w-64 translate-x-0"
             )}>
                 <div className="p-4 border-b border-white/5 flex flex-col items-center text-center relative">
                     {/* Desktop Toggle Button */}
