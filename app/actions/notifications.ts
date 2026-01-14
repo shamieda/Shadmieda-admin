@@ -103,6 +103,58 @@ export async function markAllAsReadAction() {
     }
 }
 
+export async function broadcastNotificationAction({
+    title,
+    message,
+    type = "info",
+    category = "system",
+    targetRole = "staff",
+    targetPosition,
+    link
+}: {
+    title: string;
+    message: string;
+    type?: "info" | "warning" | "success" | "error";
+    category?: "attendance" | "advance" | "task" | "system";
+    targetRole?: "all" | "staff" | "manager" | "admin" | "master";
+    targetPosition?: string;
+    link?: string;
+}) {
+    console.log("SERVER DEBUG: broadcastNotificationAction started");
+    try {
+        if (!supabaseAdmin) throw new Error("Supabase Admin not initialized");
+
+        const { error } = await supabaseAdmin
+            .from("broadcast_notifications")
+            .insert({
+                title,
+                message,
+                type,
+                category,
+                target_role: targetRole,
+                target_position: targetPosition,
+                link
+            });
+
+        if (error) {
+            console.error("SERVER DEBUG: Broadcast Insert error:", error);
+            throw error;
+        }
+
+        console.log("SERVER DEBUG: Broadcast created successfully");
+
+        // Note: Individual FCM pushes for everyone in a broadcast 
+        // would be complex to trigger from here without fetching all users.
+        // For now, this handles the DB/UI notification.
+        // Real-time listener in the client will pick this up for active users.
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("SERVER DEBUG: Error broadcasting notification:", error);
+        return { success: false, error: error.message };
+    }
+}
+
 import * as admin from "firebase-admin";
 
 if (!admin.apps.length) {
@@ -291,3 +343,63 @@ export async function getManagersAction() {
     }
 }
 
+export async function notifyStationStaffAction(station: string, taskTitle: string) {
+    console.log("SERVER DEBUG: notifyStationStaffAction started for:", station);
+    try {
+        if (!supabaseAdmin) throw new Error("Supabase Admin not initialized");
+
+        // Get current user to exclude self
+        const supabase = await createClient();
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+
+        let query = supabaseAdmin
+            .from("users")
+            .select("id")
+            .eq("role", "staff"); // Base filter: Staff only
+
+        // Exclude self (Admin/Manager creating the task)
+        if (currentUser) {
+            query = query.neq("auth_id", currentUser.id);
+        }
+
+        // Refine filter based on station
+        const normalizedStation = station.toLowerCase();
+        if (normalizedStation !== 'semua staff' && normalizedStation !== 'staff') {
+            query = query.ilike('position', station);
+        }
+
+        const { data: staffList, error } = await query;
+
+        if (error) {
+            console.error("SERVER DEBUG: Error fetching staff for station:", station, error);
+            throw error;
+        }
+
+        console.log(`SERVER DEBUG: Found ${staffList?.length || 0} staff for station: ${station}`);
+
+        if (staffList && staffList.length > 0) {
+            const message = `Tugasan baru "${taskTitle}" telah ditambah untuk anda.`;
+
+            // Send notifications in parallel
+            await Promise.all(staffList.map(async (user) => {
+                try {
+                    await createNotificationAction({
+                        userId: user.id,
+                        title: "Tugasan Baru",
+                        message: message,
+                        type: "info",
+                        category: "task",
+                        link: "/staff/tasks"
+                    });
+                } catch (err) {
+                    console.error(`SERVER DEBUG: Failed to notify user ${user.id}`, err);
+                }
+            }));
+        }
+
+        return { success: true, count: staffList?.length || 0 };
+    } catch (error: any) {
+        console.error("SERVER DEBUG: Error in notifyStationStaffAction:", error);
+        return { success: false, error: error.message };
+    }
+}

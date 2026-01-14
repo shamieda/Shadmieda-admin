@@ -13,9 +13,18 @@ export default function StaffListPage() {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
     const [showSuratModal, setShowSuratModal] = useState<string | null>(null);
 
+    const [positions, setPositions] = useState<string[]>([]);
+    const [stationModal, setStationModal] = useState<{ id: string, name: string, currentStation: string } | null>(null);
+
     useEffect(() => {
         fetchStaff();
+        fetchPositions();
     }, []);
+
+    const fetchPositions = async () => {
+        const { data } = await supabase.from('positions').select('name');
+        if (data) setPositions(data.map(p => p.name));
+    };
 
     const fetchStaff = async () => {
         setLoading(true);
@@ -34,6 +43,31 @@ export default function StaffListPage() {
             setLoading(false);
         }
     };
+
+    const handleUpdateStation = async (newStation: string) => {
+        if (!stationModal) return;
+        try {
+            const { error } = await supabase
+                .from('users')
+                .update({ position: newStation })
+                .eq('id', stationModal.id);
+
+            if (error) throw error;
+
+            setStaff(staff.map(s => s.id === stationModal.id ? { ...s, position: newStation } : s));
+            setStationModal(null);
+
+            // Universal Sync will automatically detect changes if we wanted to be fancy, 
+            // but for now the database is the source of truth for the NEXT sync.
+            // If we want instant task update for today, we might need to trigger it, 
+            // but the requirement is just to change station.
+
+
+        } catch (error: any) {
+            alert("Gagal kemaskini stesen: " + error.message);
+        }
+    };
+
 
     const handleDeleteStaff = async (id: string, authId?: string) => {
         if (!confirm("Adakah anda pasti mahu pemadam staff ini? Tindakan ini tidak boleh dikembalikan.")) return;
@@ -148,7 +182,19 @@ export default function StaffListPage() {
                             </div>
 
                             <h3 className="text-lg font-bold text-white">{s.full_name}</h3>
-                            <p className="text-primary text-sm font-medium mb-4 capitalize">Stesen: {s.position || 'Staff'} ({s.employment_type || 'Full-Time'})</p>
+                            <div className="flex items-center gap-2 mb-4">
+                                <p className="text-primary text-sm font-medium capitalize">Stesen: {s.position || 'Staff'} ({s.employment_type || 'Full-Time'})</p>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setStationModal({ id: s.id, name: s.full_name, currentStation: s.position || 'Staff' });
+                                    }}
+                                    className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-primary transition-colors"
+                                    title="Tukar Stesen"
+                                >
+                                    <Edit className="w-3 h-3" />
+                                </button>
+                            </div>
 
                             <div className="space-y-2 text-sm text-gray-400">
                                 <p className="flex items-center gap-2">
@@ -179,6 +225,38 @@ export default function StaffListPage() {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Station Change Modal */}
+            {stationModal && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" onClick={() => setStationModal(null)}>
+                    <div className="bg-surface border border-white/10 rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-white">Tukar Stesen</h3>
+                            <button onClick={() => setStationModal(null)} className="text-gray-500 hover:text-white">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="mb-6">
+                            <p className="text-sm text-gray-400 mb-2">Pilih stesen baru untuk <span className="text-white font-bold">{stationModal.name}</span>:</p>
+                            <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                                {positions.map(pos => (
+                                    <button
+                                        key={pos}
+                                        onClick={() => handleUpdateStation(pos)}
+                                        className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${stationModal.currentStation === pos
+                                            ? 'bg-primary/10 border-primary text-primary font-bold'
+                                            : 'bg-white/5 border-transparent hover:border-white/20 text-gray-300'
+                                            }`}
+                                    >
+                                        {pos}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
 

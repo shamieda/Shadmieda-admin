@@ -1,110 +1,154 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { CheckCircle, Circle, Camera, Loader2, Filter, RefreshCw } from "lucide-react";
+import { CheckCircle, Circle, Camera, Loader2, Filter, RefreshCw, ChevronDown } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function StaffTasksPage() {
     const [tasks, setTasks] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [userPosition, setUserPosition] = useState<string>("");
+    const [userProfile, setUserProfile] = useState<{ id: string, position: string } | null>(null);
+    const [selectedStation, setSelectedStation] = useState<string>("");
+    const [allStations, setAllStations] = useState<string[]>([]);
+    const [showFilter, setShowFilter] = useState(false);
+
     const [selectedTask, setSelectedTask] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
+
     const isGeneratingRef = useRef(false);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    // Initial load process
     useEffect(() => {
-        fetchTasks();
-    }, []);
-
-    const fetchTasks = async () => {
-        setLoading(true);
-        try {
+        const loadInitialData = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                // Get user profile for position
-                const { data: profile } = await supabase
-                    .from('users')
-                    .select('id, position')
-                    .eq('auth_id', user.id)
-                    .single();
-
+                const { data: profile } = await supabase.from('users').select('id, position').eq('auth_id', user.id).single();
                 if (profile) {
-                    setUserPosition(profile.position || "Staff");
+                    setUserProfile(profile);
+                    const rawPosition = profile.position || "Semua Staff";
+                    const station = rawPosition === 'Staff' ? 'Semua Staff' : rawPosition;
+                    setSelectedStation(station);
 
-                    // Fetch tasks for this position created today
-                    const today = new Date().toISOString().split('T')[0];
-                    let { data: tasksData, error } = await supabase
-                        .from('tasks')
-                        .select('*')
-                        .eq('assigned_to', profile.id)
-                        .in('position', [profile.position, 'staff'])
-                        .gte('created_at', `${today}T00:00:00`);
-
-                    if (error) throw error;
-
-                    // If no tasks found, try to generate from templates
-                    if ((!tasksData || tasksData.length === 0) && !isGeneratingRef.current) {
-                        isGeneratingRef.current = true; // Lock generation
-                        console.log("No tasks found. Generating from templates...");
-                        const { data: templates } = await supabase
-                            .from('task_templates')
-                            .select('*')
-                            .or(`position.ilike.${profile.position},position.eq.staff`);
-
-                        if (templates && templates.length > 0) {
-                            const newTasks = templates.map(t => ({
-                                title: t.title,
-                                description: t.description,
-                                position: t.position,
-                                assigned_to: profile.id,
-                                is_completed: false,
-                                created_at: new Date().toISOString()
-                            }));
-
-                            const { error: insertError } = await supabase
-                                .from('tasks')
-                                .insert(newTasks);
-
-                            if (insertError) {
-                                console.error("Error generating tasks:", insertError);
-                                isGeneratingRef.current = false; // Unlock on error
-                            } else {
-                                // Refetch tasks after generation
-                                const { data: refreshedTasks } = await supabase
-                                    .from('tasks')
-                                    .select('*')
-                                    .eq('assigned_to', profile.id)
-                                    .in('position', [profile.position, 'staff'])
-                                    .gte('created_at', `${today}T00:00:00`);
-
-                                tasksData = refreshedTasks;
-                            }
-                        } else {
-                            isGeneratingRef.current = false; // Unlock if no templates
-                        }
+                    // If coming from dashboard with ?sync=true, trigger sync immediately
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.get('sync') === 'true') {
+                        await syncTasks(station);
                     }
-
-                    setTasks(tasksData || []);
                 }
             }
+
+            const { data: positions } = await supabase.from('positions').select('name');
+            const stationList = new Set(['Semua Staff', ...(positions?.map(p => p.name) || [])]);
+            setAllStations(Array.from(stationList));
+        };
+        loadInitialData();
+    }, []);
+
+    // Polling & Realtime
+    useEffect(() => {
+        if (!userProfile) return;
+
+        fetchTasks(selectedStation);
+        const interval = setInterval(() => fetchTasks(selectedStation, true), 10000);
+
+        // Subscription for Tasks (Insert/Update/Delete)
+        const taskChannel = supabase
+            .channel('tasks_changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+                fetchTasks(); // Reload tasks if someone else inserted them
+            })
+            .subscribe();
+
+        // Subscription for TEMPLATES (New Feature -> Auto Sync)
+        const templateChannel = supabase
+            .channel('templates_changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'task_templates' }, () => {
+                // If a template is added/deleted, re-run SYNC to Generate/Remove tasks on the fly
+                syncTasks();
+            })
+            .subscribe();
+
+        return () => {
+            clearInterval(interval);
+            supabase.removeChannel(taskChannel);
+            supabase.removeChannel(templateChannel);
+        };
+    }, [userProfile, selectedStation]);
+
+    const syncTasks = async (station: string = selectedStation) => {
+        if (!userProfile) return;
+        setLoading(true);
+        isGeneratingRef.current = true;
+
+        try {
+            const today = new Date().toISOString().split('T')[0];
+
+            // 1. CALL SERVER-SIDE GENERATOR (Fast & Accurate)
+            const { error } = await supabase.rpc('generate_daily_tasks_for_user', {
+                target_user_id: userProfile.id,
+                user_pos: station // Pass the FILTERED station (or default)
+            });
+
+            if (error) throw error;
+
+            // 2. Refetch to update UI
+            await fetchTasks(station);
+
+        } catch (err) {
+            console.error("Sync error:", err);
+            alert("Gagal sync: " + (err as any).message);
+        } finally {
+            isGeneratingRef.current = false;
+            setLoading(false);
+        }
+    };
+    const fetchTasks = async (station: string = selectedStation, isBackground = false) => {
+        if (!userProfile) return;
+        if (!isBackground) setLoading(true);
+        try {
+            const today = new Date().toISOString().split('T')[0];
+
+            // Fetch tasks assigned to ME and for the SELECTED station
+            // Fetch tasks assigned to ME and for the SELECTED station
+            let query = supabase
+                .from('tasks')
+                .select('*')
+                .eq('assigned_to', userProfile.id)
+                .gte('created_at', `${today}T00:00:00`);
+
+            if (station === 'Semua Staff' || station === 'Staff') {
+                // Match 'Staff' OR 'Semua Staff'
+                query = query.or(`position.ilike.staff,position.ilike."Semua Staff"`);
+            } else {
+                // Match EXACTLY the selected station (e.g. 'Barista' only)
+                query = query.ilike('position', station);
+            }
+
+            let { data: tasksData, error } = await query;
+
+            if (error) throw error;
+
+            // Auto-generate if empty (Smart Check for initial load)
+            if ((!tasksData || tasksData.length === 0) && !isGeneratingRef.current && !isBackground) {
+                await syncTasks(station);
+                return;
+            }
+
+            setTasks(tasksData || []);
         } catch (error) {
             console.error('Error fetching tasks:', error);
         } finally {
-            setLoading(false);
+            if (!isBackground) setLoading(false);
         }
     };
 
     const toggleTask = async (id: string, currentStatus: boolean) => {
         try {
-            const { error } = await supabase
-                .from('tasks')
-                .update({ is_completed: !currentStatus })
-                .eq('id', id);
-
+            const { error } = await supabase.from('tasks').update({ is_completed: !currentStatus }).eq('id', id);
             if (error) throw error;
             setTasks(tasks.map(t => t.id === id ? { ...t, is_completed: !currentStatus } : t));
         } catch (error) {
@@ -112,101 +156,30 @@ export default function StaffTasksPage() {
         }
     };
 
-    const completedCount = tasks.filter(t => t.is_completed).length;
-    const progress = tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0;
+    // Old syncTasks removed
 
-    const syncTasks = async () => {
-        setLoading(true);
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
 
-            const { data: profile } = await supabase
-                .from('users')
-                .select('id, position')
-                .eq('auth_id', user.id)
-                .single();
-
-            if (!profile) return;
-
-            const today = new Date().toISOString().split('T')[0];
-
-            // 1. Fetch current templates
-            const { data: templates } = await supabase
-                .from('task_templates')
-                .select('*')
-                .or(`position.ilike.${profile.position},position.eq.staff`);
-
-            // 2. Fetch today's tasks
-            const { data: currentTasks } = await supabase
-                .from('tasks')
-                .select('*')
-                .eq('assigned_to', profile.id)
-                .gte('created_at', `${today}T00:00:00`);
-
-            if (!templates) return;
-
-            const tasksToDelete = (currentTasks || []).filter(ct =>
-                !ct.is_completed && !templates.some(t => t.title === ct.title)
-            );
-
-            const templatesToAdd = templates.filter(t =>
-                !(currentTasks || []).some(ct => ct.title === t.title)
-            );
-
-            // 3. Delete outdated uncompleted tasks
-            if (tasksToDelete.length > 0) {
-                const { error: deleteError } = await supabase
-                    .from('tasks')
-                    .delete()
-                    .in('id', tasksToDelete.map(t => t.id));
-
-                if (deleteError) throw deleteError;
-            }
-
-            // 4. Add new tasks from templates
-            if (templatesToAdd.length > 0) {
-                const newTasks = templatesToAdd.map(t => ({
-                    title: t.title,
-                    description: t.description,
-                    position: t.position,
-                    assigned_to: profile.id,
-                    is_completed: false,
-                    created_at: new Date().toISOString()
-                }));
-
-                const { error: insertError } = await supabase.from('tasks').insert(newTasks);
-                if (insertError) throw insertError;
-            }
-
-            await fetchTasks();
-            alert("Tugasan telah dikemaskini mengikut template terbaru!");
-        } finally {
-            setLoading(false);
-        }
+    const handleStationChange = (station: string) => {
+        setSelectedStation(station);
+        setShowFilter(false);
+        syncTasks(station);
     };
 
     const startCamera = async () => {
         setIsCameraOpen(true);
         setCapturedImage(null);
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
-            });
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-            }
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            if (videoRef.current) videoRef.current.srcObject = stream;
         } catch (err) {
-            console.error("Camera access denied:", err);
-            alert("Akses kamera ditolak. Sila benarkan akses kamera untuk mengambil bukti.");
+            alert("Sila benarkan akses kamera.");
             setIsCameraOpen(false);
         }
     };
 
     const stopCamera = () => {
         if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach(track => track.stop());
+            (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
             videoRef.current.srcObject = null;
         }
         setIsCameraOpen(false);
@@ -220,16 +193,12 @@ export default function StaffTasksPage() {
                 canvasRef.current.height = videoRef.current.videoHeight;
                 context.drawImage(videoRef.current, 0, 0);
 
-                // Add Watermark
                 context.font = "bold 20px Arial";
                 context.fillStyle = "yellow";
                 const now = new Date();
-                const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
-                const dateStr = now.toLocaleDateString('en-GB');
-                context.fillText(`${dateStr} ${timeStr}`, 20, canvasRef.current.height - 20);
+                context.fillText(`${now.toLocaleDateString()} ${now.toLocaleTimeString()}`, 20, canvasRef.current.height - 20);
 
-                const imageData = canvasRef.current.toDataURL('image/jpeg');
-                setCapturedImage(imageData);
+                setCapturedImage(canvasRef.current.toDataURL('image/jpeg'));
                 stopCamera();
             }
         }
@@ -237,101 +206,91 @@ export default function StaffTasksPage() {
 
     const handleSavePhoto = async () => {
         if (!capturedImage || !selectedTask) return;
-
         setUploading(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("User not found");
+            const fileName = `${user?.id}_${selectedTask}_${Date.now()}.jpg`;
+            const res = await fetch(capturedImage);
+            const blob = await res.blob();
+            await supabase.storage.from('task-proofs').upload(fileName, blob);
+            const { data: { publicUrl } } = supabase.storage.from('task-proofs').getPublicUrl(fileName);
+            await supabase.from('tasks').update({ proof_url: publicUrl, is_completed: true }).eq('id', selectedTask);
 
-            // Convert base64 to blob
-            const response = await fetch(capturedImage);
-            const blob = await response.blob();
-
-            const fileName = `${user.id}_${selectedTask}_${Date.now()}.jpg`;
-            const filePath = `${fileName}`;
-
-            // 1. Upload to Supabase Storage
-            const { error: uploadError } = await supabase.storage
-                .from('task-proofs')
-                .upload(filePath, blob, {
-                    contentType: 'image/jpeg',
-                    upsert: false
-                });
-
-            if (uploadError) throw uploadError;
-
-            // 2. Get Public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('task-proofs')
-                .getPublicUrl(filePath);
-
-            // 3. Update Task Record
-            const { error: updateError } = await supabase
-                .from('tasks')
-                .update({
-                    proof_url: publicUrl,
-                    is_completed: true
-                })
-                .eq('id', selectedTask);
-
-            if (updateError) throw updateError;
-
-            await fetchTasks();
+            // Notify
+            const { getManagersAction, createNotificationAction } = await import("@/app/actions/notifications");
+            const mgrs = await getManagersAction();
+            if (mgrs.success && mgrs.managers) {
+                const taskTitle = tasks.find(t => t.id === selectedTask)?.title || "Tugasan";
+                mgrs.managers.forEach(m =>
+                    createNotificationAction({
+                        userId: m.id,
+                        title: "Tugasan Selesai",
+                        message: `${userProfile?.position} telah menyiapkan: ${taskTitle}`,
+                        type: "success",
+                        category: "task",
+                        link: "/manager/operations"
+                    })
+                );
+            }
+            await fetchTasks(selectedStation);
             setSelectedTask(null);
             setCapturedImage(null);
-            alert("Bukti telah berjaya dimuat naik!");
-
-            // Notify Managers
-            try {
-                const { getManagersAction, createNotificationAction } = await import("@/app/actions/notifications");
-                const managersResult = await getManagersAction();
-                if (managersResult.success && managersResult.managers) {
-                    const taskTitle = tasks.find(t => t.id === selectedTask)?.title || "Tugasan";
-                    for (const manager of managersResult.managers) {
-                        await createNotificationAction({
-                            userId: manager.id,
-                            title: "Tugasan Selesai",
-                            message: `${userPosition} telah menyiapkan tugasan: ${taskTitle}`,
-                            type: "success",
-                            category: "task",
-                            link: "/manager/operations"
-                        });
-                    }
-                }
-            } catch (notifError) {
-                console.error("Error sending notification:", notifError);
-            }
-        } catch (error: any) {
-            console.error("Error uploading proof:", error);
-            alert(`Gagal memuat naik bukti: ${error.message}`);
+        } catch (e: any) {
+            alert("Gagal: " + e.message);
         } finally {
             setUploading(false);
         }
     };
 
+    const completedCount = tasks.filter(t => t.is_completed).length;
+    const progress = tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0;
+
     return (
         <div className="max-w-md mx-auto space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Senarai Tugas</h1>
-                    <div className="flex items-center gap-2">
-                        <p className="text-gray-400 text-sm">Stesen: <span className="text-primary font-bold">{userPosition}</span></p>
+                    <div className="flex items-center gap-3 mb-1">
+                        <h1 className="text-2xl font-bold text-white">Senarai Tugas</h1>
                         <button
-                            onClick={fetchTasks}
+                            onClick={() => {
+                                let defaultStation = userProfile?.position || 'Semua Staff';
+                                if (defaultStation === 'Staff') defaultStation = 'Semua Staff';
+                                setSelectedStation(defaultStation);
+                                syncTasks(defaultStation);
+                            }}
                             disabled={loading}
-                            className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-white transition-colors"
-                            title="Refresh Senarai"
+                            className={`p-2 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all ${loading ? 'animate-spin' : ''}`}
+                            title="Reset Filter & Sync Tugasan"
                         >
-                            <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+                            <RefreshCw className="w-4 h-4" />
                         </button>
-                        <button
-                            onClick={syncTasks}
-                            disabled={loading}
-                            className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-primary transition-colors"
-                            title="Sync dengan Template (Reset)"
-                        >
-                            <Filter className="w-3 h-3" />
-                        </button>
+                    </div>
+
+                    <div className="relative">
+                        <div className="flex items-center gap-2">
+                            <p className="text-gray-400 text-sm">Stesen: <span className="text-primary font-bold">{selectedStation}</span></p>
+                            <button
+                                onClick={() => setShowFilter(!showFilter)}
+                                className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-primary transition-colors"
+                                title="Tukar Stesen (Filter)"
+                            >
+                                <Filter className="w-3 h-3" />
+                            </button>
+                        </div>
+
+                        {showFilter && (
+                            <div className="absolute top-full left-0 mt-2 bg-surface border border-white/10 rounded-lg shadow-xl p-2 z-20 min-w-[150px]">
+                                {allStations.map(station => (
+                                    <button
+                                        key={station}
+                                        onClick={() => handleStationChange(station)}
+                                        className={`w-full text-left px-3 py-2 rounded text-sm hover:bg-white/10 ${selectedStation === station ? 'text-primary font-bold' : 'text-gray-400'}`}
+                                    >
+                                        {station}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="text-right">
@@ -340,15 +299,10 @@ export default function StaffTasksPage() {
                 </div>
             </div>
 
-            {/* Progress Bar */}
             <div className="w-full h-2 bg-black/50 rounded-full overflow-hidden">
-                <div
-                    className="h-full bg-primary transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                />
+                <div className="h-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
 
-            {/* Task List */}
             <div className="space-y-3">
                 {loading ? (
                     <div className="flex flex-col items-center py-12 text-gray-500">
@@ -360,30 +314,21 @@ export default function StaffTasksPage() {
                         <div
                             key={task.id}
                             onClick={() => toggleTask(task.id, task.is_completed)}
-                            className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between group ${task.is_completed
-                                ? 'bg-green-400/10 border-green-400/30'
-                                : 'bg-surface border-white/5 hover:border-primary/30'
-                                }`}
+                            className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between group ${task.is_completed ? 'bg-green-400/10 border-green-400/30' : 'bg-surface border-white/5 hover:border-primary/30'}`}
                         >
-                            <div className="flex items-center gap-3">
-                                {task.is_completed ? (
-                                    <CheckCircle className="w-6 h-6 text-green-400" />
-                                ) : (
-                                    <Circle className="w-6 h-6 text-gray-500 group-hover:text-primary" />
-                                )}
-                                <span className={`font-medium ${task.is_completed ? 'text-green-400 line-through' : 'text-white'}`}>
-                                    {task.title}
-                                </span>
+                            <div className="flex items-start gap-3">
+                                <div className="mt-1">
+                                    {task.is_completed ? <CheckCircle className="w-6 h-6 text-green-400" /> : <Circle className="w-6 h-6 text-gray-500 group-hover:text-primary" />}
+                                </div>
+                                <div>
+                                    <p className={`font-medium leading-tight ${task.is_completed ? 'text-green-400 line-through' : 'text-white'}`}>{task.title}</p>
+                                    {task.description && (
+                                        <p className={`text-xs mt-1 ${task.is_completed ? 'text-green-400/70' : 'text-gray-400'}`}>{task.description}</p>
+                                    )}
+                                </div>
                             </div>
-
                             {!task.is_completed && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedTask(task.id);
-                                    }}
-                                    className="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white"
-                                >
+                                <button onClick={(e) => { e.stopPropagation(); setSelectedTask(task.id); }} className="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white self-center">
                                     <Camera className="w-4 h-4" />
                                 </button>
                             )}
@@ -392,87 +337,31 @@ export default function StaffTasksPage() {
                 ) : (
                     <div className="text-center py-12 bg-white/5 rounded-xl border border-dashed border-white/10">
                         <Filter className="w-8 h-8 text-gray-600 mx-auto mb-2 opacity-20" />
-                        <p className="text-gray-500 text-xs">Tiada tugasan untuk hari ini.</p>
+                        <p className="text-gray-500 text-xs">Tiada tugasan untuk stesen ini.</p>
                     </div>
                 )}
             </div>
 
-            {/* Upload Modal */}
             {selectedTask && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
                     <div className="bg-surface border border-white/10 rounded-2xl p-6 w-full max-w-md">
-                        <h3 className="text-lg font-bold text-white mb-4">Ambil Bukti Gambar</h3>
-
-                        <div className="relative aspect-video bg-black rounded-xl overflow-hidden mb-6 border border-white/10">
+                        <h3 className="text-lg font-bold text-white mb-4">Ambil Bukti</h3>
+                        <div className="aspect-video bg-black rounded-xl mb-4 relative overflow-hidden">
                             {isCameraOpen ? (
-                                <>
-                                    <video
-                                        ref={videoRef}
-                                        autoPlay
-                                        playsInline
-                                        className="w-full h-full object-cover"
-                                    />
-                                    <button
-                                        onClick={capturePhoto}
-                                        className="absolute bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 bg-white rounded-full border-4 border-gray-300 shadow-lg flex items-center justify-center"
-                                    >
-                                        <div className="w-8 h-8 bg-white rounded-full border-2 border-black" />
-                                    </button>
-                                </>
+                                <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
                             ) : capturedImage ? (
-                                <img
-                                    src={capturedImage}
-                                    className="w-full h-full object-cover"
-                                    alt="Captured"
-                                />
+                                <img src={capturedImage} className="w-full h-full object-cover" />
                             ) : (
-                                <div
-                                    onClick={startCamera}
-                                    className="w-full h-full flex flex-col items-center justify-center text-gray-500 hover:text-white transition-colors cursor-pointer"
-                                >
-                                    <Camera className="w-12 h-12 mb-2" />
-                                    <span className="text-sm font-bold">BUKA KAMERA</span>
+                                <div onClick={startCamera} className="w-full h-full flex items-center justify-center cursor-pointer text-gray-500">
+                                    <Camera className="w-12 h-12" />
                                 </div>
                             )}
+                            {isCameraOpen && <button onClick={capturePhoto} className="absolute bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 bg-white rounded-full border-4 border-gray-300" />}
                         </div>
-
                         <canvas ref={canvasRef} className="hidden" />
-
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => {
-                                    stopCamera();
-                                    setSelectedTask(null);
-                                    setCapturedImage(null);
-                                }}
-                                disabled={uploading}
-                                className="flex-1 py-3 rounded-lg bg-white/5 text-white font-medium hover:bg-white/10 disabled:opacity-50"
-                            >
-                                Batal
-                            </button>
-                            {capturedImage ? (
-                                <button
-                                    onClick={handleSavePhoto}
-                                    disabled={uploading}
-                                    className="flex-1 py-3 rounded-lg bg-primary text-black font-bold hover:bg-yellow-400 disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                    {uploading ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            SIMPAN...
-                                        </>
-                                    ) : (
-                                        'SIMPAN'
-                                    )}
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={startCamera}
-                                    className="flex-1 py-3 rounded-lg bg-primary/20 text-primary font-bold hover:bg-primary/30"
-                                >
-                                    AMBIL GAMBAR
-                                </button>
-                            )}
+                        <div className="flex gap-2">
+                            <button onClick={() => { stopCamera(); setSelectedTask(null); setCapturedImage(null); }} className="flex-1 py-3 bg-white/5 rounded-lg text-white">Batal</button>
+                            {capturedImage && <button onClick={handleSavePhoto} disabled={uploading} className="flex-1 py-3 bg-primary text-black font-bold rounded-lg">{uploading ? 'Simpan...' : 'Simpan'}</button>}
                         </div>
                     </div>
                 </div>

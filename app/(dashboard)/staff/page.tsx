@@ -214,7 +214,7 @@ export default function StaffDashboard() {
                 </Link>
 
                 {/* Tasks */}
-                <Link href="/staff/tasks" className="bg-surface border border-white/5 p-8 rounded-2xl hover:border-green-400/50 hover:bg-white/5 transition-all group flex flex-col items-center text-center">
+                <Link href="/staff/tasks?sync=true" className="bg-surface border border-white/5 p-8 rounded-2xl hover:border-green-400/50 hover:bg-white/5 transition-all group flex flex-col items-center text-center">
                     <div className="w-16 h-16 rounded-full bg-green-400/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <ClipboardList className="w-8 h-8 text-green-400" />
                     </div>

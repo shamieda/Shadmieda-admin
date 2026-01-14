@@ -142,12 +142,7 @@ export default function ManagerDashboard() {
             {/* Menu Grid */}
             <h2 className="text-xl font-bold text-white mt-8 mb-4">Menu Utama</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {MENU_ITEMS.filter(item => {
-                    if (userRole === 'manager') {
-                        return item.name !== "Tetapan";
-                    }
-                    return true;
-                }).map((item) => (
+                {MENU_ITEMS.map((item) => (
                     <Link
                         key={item.name}
                         href={item.href}

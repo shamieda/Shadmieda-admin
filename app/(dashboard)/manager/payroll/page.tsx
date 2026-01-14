@@ -54,7 +54,15 @@ export default function PayrollPage() {
                 .select('*')
                 .eq('requirement_type', 'ranking');
 
-            // 6. Process Payroll for each staff
+            // 6. Fetch Approved Leaves for the month
+            const { data: leaves } = await supabase
+                .from('leave_applications')
+                .select('*')
+                .eq('status', 'Approved')
+                .gte('start_date', startDate)
+                .lte('end_date', endDate) // Simple overlap check improvement needed for production but ok for now
+
+            // 7. Process Payroll for each staff
             const processed = (staffList || []).map(staff => {
                 const staffAttendance = attendance?.filter(a => a.user_id === staff.id) || [];
                 const daysWorked = staffAttendance.length;
@@ -62,6 +70,19 @@ export default function PayrollPage() {
 
                 // Sum real penalty amounts from attendance records
                 const penalty = staffAttendance.reduce((sum, a) => sum + (Number(a.penalty_amount) || 0), 0);
+
+                // Calculate Approved Leave Days
+                const staffLeaves = leaves?.filter(l => l.user_id === staff.id) || [];
+                let leaveDays = 0;
+                staffLeaves.forEach(leave => {
+                    const start = new Date(leave.start_date);
+                    const end = new Date(leave.end_date);
+                    // Simple day count approximation
+                    const diffTime = Math.abs(end.getTime() - start.getTime());
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    leaveDays += diffDays;
+                });
+
 
                 // Bonus logic: If worked >= 26 days, give attendance bonus from settings
                 let bonus = 0;
@@ -92,6 +113,7 @@ export default function PayrollPage() {
                 return {
                     ...staff,
                     daysWorked,
+                    leaveDays,
                     lateCount,
                     penalty,
                     bonus,
@@ -201,6 +223,7 @@ Terima kasih atas usaha anda!
                                     <div className="grid grid-cols-2 gap-4 text-sm text-gray-400">
                                         <p>Gaji Harian: <span className="text-white">RM{staff.base_salary}</span></p>
                                         <p>Hari Bekerja: <span className="text-white">{staff.daysWorked} hari</span></p>
+                                        <p>Cuti: <span className="text-blue-400 font-bold">{staff.leaveDays || 0} hari</span></p>
                                         <p>Lewat: <span className={`font-bold ${staff.lateCount > 0 ? 'text-red-400' : 'text-green-400'}`}>{staff.lateCount} kali</span></p>
                                         <p>Advance: <span className="text-white">RM0.00</span></p>
                                     </div>

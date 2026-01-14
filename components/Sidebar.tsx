@@ -13,7 +13,8 @@ import {
     LogOut,
     User,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    FileText
 } from "lucide-react";
 import clsx from "clsx";
 import { supabase } from "@/lib/supabase";
@@ -23,6 +24,7 @@ const managerItems = [
     { name: "Dashboard", href: "/manager", icon: LayoutDashboard },
     { name: "Kehadiran", href: "/manager/attendance", icon: Clock },
     { name: "Staff", href: "/manager/staff", icon: Users },
+    { name: "Permohonan", href: "/manager/applications", icon: FileText },
     { name: "Operasi", href: "/manager/operations", icon: ClipboardList },
     { name: "Gaji", href: "/manager/payroll", icon: Wallet },
     { name: "Tetapan", href: "/manager/settings", icon: Settings },
@@ -32,6 +34,7 @@ const staffItems = [
     { name: "Dashboard", href: "/staff", icon: LayoutDashboard },
     { name: "Rekod Kehadiran", href: "/staff/attendance", icon: Clock },
     { name: "Tugasan", href: "/staff/tasks", icon: ClipboardList },
+    { name: "Permohonan", href: "/staff/applications", icon: FileText },
     { name: "Gaji & Advance", href: "/staff/payroll", icon: Wallet },
     { name: "Tetapan", href: "/staff/settings", icon: Settings },
 ];
@@ -70,11 +73,8 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
     if (user) {
         if (user.role === 'staff') {
             menuItems = staffItems;
-        } else if (user.role === 'manager') {
-            // Manager gets everything EXCEPT Settings
-            menuItems = managerItems.filter(item => item.name !== "Tetapan");
-        } else {
-            // Admin, Master get everything
+        } else if (user.role === 'manager' || user.role === 'admin' || user.role === 'master') {
+            // Managers, Admins, and Masters get everything including Settings
             menuItems = managerItems;
         }
     }
