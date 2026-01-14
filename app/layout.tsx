@@ -16,8 +16,8 @@ export const metadata: Metadata = {
   title: "Shamieda Family System",
   description: "SaaS HR & Operations System for Shamieda Family",
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/icon-pwa.png',
+    apple: '/icon-pwa.png',
   },
 };
 
