@@ -220,8 +220,8 @@ export default function StaffTasksPage() {
             const { getManagersAction, createNotificationAction } = await import("@/app/actions/notifications");
             const mgrs = await getManagersAction();
             if (mgrs.success && mgrs.managers) {
-                const taskTitle = tasks.find(t => t.id === selectedTask)?.title || "Tugasan";
-                mgrs.managers.forEach(m =>
+                const taskTitle = tasks.find((t: any) => t.id === selectedTask)?.title || "Tugasan";
+                mgrs.managers.forEach((m: any) =>
                     createNotificationAction({
                         userId: m.id,
                         title: "Tugasan Selesai",
