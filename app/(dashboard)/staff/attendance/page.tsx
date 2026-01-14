@@ -10,8 +10,8 @@ import { createNotificationAction, getManagersAction } from "@/app/actions/notif
 // Mock Shop Coordinates (Replace with real ones later)
 const SHOP_LAT = 6.2620; // Updated to User's location for testing
 const SHOP_LNG = 100.4438;
-const MAX_DISTANCE_METERS = 500; // Increased radius for testing
-const USE_DEBUG_LOCATION = true; // Set to true to ignore DB settings and use hardcoded coords
+const MAX_DISTANCE_METERS = 50; // Updated to 50m as requested
+const USE_DEBUG_LOCATION = false; // Disable debug to use real GPS
 
 export default function StaffAttendancePage() {
     const [location, setLocation] = useState<GeolocationCoordinates | null>(null);
