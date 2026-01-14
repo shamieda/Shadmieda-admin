@@ -183,7 +183,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-white/5">
+                <div className="px-2 pb-4">
                     <button
                         onClick={handleLogout}
                         title={isCollapsed ? "Log Keluar" : ""}
@@ -196,6 +196,8 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                         {!isCollapsed && "Log Keluar"}
                     </button>
                 </div>
+
+
             </aside>
         </>
     );
