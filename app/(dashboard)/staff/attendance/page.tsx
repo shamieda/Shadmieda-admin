@@ -112,7 +112,11 @@ export default function StaffAttendancePage() {
                 if (data) {
                     shopLat = data.latitude;
                     shopLng = data.longitude;
-                    newMaxDist = data.radius;
+                    shopLat = data.latitude;
+                    shopLng = data.longitude;
+                    // Force 50m even if DB says otherwise, per user request "only need to be 50m"
+                    // Or we can just ignore DB radius and use constant
+                    newMaxDist = 50; // Enforce 50m limit
 
                     // Update local storage as cache
                     localStorage.setItem("shopSettings", JSON.stringify({
@@ -431,7 +435,7 @@ export default function StaffAttendancePage() {
                     </h3>
                 </div>
                 <p className="text-xs text-gray-400">
-                    Jarak dari kedai: <span className="text-white font-mono">{distance ? distance.toFixed(0) : '---'} meter</span>
+                    Jarak dari kedai: <span className="text-white font-mono">{distance !== null ? distance.toFixed(0) : '---'} meter</span>
                     <br />
                     (Max: {maxDistance}m)
                 </p>
