@@ -440,6 +440,18 @@ export default function StaffAttendancePage() {
                     (Max: {maxDistance}m)
                 </p>
 
+
+
+                {/* Check Location Button */}
+                <button
+                    onClick={getLocation}
+                    disabled={loading}
+                    className="mt-4 w-full bg-blue-500/20 text-blue-400 border border-blue-500/50 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-500/30 transition-all font-bold"
+                >
+                    <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                    {loading ? "Sedang Mengesan..." : "Semak Lokasi"}
+                </button>
+
                 {/* Debug Info (Toggleable) */}
                 <div className="mt-4 border-t border-white/5 pt-3">
                     <button
@@ -503,70 +515,74 @@ export default function StaffAttendancePage() {
             </div>
 
             {/* Camera Section */}
-            {hasClockedIn ? (
-                <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-8 text-center">
-                    <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <CheckCircle className="w-8 h-8 text-green-400" />
+            {
+                hasClockedIn ? (
+                    <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-8 text-center">
+                        <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <CheckCircle className="w-8 h-8 text-green-400" />
+                        </div>
+                        <h2 className="text-xl font-bold text-white mb-2">Anda Telah Clock-In</h2>
+                        <p className="text-gray-400">Terima kasih! Rekod kehadiran anda untuk hari ini telah disimpan.</p>
                     </div>
-                    <h2 className="text-xl font-bold text-white mb-2">Anda Telah Clock-In</h2>
-                    <p className="text-gray-400">Terima kasih! Rekod kehadiran anda untuk hari ini telah disimpan.</p>
-                </div>
-            ) : isWithinRange ? (
-                <div className="bg-surface border border-white/5 rounded-xl p-4 overflow-hidden">
-                    {!capturedImage ? (
-                        !isCameraOpen ? (
-                            <button
-                                onClick={startCamera}
-                                className="w-full py-12 border-2 border-dashed border-white/10 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-primary/50 transition-all"
-                            >
-                                <Camera className="w-12 h-12 mb-2" />
-                                <span className="text-sm">Buka Kamera untuk Selfie</span>
-                            </button>
+                ) : isWithinRange ? (
+                    <div className="bg-surface border border-white/5 rounded-xl p-4 overflow-hidden">
+                        {!capturedImage ? (
+                            !isCameraOpen ? (
+                                <button
+                                    onClick={startCamera}
+                                    className="w-full py-12 border-2 border-dashed border-white/10 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-primary/50 transition-all"
+                                >
+                                    <Camera className="w-12 h-12 mb-2" />
+                                    <span className="text-sm">Buka Kamera untuk Selfie</span>
+                                </button>
+                            ) : (
+                                <div className="relative">
+                                    <video ref={videoRef} autoPlay className="w-full rounded-lg" />
+                                    <button
+                                        onClick={capturePhoto}
+                                        className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
+                                    >
+                                        <div className="w-4 h-4 bg-red-500 rounded-full" />
+                                    </button>
+                                </div>
+                            )
                         ) : (
                             <div className="relative">
-                                <video ref={videoRef} autoPlay className="w-full rounded-lg" />
+                                <img src={capturedImage} alt="Selfie" className="w-full rounded-lg" />
                                 <button
-                                    onClick={capturePhoto}
-                                    className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
+                                    onClick={() => setCapturedImage(null)}
+                                    className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-red-500"
                                 >
-                                    <div className="w-4 h-4 bg-red-500 rounded-full" />
+                                    <RefreshCw className="w-4 h-4" />
                                 </button>
+                                <div className="mt-4">
+                                    <button
+                                        onClick={handleClockIn}
+                                        className="w-full bg-primary text-black font-bold py-3 rounded-lg hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-500/20 flex items-center justify-center gap-2"
+                                    >
+                                        <CheckCircle className="w-5 h-5" />
+                                        SAHKAN CLOCK-IN
+                                    </button>
+                                </div>
                             </div>
-                        )
-                    ) : (
-                        <div className="relative">
-                            <img src={capturedImage} alt="Selfie" className="w-full rounded-lg" />
-                            <button
-                                onClick={() => setCapturedImage(null)}
-                                className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-red-500"
-                            >
-                                <RefreshCw className="w-4 h-4" />
-                            </button>
-                            <div className="mt-4">
-                                <button
-                                    onClick={handleClockIn}
-                                    className="w-full bg-primary text-black font-bold py-3 rounded-lg hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-500/20 flex items-center justify-center gap-2"
-                                >
-                                    <CheckCircle className="w-5 h-5" />
-                                    SAHKAN CLOCK-IN
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                    <canvas ref={canvasRef} width="640" height="480" className="hidden" />
-                </div>
-            ) : null}
+                        )}
+                        <canvas ref={canvasRef} width="640" height="480" className="hidden" />
+                    </div>
+                ) : null
+            }
 
-            {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-3 text-red-400 text-sm">
-                    <AlertTriangle className="w-5 h-5" />
-                    {error}
-                </div>
-            )}
+            {
+                error && (
+                    <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-3 text-red-400 text-sm">
+                        <AlertTriangle className="w-5 h-5" />
+                        {error}
+                    </div>
+                )
+            }
 
             {/* Attendance History Section */}
             <AttendanceHistory />
-        </div>
+        </div >
     );
 }
 
