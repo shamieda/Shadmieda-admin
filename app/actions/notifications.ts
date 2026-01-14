@@ -381,7 +381,7 @@ export async function notifyStationStaffAction(station: string, taskTitle: strin
             const message = `Tugasan baru "${taskTitle}" telah ditambah untuk anda.`;
 
             // Send notifications in parallel
-            await Promise.all(staffList.map(async (user) => {
+            await Promise.all(staffList.map(async (user: any) => {
                 try {
                     await createNotificationAction({
                         userId: user.id,
