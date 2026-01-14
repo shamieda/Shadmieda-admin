@@ -22,7 +22,7 @@ export default function StaffAttendancePage() {
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [hasClockedIn, setHasClockedIn] = useState(false);
-    const [showDebug, setShowDebug] = useState(false); // Default to false
+
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -452,32 +452,7 @@ export default function StaffAttendancePage() {
                     {loading ? "Sedang Mengesan..." : "Semak Lokasi"}
                 </button>
 
-                {/* Debug Info (Toggleable) */}
-                <div className="mt-4 border-t border-white/5 pt-3">
-                    <button
-                        onClick={() => setShowDebug(!showDebug)}
-                        className="text-[10px] sm:text-xs text-gray-500 hover:text-white transition-colors flex items-center gap-1 font-bold uppercase tracking-widest"
-                    >
-                        {showDebug ? "Sorok Debug Info" : "Lihat Debug Info"}
-                    </button>
 
-                    {showDebug && (
-                        <div className="mt-2 text-[10px] text-gray-400 font-mono bg-black/20 p-2 rounded-lg border border-white/5 animate-fade-in">
-                            <p className="font-bold text-gray-500 mb-1">DEBUG DETAILS:</p>
-                            <div className="space-y-1">
-                                <p><span className="text-gray-600">Target (Shop):</span> {
-                                    typeof window !== 'undefined' && localStorage.getItem("shopSettings")
-                                        ? `${JSON.parse(localStorage.getItem("shopSettings")!).latitude.toFixed(4)}, ${JSON.parse(localStorage.getItem("shopSettings")!).longitude.toFixed(4)}`
-                                        : `Default (${SHOP_LAT}, ${SHOP_LNG})`
-                                }</p>
-                                <p><span className="text-gray-600">Source:</span> {typeof window !== 'undefined' && localStorage.getItem("shopSettings") ? "Database/Cache" : "Hardcoded Default"}</p>
-                                <p><span className="text-gray-600">Current (You):</span> {location ? `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}` : "Locating..."}</p>
-                                <p><span className="text-gray-600">Distance:</span> {distance ? distance.toFixed(1) : "---"}m</p>
-                                <p><span className="text-gray-600">Max Radius:</span> {maxDistance}m</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
 
                 {!isWithinRange && !loading && (
                     <div className="flex flex-col gap-2 mt-3">
