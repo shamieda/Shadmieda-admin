@@ -4,7 +4,7 @@ from PIL import Image
 def create_centered_icon():
     # Settings
     CANVAS_SIZE = (512, 512)
-    BACKGROUND_COLOR = (0, 0, 0, 255) # Black
+    BACKGROUND_COLOR = (0, 0, 0, 0) # Transparent
     LOGO_PATH = 'public/logo.png'
     OUTPUT_PATH = 'public/icon-pwa.png'
     PADDING_PERCENT = 0.25 # 25% padding on each side effective (50% total usage?) no, just resize logic
