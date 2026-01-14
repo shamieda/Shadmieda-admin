@@ -173,7 +173,8 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                                     isActive
                                         ? "bg-primary text-black shadow-lg shadow-yellow-500/10"
                                         : "text-gray-400 hover:text-white hover:bg-white/5",
-                                    isCollapsed && "justify-center px-2"
+                                    isCollapsed && "justify-center px-2",
+                                    "active:scale-95"
                                 )}
                             >
                                 <item.icon className={clsx("w-5 h-5 shrink-0", isActive ? "text-black" : "text-gray-500 group-hover:text-white")} />
@@ -181,21 +182,23 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                             </Link>
                         );
                     })}
+
+                    <div className="pt-2 mt-2 border-t border-white/5">
+                        <button
+                            onClick={handleLogout}
+                            title={isCollapsed ? "Log Keluar" : ""}
+                            className={clsx(
+                                "flex items-center gap-3 px-4 py-3 w-full text-left text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm font-medium active:scale-95",
+                                isCollapsed && "justify-center px-2"
+                            )}
+                        >
+                            <LogOut className="w-5 h-5 shrink-0" />
+                            {!isCollapsed && "Log Keluar"}
+                        </button>
+                    </div>
                 </nav>
 
-                <div className="px-2 pb-4">
-                    <button
-                        onClick={handleLogout}
-                        title={isCollapsed ? "Log Keluar" : ""}
-                        className={clsx(
-                            "flex items-center gap-3 px-4 py-3 w-full text-left text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm font-medium",
-                            isCollapsed && "justify-center px-2"
-                        )}
-                    >
-                        <LogOut className="w-5 h-5 shrink-0" />
-                        {!isCollapsed && "Log Keluar"}
-                    </button>
-                </div>
+
 
 
             </aside>
