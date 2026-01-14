@@ -243,7 +243,7 @@ export default function StaffAttendancePage() {
 
                 // Stop stream
                 const stream = videoRef.current.srcObject as MediaStream;
-                stream.getTracks().forEach(track => track.stop());
+                stream.getTracks().forEach((track: any) => track.stop());
             }
         }
     };

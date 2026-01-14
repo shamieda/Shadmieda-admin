@@ -222,7 +222,7 @@ export default function StaffApplicationsPage() {
                         <p className="text-gray-500 text-sm">Rekod permohonan anda akan dipaparkan di sini.</p>
                     </div>
                 ) : (
-                    applications.map((app) => (
+                    applications.map((app: any) => (
                         <div key={app.id} className="bg-surface p-5 rounded-xl border border-white/5 flex gap-4 items-start hover:border-white/10 transition-all">
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${app.type === 'Cuti Sakit' ? 'bg-red-500/20 text-red-400' :
                                 app.type === 'Cuti Tahunan' ? 'bg-blue-500/20 text-blue-400' :

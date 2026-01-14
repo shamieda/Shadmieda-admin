@@ -22,7 +22,7 @@ export async function GET() {
             // If user already exists, just update password
             if (authError.message.includes('already been registered')) {
                 const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
-                const existingUser = users.find(u => u.email === email);
+                const existingUser = users.find((u: any) => u.email === email);
                 if (existingUser) {
                     await supabaseAdmin.auth.admin.updateUserById(existingUser.id, { password });
 

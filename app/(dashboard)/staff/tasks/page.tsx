@@ -42,7 +42,7 @@ export default function StaffTasksPage() {
             }
 
             const { data: positions } = await supabase.from('positions').select('name');
-            const stationList = new Set(['Semua Staff', ...(positions?.map(p => p.name) || [])]);
+            const stationList = new Set(['Semua Staff', ...(positions?.map((p: any) => p.name) || [])]);
             setAllStations(Array.from(stationList));
         };
         loadInitialData();
@@ -150,7 +150,7 @@ export default function StaffTasksPage() {
         try {
             const { error } = await supabase.from('tasks').update({ is_completed: !currentStatus }).eq('id', id);
             if (error) throw error;
-            setTasks(tasks.map(t => t.id === id ? { ...t, is_completed: !currentStatus } : t));
+            setTasks(tasks.map((t: any) => t.id === id ? { ...t, is_completed: !currentStatus } : t));
         } catch (error) {
             console.error('Error updating task:', error);
         }
@@ -179,7 +179,7 @@ export default function StaffTasksPage() {
 
     const stopCamera = () => {
         if (videoRef.current && videoRef.current.srcObject) {
-            (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+            (videoRef.current.srcObject as MediaStream).getTracks().forEach((t: any) => t.stop());
             videoRef.current.srcObject = null;
         }
         setIsCameraOpen(false);
@@ -242,7 +242,7 @@ export default function StaffTasksPage() {
         }
     };
 
-    const completedCount = tasks.filter(t => t.is_completed).length;
+    const completedCount = tasks.filter((t: any) => t.is_completed).length;
     const progress = tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0;
 
     return (
@@ -280,7 +280,7 @@ export default function StaffTasksPage() {
 
                         {showFilter && (
                             <div className="absolute top-full left-0 mt-2 bg-surface border border-white/10 rounded-lg shadow-xl p-2 z-20 min-w-[150px]">
-                                {allStations.map(station => (
+                                {allStations.map((station: string) => (
                                     <button
                                         key={station}
                                         onClick={() => handleStationChange(station)}
@@ -310,7 +310,7 @@ export default function StaffTasksPage() {
                         <p className="text-xs">Memuatkan tugasan...</p>
                     </div>
                 ) : tasks.length > 0 ? (
-                    tasks.map((task) => (
+                    tasks.map((task: any) => (
                         <div
                             key={task.id}
                             onClick={() => toggleTask(task.id, task.is_completed)}

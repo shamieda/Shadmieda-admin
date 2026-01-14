@@ -25,7 +25,7 @@ export async function onboardStaffAction(formData: any) {
                 const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
                 if (listError) throw listError;
 
-                const existingUser = users.find(u => u.email?.toLowerCase() === formData.email.toLowerCase());
+                const existingUser = users.find((u: any) => u.email?.toLowerCase() === formData.email.toLowerCase());
                 if (existingUser) {
                     authData = { user: existingUser };
                     // Update password to match what was just entered

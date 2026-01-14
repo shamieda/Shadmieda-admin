@@ -268,7 +268,7 @@ export default function ManagerSettingsPage() {
                 const { error } = await supabase.from('task_templates').delete().eq('id', id);
                 if (error) throw error;
 
-                const updatedTemplates = taskTemplates.filter(t => t.id !== id);
+                const updatedTemplates = taskTemplates.filter((t: any) => t.id !== id);
                 setTaskTemplates(updatedTemplates);
                 setConfirmDeleteId(null);
                 showSuccess("Template berjaya dipadam!");
@@ -303,14 +303,14 @@ export default function ManagerSettingsPage() {
                 .lte('created_at', `${today}T23:59:59`);
 
             const existingSet = new Set(
-                existingTasks?.map(t => `${t.assigned_to}-${t.title}`) || []
+                existingTasks?.map((t: any) => `${t.assigned_to}-${t.title}`) || []
             );
 
             const tasksToInsert: any[] = [];
             const tasksToDelete: string[] = [];
 
             for (const user of users) {
-                const relevantTemplates = activeTemplates.filter(t =>
+                const relevantTemplates = activeTemplates.filter((t: any) =>
                     t.position.trim().toLowerCase() === 'staff' ||
                     (t.position.trim().toLowerCase() === (user.position || '').trim().toLowerCase())
                 );
@@ -328,7 +328,7 @@ export default function ManagerSettingsPage() {
                 }
 
                 // Identify tasks to DELETE (Orphans)
-                const userTasks = existingTasks?.filter(t => t.assigned_to === user.id) || [];
+                const userTasks = existingTasks?.filter((t: any) => t.assigned_to === user.id) || [];
                 for (const task of userTasks) {
                     if (!task.is_completed) {
                         const hasTemplate = relevantTemplates.some(t => t.title === task.title);
@@ -384,7 +384,7 @@ export default function ManagerSettingsPage() {
         try {
             const { error } = await supabase.from('bonus_configs').delete().eq('id', id);
             if (error) throw error;
-            setBonusConfigs(bonusConfigs.filter(b => b.id !== id)); // Optimized: targeted update
+            setBonusConfigs(bonusConfigs.filter((b: any) => b.id !== id)); // Optimized: targeted update
         } catch (error: any) {
             showError(error);
         }
@@ -417,7 +417,7 @@ export default function ManagerSettingsPage() {
             }).eq('id', editingPosition.id);
 
             if (error) throw error;
-            setPositions(positions.map(p => p.id === editingPosition.id ? editingPosition : p)); // Optimized: targeted update
+            setPositions(positions.map((p: any) => p.id === editingPosition.id ? editingPosition : p)); // Optimized: targeted update
             setEditingPosition(null);
             showSuccess("Stesen berjaya dikemaskini!");
         } catch (error: any) {
@@ -433,7 +433,7 @@ export default function ManagerSettingsPage() {
             try {
                 const { error } = await supabase.from('positions').delete().eq('id', id);
                 if (error) throw error;
-                setPositions(positions.filter(p => p.id !== id));
+                setPositions(positions.filter((p: any) => p.id !== id));
                 showSuccess("Stesen berjaya dipadam!");
                 setConfirmDeleteStationId(null);
             } catch (error: any) {
@@ -473,7 +473,7 @@ export default function ManagerSettingsPage() {
         try {
             const { error } = await supabase.from('onboarding_kit').delete().eq('id', id);
             if (error) throw error;
-            setOnboardingKit(onboardingKit.filter(i => i.id !== id)); // Optimized: targeted update
+            setOnboardingKit(onboardingKit.filter((i: any) => i.id !== id)); // Optimized: targeted update
         } catch (error: any) {
             showError(error);
         }
@@ -495,7 +495,7 @@ export default function ManagerSettingsPage() {
 
             if (oldRecords && oldRecords.length > 0) {
                 const filePaths = oldRecords
-                    .map(r => r.selfie_url?.split('/').pop())
+                    .map((r: any) => r.selfie_url?.split('/').pop())
                     .filter(Boolean);
 
                 if (filePaths.length > 0) {

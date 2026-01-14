@@ -70,7 +70,7 @@ export default function StaffPayrollPage() {
     const dailyRate = basicSalary / targetDays;
     const currentBasic = dailyRate * daysWorked;
 
-    const lateCount = attendance.filter(a => a.status === 'late').length;
+    const lateCount = attendance.filter((a: any) => a.status === 'late').length;
     const penalty = attendance.reduce((sum, a) => sum + (Number(a.penalty_amount) || 0), 0);
 
     // Onboarding Kit Deduction (First Month Only)

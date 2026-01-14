@@ -23,7 +23,7 @@ export default function StaffListPage() {
 
     const fetchPositions = async () => {
         const { data } = await supabase.from('positions').select('name');
-        if (data) setPositions(data.map(p => p.name));
+        if (data) setPositions(data.map((p: any) => p.name));
     };
 
     const fetchStaff = async () => {
@@ -54,7 +54,7 @@ export default function StaffListPage() {
 
             if (error) throw error;
 
-            setStaff(staff.map(s => s.id === stationModal.id ? { ...s, position: newStation } : s));
+            setStaff(staff.map((s: any) => s.id === stationModal.id ? { ...s, position: newStation } : s));
             setStationModal(null);
 
             // Universal Sync will automatically detect changes if we wanted to be fancy, 
@@ -79,14 +79,14 @@ export default function StaffListPage() {
                 throw new Error(result.error);
             }
 
-            setStaff(staff.filter(s => s.id !== id));
+            setStaff(staff.filter((s: any) => s.id !== id));
             setActiveMenu(null);
         } catch (error: any) {
             alert(`Gagal memadam staff: ${error.message}`);
         }
     };
 
-    const filteredStaff = staff.filter(s =>
+    const filteredStaff = staff.filter((s: any) =>
         s.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.ic_number?.includes(searchQuery)
     );
@@ -136,7 +136,7 @@ export default function StaffListPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredStaff.map((s) => (
+                    {filteredStaff.map((s: any) => (
                         <div key={s.id} className="bg-surface border border-white/5 rounded-xl p-6 hover:border-primary/30 transition-all group relative">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary overflow-hidden">
@@ -242,7 +242,7 @@ export default function StaffListPage() {
                         <div className="mb-6">
                             <p className="text-sm text-gray-400 mb-2">Pilih stesen baru untuk <span className="text-white font-bold">{stationModal.name}</span>:</p>
                             <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                                {positions.map(pos => (
+                                {positions.map((pos: string) => (
                                     <button
                                         key={pos}
                                         onClick={() => handleUpdateStation(pos)}
