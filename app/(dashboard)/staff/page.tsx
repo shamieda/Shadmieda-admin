@@ -6,6 +6,8 @@ import clsx from "clsx";
 import { Clock, ClipboardList, Wallet, User, Loader2, Trophy, Medal } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { getRankingsAction } from "@/app/actions/get-rankings";
+import { getStaffPointsHistoryAction } from "@/app/actions/rankings";
+import PointsHistoryCard from "@/components/PointsHistoryCard";
 
 export default function StaffDashboard() {
     const [userName, setUserName] = useState<string>("");
@@ -13,11 +15,19 @@ export default function StaffDashboard() {
     const [loading, setLoading] = useState(true);
     const [rankings, setRankings] = useState<any[]>([]);
     const [rankingsLoading, setRankingsLoading] = useState(true);
+    const [userPoints, setUserPoints] = useState<any>(null);
+    const [userId, setUserId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchProfile();
         fetchRankings();
     }, []);
+
+    useEffect(() => {
+        if (userId) {
+            fetchUserPoints();
+        }
+    }, [userId]);
 
     const fetchRankings = async () => {
         const month = new Date().toISOString().substring(0, 7);
@@ -34,18 +44,33 @@ export default function StaffDashboard() {
             if (user) {
                 const { data } = await supabase
                     .from('users')
-                    .select('full_name, avatar_url')
+                    .select('id, full_name, avatar_url')
                     .eq('auth_id', user.id)
                     .single();
                 if (data) {
                     setUserName(data.full_name);
                     setAvatarUrl(data.avatar_url);
+                    setUserId(data.id);
                 }
             }
         } catch (error) {
             console.error('Error fetching profile:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchUserPoints = async () => {
+        if (!userId) return;
+        try {
+            const month = new Date().toISOString().substring(0, 7);
+            const result = await getRankingsAction(month);
+            if (result.success) {
+                const userRanking = result.rankings?.find((r: any) => r.id === userId);
+                setUserPoints(userRanking || null);
+            }
+        } catch (error) {
+            console.error('Error fetching user points:', error);
         }
     };
 
@@ -72,6 +97,17 @@ export default function StaffDashboard() {
                     )}
                 </div>
             </div>
+
+            {/* Personal Points Card */}
+            {userPoints && (
+                <PointsHistoryCard
+                    points={userPoints.points || 0}
+                    goodDeeds={userPoints.good_deeds_count || 0}
+                    badDeeds={userPoints.bad_deeds_count || 0}
+                    rank={userPoints.rank || 0}
+                    rewardAmount={userPoints.reward_amount || 0}
+                />
+            )}
 
             {/* Top 3 Employees Card - Podium Style */}
             <div className="bg-surface border border-white/5 rounded-3xl p-6 md:p-10 overflow-hidden relative bg-gradient-to-b from-surface to-black/50">
