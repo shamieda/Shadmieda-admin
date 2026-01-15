@@ -195,10 +195,21 @@ export default function PayrollPage() {
 
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
 
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            const widthRatio = pageWidth / canvas.width;
+            const heightRatio = pageHeight / canvas.height;
+            const ratio = widthRatio < heightRatio ? widthRatio : heightRatio;
+
+            const pdfWidth = canvas.width * ratio;
+            const pdfHeight = canvas.height * ratio;
+
+            // Center content
+            const x = (pageWidth - pdfWidth) / 2;
+            const y = (pageHeight - pdfHeight) / 2;
+
+            pdf.addImage(imgData, 'PNG', x, 0, pdfWidth, pdfHeight);
             const fileName = `Slip_Gaji_${staff.full_name.replace(/\s+/g, '_')}_${month}.pdf`;
 
             // Try native sharing (Mobile)
