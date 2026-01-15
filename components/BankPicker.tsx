@@ -59,8 +59,7 @@ export default function BankPicker({ value, onChange, label, disabled }: BankPic
                     {selectedBank ? (
                         <>
                             <div
-                                className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-white/10 shrink-0 shadow-inner"
-                                style={{ backgroundColor: selectedBank.color }}
+                                className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-white shrink-0 shadow-inner"
                             >
                                 {selectedBank.domain ? (
                                     <img
@@ -68,11 +67,16 @@ export default function BankPicker({ value, onChange, label, disabled }: BankPic
                                         alt={selectedBank.name}
                                         className="w-full h-full object-contain p-1"
                                         onError={(e) => {
-                                            (e.target as HTMLImageElement).parentElement!.innerHTML = `<span class="text-[10px] font-bold text-white">${selectedBank.name.substring(0, 2)}</span>`;
+                                            const target = e.target as HTMLImageElement;
+                                            const parent = target.parentElement!;
+                                            parent.style.backgroundColor = selectedBank.color;
+                                            parent.innerHTML = `<span class="text-[10px] font-bold text-white">${selectedBank.name.substring(0, 2)}</span>`;
                                         }}
                                     />
                                 ) : (
-                                    <span className="text-[10px] font-bold text-white">{selectedBank.name.substring(0, 2)}</span>
+                                    <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: selectedBank.color }}>
+                                        <span className="text-[10px] font-bold text-white">{selectedBank.name.substring(0, 2)}</span>
+                                    </div>
                                 )}
                             </div>
                             <span className="text-white text-sm font-medium">{selectedBank.name}</span>
@@ -137,9 +141,8 @@ export default function BankPicker({ value, onChange, label, disabled }: BankPic
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div
-                                                    className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shrink-0 shadow-sm transition-transform group-active:scale-95 ${(value === bank.name || value === bank.id) ? 'bg-black/20' : 'bg-white/10'
+                                                    className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shrink-0 shadow-sm transition-transform group-active:scale-95 ${(value === bank.name || value === bank.id) ? 'bg-white' : 'bg-white'
                                                         }`}
-                                                    style={{ backgroundColor: (value === bank.name || value === bank.id) ? undefined : bank.color }}
                                                 >
                                                     {bank.domain ? (
                                                         <img
@@ -147,11 +150,16 @@ export default function BankPicker({ value, onChange, label, disabled }: BankPic
                                                             alt={bank.name}
                                                             className="w-full h-full object-contain p-1.5"
                                                             onError={(e) => {
-                                                                (e.target as HTMLImageElement).parentElement!.innerHTML = `<span class="text-xs font-bold text-white">${bank.name.substring(0, 2)}</span>`;
+                                                                const target = e.target as HTMLImageElement;
+                                                                const parent = target.parentElement!;
+                                                                parent.style.backgroundColor = bank.color;
+                                                                parent.innerHTML = `<span class="text-xs font-bold text-white">${bank.name.substring(0, 2)}</span>`;
                                                             }}
                                                         />
                                                     ) : (
-                                                        <span className="text-xs font-bold text-white">{bank.name.substring(0, 2)}</span>
+                                                        <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: bank.color }}>
+                                                            <span className="text-xs font-bold text-white">{bank.name.substring(0, 2)}</span>
+                                                        </div>
                                                     )}
                                                 </div>
                                                 <span className="font-bold">{bank.name}</span>
