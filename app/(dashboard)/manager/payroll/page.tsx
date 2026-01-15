@@ -71,8 +71,18 @@ export default function PayrollPage() {
                 .eq('status', 'Approved')
                 .gte('start_date', startDate)
                 .lte('end_date', endDate) // Simple overlap check improvement needed for production but ok for now
+                .gte('start_date', startDate)
+                .lte('end_date', endDate) // Simple overlap check improvement needed for production but ok for now
 
-            // 7. Process Payroll for each staff
+            // 7. Fetch Approved Advances for the month
+            const { data: advances } = await supabase
+                .from('advance_requests')
+                .select('*')
+                .eq('status', 'approved')
+                .gte('created_at', startDate)
+                .lte('created_at', endDate);
+
+            // 8. Process Payroll for each staff
             const processed = (staffList || []).map(staff => {
                 const staffAttendance = attendance?.filter(a => a.user_id === staff.id) || [];
                 const daysWorked = staffAttendance.length;
@@ -118,7 +128,11 @@ export default function PayrollPage() {
                     onboardingDeduction = staff.onboarding_kit.reduce((sum: number, item: any) => sum + (Number(item.price) || 0), 0);
                 }
 
-                const earnedSalary = (dailyRate * daysWorked) + bonus - penalty - onboardingDeduction;
+                // Advance Deduction
+                const staffAdvances = advances?.filter(a => a.user_id === staff.id) || [];
+                const advanceAmount = staffAdvances.reduce((sum, a) => sum + (Number(a.amount) || 0), 0);
+
+                const earnedSalary = (dailyRate * daysWorked) + bonus - penalty - onboardingDeduction - advanceAmount;
 
 
                 // Sync with DB payroll record
@@ -132,6 +146,7 @@ export default function PayrollPage() {
                     penalty,
                     bonus,
                     onboardingDeduction,
+                    advanceAmount,
                     earnedSalary,
                     dailyRate,
                     canRequestAdvance: daysWorked >= 3,
@@ -475,26 +490,30 @@ Terima kasih atas usaha anda!
                                         <span className="text-[9px] text-gray-400">AMUR (RM)</span>
                                     </h4>
                                     <div className="space-y-2.5 px-2">
-                                        {/* Statutory Placeholders */}
-                                        <div className="flex justify-between text-sm text-gray-400 italic">
-                                            <span>KWSP / EPF</span>
-                                            <span className="font-mono">0.00</span>
-                                        </div>
-                                        <div className="flex justify-between text-sm text-gray-400 italic">
-                                            <span>PERKESO / SOCSO</span>
-                                            <span className="font-mono">0.00</span>
-                                        </div>
-                                        <div className="flex justify-between text-sm text-gray-400 italic">
-                                            <span>SIP / EIS</span>
-                                            <span className="font-mono">0.00</span>
-                                        </div>
-
-                                        {selectedSlip.penalty > 0 && (
+                                        {selectedSlip.penalty > 0 ? (
                                             <div className="flex justify-between text-sm text-red-600">
-                                                <span>Penalti Lewat ({selectedSlip.lateCount}x)</span>
+                                                <span>Penalti lewat ({selectedSlip.lateCount}x)</span>
                                                 <span className="font-mono">{selectedSlip.penalty.toFixed(2)}</span>
                                             </div>
+                                        ) : (
+                                            <div className="flex justify-between text-sm text-gray-400 italic">
+                                                <span>Penalti lewat</span>
+                                                <span className="font-mono">0.00</span>
+                                            </div>
                                         )}
+
+                                        {selectedSlip.advanceAmount > 0 ? (
+                                            <div className="flex justify-between text-sm text-red-600">
+                                                <span>Advance</span>
+                                                <span className="font-mono">{selectedSlip.advanceAmount.toFixed(2)}</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex justify-between text-sm text-gray-400 italic">
+                                                <span>Advance</span>
+                                                <span className="font-mono">0.00</span>
+                                            </div>
+                                        )}
+
                                         {selectedSlip.onboardingDeduction > 0 && (
                                             <div className="flex justify-between text-sm text-purple-600">
                                                 <span>Onboarding Kit</span>
@@ -504,7 +523,7 @@ Terima kasih atas usaha anda!
                                     </div>
                                     <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black">
                                         <span>JUMLAH POTONGAN</span>
-                                        <span>RM {(selectedSlip.penalty + selectedSlip.onboardingDeduction).toFixed(2)}</span>
+                                        <span>RM {(selectedSlip.penalty + selectedSlip.onboardingDeduction + selectedSlip.advanceAmount).toFixed(2)}</span>
                                     </div>
                                 </div>
                             </div>
