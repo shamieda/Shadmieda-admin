@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, User, Phone, CreditCard, Calendar, MapPin, Mail, Edit3, Check, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import BankPicker from "@/components/BankPicker";
 
 export default function StaffProfilePage() {
     const params = useParams();
@@ -14,6 +15,9 @@ export default function StaffProfilePage() {
     const [isEditingSalary, setIsEditingSalary] = useState(false);
     const [tempSalary, setTempSalary] = useState("");
     const [updating, setUpdating] = useState(false);
+    const [isEditingBank, setIsEditingBank] = useState(false);
+    const [tempBankName, setTempBankName] = useState("");
+    const [tempBankAccount, setTempBankAccount] = useState("");
 
     useEffect(() => {
         if (params.id) {
@@ -33,6 +37,8 @@ export default function StaffProfilePage() {
             if (error) throw error;
             setStaff(data);
             setTempSalary(data.base_salary?.toString() || "0");
+            setTempBankName(data.bank_name || "");
+            setTempBankAccount(data.bank_account || "");
         } catch (error) {
             console.error('Error fetching staff details:', error);
             alert("Gagal memuatkan maklumat staff.");
@@ -59,6 +65,31 @@ export default function StaffProfilePage() {
         } catch (error: any) {
             console.error('Error updating salary:', error);
             alert("Gagal mengemaskini gaji: " + error.message);
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    const handleUpdateBank = async () => {
+        if (!staff || updating) return;
+        setUpdating(true);
+
+        try {
+            const { error } = await supabase
+                .from('users')
+                .update({
+                    bank_name: tempBankName,
+                    bank_account: tempBankAccount
+                })
+                .eq('id', staff.id);
+
+            if (error) throw error;
+
+            setStaff({ ...staff, bank_name: tempBankName, bank_account: tempBankAccount });
+            setIsEditingBank(false);
+        } catch (error: any) {
+            console.error('Error updating bank:', error);
+            alert("Gagal mengemaskini maklumat bank: " + error.message);
         } finally {
             setUpdating(false);
         }
@@ -155,9 +186,54 @@ export default function StaffProfilePage() {
 
                                 <div className="flex items-center gap-3 text-gray-300">
                                     <CreditCard className="w-5 h-5 text-gray-500" />
-                                    <div>
+                                    <div className="flex-1">
                                         <p className="text-xs text-gray-500">Bank & No. Akaun</p>
-                                        <p>{staff.bank_name || '-'} • {staff.bank_account || '-'}</p>
+                                        {isEditingBank ? (
+                                            <div className="space-y-3 mt-2">
+                                                <BankPicker
+                                                    value={tempBankName}
+                                                    onChange={setTempBankName}
+                                                    disabled={updating}
+                                                />
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        placeholder="No. Akaun"
+                                                        value={tempBankAccount}
+                                                        onChange={(e) => setTempBankAccount(e.target.value)}
+                                                        className="flex-1 bg-black/40 border border-white/10 rounded-lg py-2 px-3 text-white text-sm outline-none focus:border-primary/50"
+                                                        disabled={updating}
+                                                    />
+                                                    <button
+                                                        onClick={handleUpdateBank}
+                                                        disabled={updating}
+                                                        className="p-2 bg-primary text-black rounded-lg hover:bg-yellow-400 disabled:opacity-50 transition-all active:scale-95"
+                                                    >
+                                                        {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setIsEditingBank(false);
+                                                            setTempBankName(staff.bank_name || "");
+                                                            setTempBankAccount(staff.bank_account || "");
+                                                        }}
+                                                        disabled={updating}
+                                                        className="p-2 bg-white/5 text-gray-400 rounded-lg hover:bg-white/10 hover:text-white transition-all active:scale-95"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                className="flex items-center gap-2 mt-1 group cursor-pointer"
+                                                onClick={() => setIsEditingBank(true)}
+                                            >
+                                                <p className="font-medium text-white">
+                                                    {staff.bank_name || '-'} • {staff.bank_account || '-'}
+                                                </p>
+                                                <Edit3 className="w-3.5 h-3.5 text-primary opacity-100 md:opacity-0 group-hover:opacity-100 transition-all" />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 

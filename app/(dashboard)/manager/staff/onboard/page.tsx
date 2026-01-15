@@ -8,6 +8,7 @@ import { jsPDF } from "jspdf";
 import { supabase } from "@/lib/supabase";
 import { onboardStaffAction } from "@/app/actions/onboard";
 import { uploadStaffDocAction } from "@/app/actions/upload-doc";
+import BankPicker from "@/components/BankPicker";
 
 export default function OnboardingPage() {
     const router = useRouter();
@@ -416,14 +417,11 @@ Anda tertakluk kepada polisi syarikat termasuk kehadiran, disiplin, dan etika ke
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-medium text-gray-400">Nama Bank</label>
-                                    <select name="bankName" value={formData.bankName} onChange={handleChange} className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white text-sm focus:border-primary outline-none">
-                                        <option value="Maybank">Maybank</option>
-                                        <option value="CIMB">CIMB</option>
-                                        <option value="Public Bank">Public Bank</option>
-                                        <option value="RHB">RHB</option>
-                                        <option value="Bank Islam">Bank Islam</option>
-                                    </select>
+                                    <BankPicker
+                                        label="Nama Bank"
+                                        value={formData.bankName}
+                                        onChange={(val) => setFormData({ ...formData, bankName: val })}
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-medium text-gray-400">No. Akaun</label>
