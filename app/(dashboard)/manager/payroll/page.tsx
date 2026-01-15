@@ -151,6 +151,10 @@ export default function PayrollPage() {
     };
 
     const sendWhatsApp = (staff: any) => {
+        const paymentInfo = staff.paymentStatus === 'paid'
+            ? `\n\n*STATUS: TELAH DIBAYAR*\nKaedah: ${staff.paymentMethod}\nTarikh: ${new Date(staff.paidAt).toLocaleDateString('ms-MY')}`
+            : `\n\n*STATUS: MENUNGGU BAYARAN*`;
+
         const message = `
 *SLIP GAJI SHAMIEDA FAMILY*
 ---------------------------
@@ -163,7 +167,7 @@ Hari Bekerja: ${staff.daysWorked} hari
 + Bonus Kehadiran: RM${staff.bonus.toFixed(2)}
 - Penalti Lewat (${staff.lateCount}x): RM${staff.penalty.toFixed(2)}
 
-*BERSIH: RM${staff.earnedSalary.toFixed(2)}*
+*BERSIH: RM${staff.earnedSalary.toFixed(2)}*${paymentInfo}
 ---------------------------
 Terima kasih atas usaha anda!
     `.trim();
@@ -299,33 +303,73 @@ Terima kasih atas usaha anda!
                                 <div className="flex flex-col gap-2 justify-center min-w-[150px]">
                                     {staff.paymentStatus === 'paid' ? (
                                         <div className="space-y-2">
-                                            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-2 text-center">
-                                                <p className="text-[10px] text-green-500 font-bold uppercase">Dibayar pada</p>
-                                                <p className="text-xs text-white font-medium">{new Date(staff.paidAt).toLocaleDateString()}</p>
+                                            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 text-center">
+                                                <p className="text-[10px] text-green-500 font-black uppercase tracking-widest">Gaji Telah Dibayar</p>
+                                                <p className="text-sm text-white font-bold">{new Date(staff.paidAt).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                                <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold">{staff.paymentMethod}</p>
                                             </div>
-                                            {staff.paymentProofUrl && (
+
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {staff.paymentProofUrl && (
+                                                    <button
+                                                        onClick={() => setProofViewer(staff.paymentProofUrl)}
+                                                        className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                        Bukti
+                                                    </button>
+                                                )}
                                                 <button
-                                                    onClick={() => setProofViewer(staff.paymentProofUrl)}
-                                                    className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-2 rounded-lg text-sm transition-colors"
+                                                    onClick={() => setSelectedSlip(staff)}
+                                                    className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
                                                 >
-                                                    <Eye className="w-4 h-4" />
-                                                    Bukti Bayaran
+                                                    <FileText className="w-4 h-4" />
+                                                    Slip
                                                 </button>
-                                            )}
+                                            </div>
+
+                                            <button
+                                                onClick={() => sendWhatsApp(staff)}
+                                                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-green-500/20 active:scale-95"
+                                            >
+                                                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .004 5.412.001 12.049a11.866 11.866 0 001.592 5.953L0 24l6.117-1.605a11.82 11.82 0 005.925 1.586h.005c6.637 0 12.048-5.414 12.052-12.051a11.83 11.83 0 00-3.535-8.528z" />
+                                                </svg>
+                                                Hantar Resit WA
+                                            </button>
                                         </div>
                                     ) : (
-                                        <button
-                                            onClick={() => setPayingStaff(staff)}
-                                            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-bold transition-colors text-sm shadow-lg shadow-primary/20"
-                                        >
-                                            <Banknote className="w-4 h-4" />
-                                            Bayar Sekarang
-                                        </button>
+                                        <div className="space-y-2">
+                                            <button
+                                                onClick={() => setPayingStaff(staff)}
+                                                className="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-black py-4 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(250,204,21,0.3)] active:scale-95 group"
+                                            >
+                                                <Banknote className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                                                Bayar Sekarang
+                                            </button>
+
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button
+                                                    onClick={() => setSelectedSlip(staff)}
+                                                    className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-400 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+                                                >
+                                                    <FileText className="w-4 h-4" />
+                                                    Lihat Slip
+                                                </button>
+                                                <button
+                                                    onClick={() => sendWhatsApp(staff)}
+                                                    className="flex items-center justify-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-500 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+                                                >
+                                                    <Send className="w-4 h-4" />
+                                                    Slip WA
+                                                </button>
+                                            </div>
+                                        </div>
                                     )}
 
                                     {staff.canRequestAdvance && staff.paymentStatus !== 'paid' && (
-                                        <button className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-2 rounded-lg text-sm transition-colors">
-                                            <DollarSign className="w-4 h-4" />
+                                        <button className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-500 py-2 rounded-xl text-xs transition-colors mt-1">
+                                            <DollarSign className="w-3 h-3" />
                                             Beri Advance
                                         </button>
                                     )}
