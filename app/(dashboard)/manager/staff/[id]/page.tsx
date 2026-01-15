@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, User, Phone, CreditCard, Calendar, MapPin, Mail } from "lucide-react";
+import { ArrowLeft, Loader2, User, Phone, CreditCard, Calendar, MapPin, Mail, Edit3, Check, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
@@ -11,6 +11,9 @@ export default function StaffProfilePage() {
     const router = useRouter();
     const [staff, setStaff] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isEditingSalary, setIsEditingSalary] = useState(false);
+    const [tempSalary, setTempSalary] = useState("");
+    const [updating, setUpdating] = useState(false);
 
     useEffect(() => {
         if (params.id) {
@@ -29,12 +32,35 @@ export default function StaffProfilePage() {
 
             if (error) throw error;
             setStaff(data);
+            setTempSalary(data.base_salary?.toString() || "0");
         } catch (error) {
             console.error('Error fetching staff details:', error);
             alert("Gagal memuatkan maklumat staff.");
             router.push('/manager/staff');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleUpdateSalary = async () => {
+        if (!staff || updating) return;
+        setUpdating(true);
+
+        try {
+            const { error } = await supabase
+                .from('users')
+                .update({ base_salary: parseFloat(tempSalary) })
+                .eq('id', staff.id);
+
+            if (error) throw error;
+
+            setStaff({ ...staff, base_salary: parseFloat(tempSalary) });
+            setIsEditingSalary(false);
+        } catch (error: any) {
+            console.error('Error updating salary:', error);
+            alert("Gagal mengemaskini gaji: " + error.message);
+        } finally {
+            setUpdating(false);
         }
     };
 
@@ -145,9 +171,54 @@ export default function StaffProfilePage() {
 
                                 <div className="flex items-center gap-3 text-gray-300">
                                     <div className="w-5 h-5 flex items-center justify-center text-gray-500 font-bold text-xs border border-gray-500 rounded">RM</div>
-                                    <div>
+                                    <div className="flex-1">
                                         <p className="text-xs text-gray-500">Gaji Harian</p>
-                                        <p>RM {staff.base_salary || '0'} / Hari</p>
+                                        {isEditingSalary ? (
+                                            <div className="flex items-center gap-2 mt-2 group/edit">
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary font-bold text-xs">RM</span>
+                                                    <input
+                                                        type="number"
+                                                        value={tempSalary}
+                                                        onChange={(e) => setTempSalary(e.target.value)}
+                                                        className="w-28 bg-black/40 border border-white/10 rounded-lg py-2 pl-9 pr-3 text-white text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all font-bold"
+                                                        disabled={updating}
+                                                        autoFocus
+                                                    />
+                                                </div>
+                                                <button
+                                                    onClick={handleUpdateSalary}
+                                                    disabled={updating}
+                                                    className="p-2 bg-primary text-black rounded-lg hover:bg-yellow-400 disabled:opacity-50 transition-all shadow-lg shadow-yellow-500/10 active:scale-95"
+                                                    title="Simpan"
+                                                >
+                                                    {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setIsEditingSalary(false);
+                                                        setTempSalary(staff.base_salary?.toString() || "0");
+                                                    }}
+                                                    disabled={updating}
+                                                    className="p-2 bg-white/5 text-gray-400 rounded-lg hover:bg-white/10 hover:text-white transition-all active:scale-95"
+                                                    title="Batal"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                className="flex items-center gap-2 mt-1 group cursor-pointer"
+                                                onClick={() => setIsEditingSalary(true)}
+                                            >
+                                                <p className="text-lg font-bold text-white tracking-tight">
+                                                    RM {staff.base_salary || '0'} <span className="text-xs text-gray-500 font-normal">/ Hari</span>
+                                                </p>
+                                                <div className="p-1.5 rounded-full bg-white/0 group-hover:bg-white/5 transition-colors">
+                                                    <Edit3 className="w-3.5 h-3.5 text-primary opacity-0 group-hover:opacity-100 transition-all" />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
