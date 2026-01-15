@@ -109,9 +109,9 @@ export default function AttendanceHistory() {
 
     return (
         <div className="pt-8 border-t border-white/10">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h2 className="text-lg font-bold text-white">Sejarah Kehadiran</h2>
-                <div className="flex bg-white/5 rounded-lg p-1 gap-1">
+                <div className="flex bg-white/5 rounded-lg p-1 gap-1 w-full sm:w-auto overflow-x-auto">
                     <button
                         onClick={fetchHistory}
                         className="px-3 py-1 rounded-md text-[10px] font-bold text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1"

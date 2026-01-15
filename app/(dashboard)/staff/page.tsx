@@ -98,7 +98,7 @@ export default function StaffDashboard() {
                         <p className="text-gray-500 text-sm italic">Ranking belum dijana untuk bulan ini.</p>
                     </div>
                 ) : (
-                    <div className="flex flex-row items-end justify-center gap-1 sm:gap-4 md:gap-8 lg:gap-16 pt-8 max-w-2xl mx-auto">
+                    <div className="flex flex-row items-end justify-center gap-2 sm:gap-4 md:gap-8 lg:gap-16 pt-8 max-w-2xl mx-auto">
                         {/* Rank 2 */}
                         <div className="flex flex-col items-center text-center flex-1 group">
                             {rankings[1] ? (
@@ -119,8 +119,8 @@ export default function StaffDashboard() {
                                             2
                                         </div>
                                     </div>
-                                    <h3 className="text-white font-bold text-[8px] sm:text-sm mb-0.5 truncate w-full px-1">{rankings[1].full_name}</h3>
-                                    <p className="text-[7px] sm:text-[10px] text-gray-500 uppercase font-bold mb-1 sm:mb-2">Stesen: {rankings[1].position || 'Staff'}</p>
+                                    <h3 className="text-white font-bold text-[9px] sm:text-sm mb-0.5 truncate w-full px-1">{rankings[1].full_name}</h3>
+                                    <p className="text-[8px] sm:text-[10px] text-gray-500 uppercase font-bold mb-1 sm:mb-2">Stesen: {rankings[1].position || 'Staff'}</p>
                                     <div className="hidden sm:flex gap-0.5">
                                         {[...Array(5)].map((_, i) => (
                                             <Medal key={i} className={clsx("w-2 h-2 md:w-3 md:h-3", i < 4 ? "text-yellow-500" : "text-gray-700")} />
@@ -186,8 +186,8 @@ export default function StaffDashboard() {
                                             3
                                         </div>
                                     </div>
-                                    <h3 className="text-white font-bold text-[8px] sm:text-sm mb-0.5 truncate w-full px-1">{rankings[2].full_name}</h3>
-                                    <p className="text-[7px] sm:text-[10px] text-gray-500 uppercase font-bold mb-1 sm:mb-2">Stesen: {rankings[2].position || 'Staff'}</p>
+                                    <h3 className="text-white font-bold text-[9px] sm:text-sm mb-0.5 truncate w-full px-1">{rankings[2].full_name}</h3>
+                                    <p className="text-[8px] sm:text-[10px] text-gray-500 uppercase font-bold mb-1 sm:mb-2">Stesen: {rankings[2].position || 'Staff'}</p>
                                     <div className="hidden sm:flex gap-0.5">
                                         {[...Array(5)].map((_, i) => (
                                             <Medal key={i} className={clsx("w-2 h-2 md:w-3 md:h-3", i < 3 ? "text-yellow-500" : "text-gray-700")} />
