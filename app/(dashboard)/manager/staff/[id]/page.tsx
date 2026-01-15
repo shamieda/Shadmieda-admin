@@ -588,16 +588,23 @@ export default function StaffProfilePage() {
                                                         className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm outline-none focus:border-primary/50"
                                                     />
                                                     <div className="grid grid-cols-2 gap-2">
-                                                        <input
-                                                            placeholder="Hubungan"
+                                                        <select
                                                             value={contact.relation}
                                                             onChange={(e) => {
                                                                 const newContacts = [...tempValues.emergency_contacts];
                                                                 newContacts[idx].relation = e.target.value;
                                                                 setTempValues({ ...tempValues, emergency_contacts: newContacts });
                                                             }}
-                                                            className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm outline-none focus:border-primary/50"
-                                                        />
+                                                            className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm outline-none focus:border-primary/50 appearance-none flex-1"
+                                                        >
+                                                            <option value="" disabled className="bg-[#1A1A1A]">Pilih Hubungan</option>
+                                                            <option value="Ayah" className="bg-[#1A1A1A]">Ayah</option>
+                                                            <option value="Ibu" className="bg-[#1A1A1A]">Ibu</option>
+                                                            <option value="Pasangan" className="bg-[#1A1A1A]">Pasangan</option>
+                                                            <option value="Adik Beradik" className="bg-[#1A1A1A]">Adik Beradik</option>
+                                                            <option value="Penjaga" className="bg-[#1A1A1A]">Penjaga</option>
+                                                            <option value="Lain-lain" className="bg-[#1A1A1A]">Lain-lain</option>
+                                                        </select>
                                                         <input
                                                             placeholder="No. Telefon"
                                                             value={contact.phone}
