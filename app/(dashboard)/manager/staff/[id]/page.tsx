@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, User, Phone, CreditCard, Calendar, MapPin, Mail, Edit3, Check, X, Maximize2, Eye } from "lucide-react";
+import { ArrowLeft, Loader2, User, Phone, CreditCard, Calendar, MapPin, Mail, Edit3, Check, X, Maximize2, Eye, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import BankPicker from "@/components/BankPicker";
@@ -539,7 +539,20 @@ export default function StaffProfilePage() {
 
                         {/* Emergency Contacts */}
                         <div className="pt-6 border-t border-white/5">
-                            <h3 className="text-gray-400 font-bold text-sm uppercase tracking-wider mb-4">Maklumat Kecemasan (Waris)</h3>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-gray-400 font-bold text-sm uppercase tracking-wider">Maklumat Kecemasan (Waris)</h3>
+                                <button
+                                    onClick={() => {
+                                        const newContacts = [...(tempValues.emergency_contacts || []), { name: "", phone: "", relation: "" }];
+                                        setTempValues({ ...tempValues, emergency_contacts: newContacts });
+                                        setEditingField(`waris_${newContacts.length - 1}`);
+                                    }}
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 text-primary text-xs font-bold hover:bg-white/10 transition-all border border-white/5"
+                                >
+                                    <Plus className="w-3.5 h-3.5" />
+                                    Tambah Waris
+                                </button>
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {tempValues.emergency_contacts && tempValues.emergency_contacts.map((contact: any, idx: number) => {
                                     const fieldKey = `waris_${idx}`;
@@ -600,6 +613,18 @@ export default function StaffProfilePage() {
                                                             className="flex-1 py-2 bg-primary text-black rounded-xl hover:bg-yellow-400 font-bold text-xs"
                                                         >
                                                             {updating ? <Loader2 className="w-3 h-3 animate-spin" /> : "Simpan"}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                const newContacts = tempValues.emergency_contacts.filter((_: any, i: number) => i !== idx);
+                                                                setTempValues({ ...tempValues, emergency_contacts: newContacts });
+                                                                handleUpdateField({ emergency_contacts: newContacts });
+                                                            }}
+                                                            disabled={updating}
+                                                            className="px-3 py-2 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition-all"
+                                                            title="Buang Waris"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
                                                         </button>
                                                         <button
                                                             onClick={() => setEditingField(null)}
