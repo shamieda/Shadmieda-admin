@@ -269,20 +269,42 @@ export default function StaffTasksPage() {
                         </button>
                     </div>
 
-                    {/* Station Pills - Horizontal Scroll */}
-                    <div className="flex overflow-x-auto gap-2 py-2 no-scrollbar -mx-4 px-4 mask-fade-right">
-                        {allStations.map((station: string) => (
-                            <button
-                                key={station}
-                                onClick={() => handleStationChange(station)}
-                                className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold transition-all border active:scale-95 ${selectedStation === station
-                                        ? 'bg-primary border-primary text-black shadow-lg shadow-yellow-500/20'
-                                        : 'bg-white/5 border-white/5 text-gray-400 hover:text-white hover:bg-white/10'
-                                    }`}
-                            >
-                                {station}
-                            </button>
-                        ))}
+
+                    {/* Station Dropdown - Mobile Friendly */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowFilter(!showFilter)}
+                            className="w-full flex items-center justify-between px-4 py-3 bg-surface border border-white/5 rounded-xl text-white hover:border-primary/30 transition-all"
+                        >
+                            <span className="text-sm font-medium">{selectedStation}</span>
+                            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showFilter ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {showFilter && (
+                            <>
+                                {/* Backdrop */}
+                                <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setShowFilter(false)}
+                                />
+
+                                {/* Dropdown Menu */}
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-white/10 rounded-xl shadow-2xl z-50 max-h-64 overflow-y-auto">
+                                    {allStations.map((station: string) => (
+                                        <button
+                                            key={station}
+                                            onClick={() => handleStationChange(station)}
+                                            className={`w-full text-left px-4 py-3 text-sm transition-all border-b border-white/5 last:border-0 ${selectedStation === station
+                                                    ? 'bg-primary/10 text-primary font-bold'
+                                                    : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                                                }`}
+                                        >
+                                            {station}
+                                        </button>
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
                 <div className="text-right">
