@@ -153,16 +153,10 @@ export default function StaffTasksPage() {
             if (error) throw error;
             setTasks(tasks.map((t: any) => t.id === id ? { ...t, is_completed: !currentStatus } : t));
 
-            // Check if all tasks are now complete and award good deed
+            // Award 1 point per task completed
             if (!currentStatus && userProfile) { // Task was just completed
-                const today = new Date().toISOString().split('T')[0];
-                const { allComplete } = await checkAllDailyTasksCompleteAction(userProfile.id, today);
-
-                if (allComplete) {
-                    // Award good deed for completing all daily tasks
-                    await awardGoodDeedAction(userProfile.id);
-                    console.log('✅ Good deed awarded - all tasks complete!');
-                }
+                await awardGoodDeedAction(userProfile.id);
+                console.log('✅ Good deed awarded - task completed (+1 point)');
             }
         } catch (error) {
             console.error('Error updating task:', error);
