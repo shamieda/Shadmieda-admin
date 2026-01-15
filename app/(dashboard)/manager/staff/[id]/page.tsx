@@ -7,6 +7,9 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import BankPicker from "@/components/BankPicker";
 import { uploadStaffDocAction } from "@/app/actions/upload-doc";
+import { getRankingsAction, getStaffPointsHistoryAction } from "@/app/actions/rankings";
+import PointsHistoryCard from "@/components/PointsHistoryCard";
+import PointsTimeline from "@/components/PointsTimeline";
 
 const FullScreenModal = ({ url, onClose }: { url: string; onClose: () => void }) => (
     <div
@@ -47,11 +50,35 @@ export default function StaffProfilePage() {
     // Lightbox State
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+    // Points State
+    const [pointsData, setPointsData] = useState<any>(null);
+    const [pointsHistory, setPointsHistory] = useState<any[]>([]);
+
     useEffect(() => {
         if (params.id) {
             fetchStaffDetails(params.id as string);
+            fetchPointsData(params.id as string);
         }
     }, [params.id]);
+
+    const fetchPointsData = async (userId: string) => {
+        try {
+            // Get current month rankings
+            const rankingsResult = await getRankingsAction();
+            if (rankingsResult.success) {
+                const userRanking = rankingsResult.data.find((r: any) => r.id === userId);
+                setPointsData(userRanking || null);
+            }
+
+            // Get points history
+            const historyResult = await getStaffPointsHistoryAction(userId);
+            if (historyResult.success) {
+                setPointsHistory(historyResult.data);
+            }
+        } catch (error) {
+            console.error('Error fetching points data:', error);
+        }
+    };
 
     const fetchStaffDetails = async (id: string) => {
         setLoading(true);
@@ -757,6 +784,20 @@ export default function StaffProfilePage() {
                     </div>
                 </div>
             </div>
+
+            {/* Points & Performance Section */}
+            {pointsData && (
+                <div className="space-y-4 md:space-y-6">
+                    <PointsHistoryCard
+                        points={pointsData.points}
+                        goodDeeds={pointsData.good_deeds_count}
+                        badDeeds={pointsData.bad_deeds_count}
+                        rank={pointsData.rank}
+                        rewardAmount={pointsData.reward_amount}
+                    />
+                    <PointsTimeline history={pointsHistory} />
+                </div>
+            )}
 
             {selectedImage && (
                 <FullScreenModal

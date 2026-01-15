@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plus, Search, MoreHorizontal, FileText, Loader2, User, Trash2, Edit, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { deleteStaffAction } from "@/app/actions/delete-staff";
+import { getRankingsAction } from "@/app/actions/rankings";
 
 export default function StaffListPage() {
     const [staff, setStaff] = useState<any[]>([]);
@@ -15,10 +16,12 @@ export default function StaffListPage() {
 
     const [positions, setPositions] = useState<string[]>([]);
     const [stationModal, setStationModal] = useState<{ id: string, name: string, currentStation: string } | null>(null);
+    const [rankings, setRankings] = useState<any[]>([]);
 
     useEffect(() => {
         fetchStaff();
         fetchPositions();
+        fetchRankings();
     }, []);
 
     const fetchPositions = async () => {
@@ -41,6 +44,13 @@ export default function StaffListPage() {
             console.error('Error fetching staff:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchRankings = async () => {
+        const result = await getRankingsAction();
+        if (result.success) {
+            setRankings(result.data);
         }
     };
 
@@ -180,7 +190,21 @@ export default function StaffListPage() {
                                 </div>
                             </div>
 
-                            <h3 className="text-lg font-bold text-white">{s.full_name}</h3>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-bold text-white">{s.full_name}</h3>
+                                {(() => {
+                                    const staffRanking = rankings.find(r => r.id === s.id);
+                                    if (staffRanking && staffRanking.points > 0) {
+                                        return (
+                                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-lg">
+                                                <span className="text-xs font-bold text-primary">{staffRanking.points}</span>
+                                                <span className="text-[10px] text-primary/70">pts</span>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })()}
+                            </div>
                             <div className="flex items-center gap-2 mb-4">
                                 <p className="text-primary text-sm font-medium capitalize">Stesen: {s.position || 'Staff'} ({s.employment_type || 'Full-Time'})</p>
                                 <button
