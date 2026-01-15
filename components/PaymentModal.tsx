@@ -105,8 +105,8 @@ export default function PaymentModal({ staff, month, onClose, onSuccess }: Payme
                             <button
                                 onClick={() => setPaymentMethod("Online Transfer")}
                                 className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === "Online Transfer"
-                                        ? "bg-primary/20 border-primary text-white shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]"
-                                        : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+                                    ? "bg-primary/20 border-primary text-white shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]"
+                                    : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                                     }`}
                             >
                                 <CreditCard className="w-5 h-5" />
@@ -115,8 +115,8 @@ export default function PaymentModal({ staff, month, onClose, onSuccess }: Payme
                             <button
                                 onClick={() => setPaymentMethod("Cash")}
                                 className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${paymentMethod === "Cash"
-                                        ? "bg-primary/20 border-primary text-white shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]"
-                                        : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
+                                    ? "bg-primary/20 border-primary text-white shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]"
+                                    : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
                                     }`}
                             >
                                 <Banknote className="w-5 h-5" />
@@ -173,7 +173,7 @@ export default function PaymentModal({ staff, month, onClose, onSuccess }: Payme
                     </button>
                     <button
                         onClick={handleConfirmPayment}
-                        disabled={loading || (!file && paymentMethod === "Online Transfer")}
+                        disabled={loading || (staff.earnedSalary > 0 && !file && paymentMethod === "Online Transfer")}
                         className="flex-[2] py-3 rounded-xl font-bold bg-primary hover:bg-primary/90 text-white transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
                     >
                         {loading ? (
