@@ -26,12 +26,14 @@ export const supabase = createBrowserClient(
             },
             set(name: string, value: string, options: any) {
                 if (typeof document === 'undefined') return;
-                let cookieStr = `${name}=${value}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax; Secure`;
-                document.cookie = cookieStr;
+                const date = new Date();
+                date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+                const expires = "; expires=" + date.toUTCString();
+                document.cookie = `${name}=${value}${expires}; path=/; SameSite=Lax; Secure`;
             },
             remove(name: string, options: any) {
                 if (typeof document === 'undefined') return;
-                document.cookie = `${name}=; Max-Age=0; Path=/; SameSite=Lax; Secure`;
+                document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax; Secure`;
             },
         },
     }

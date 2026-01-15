@@ -1,7 +1,35 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Fetch role to redirect correctly
+        const { data: profile } = await supabase
+          .from('users')
+          .select('role')
+          .eq('auth_id', user.id)
+          .single();
+
+        const role = profile?.role || 'staff';
+        if (role === 'admin' || role === 'master' || role === 'manager') {
+          router.replace('/manager');
+        } else {
+          router.replace('/staff/attendance');
+        }
+      }
+    };
+    checkUser();
+  }, [router]);
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-background text-center p-6 relative overflow-hidden">
       {/* Background Elements */}

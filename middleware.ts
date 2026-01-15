@@ -25,43 +25,27 @@ export async function middleware(request: NextRequest) {
                         secure: true,
                         sameSite: 'lax' as const,
                     };
-                    request.cookies.set({
-                        name,
-                        value,
-                        ...mergedOptions,
-                    });
-                    response = NextResponse.next({
-                        request: {
-                            headers: request.headers,
-                        },
-                    });
-                    response.cookies.set({
-                        name,
-                        value,
-                        ...mergedOptions,
-                    });
+
+                    // Update request cookies for the current middleware run
+                    request.cookies.set({ name, value, ...mergedOptions });
+
+                    // Update response cookies to pass to the user
+                    response.cookies.set({ name, value, ...mergedOptions });
                 },
                 remove(name: string, options: CookieOptions) {
                     const mergedOptions = {
                         ...options,
                         maxAge: 0,
                         path: options.path ?? '/',
+                        secure: true,
+                        sameSite: 'lax' as const,
                     };
-                    request.cookies.set({
-                        name,
-                        value: '',
-                        ...mergedOptions,
-                    });
-                    response = NextResponse.next({
-                        request: {
-                            headers: request.headers,
-                        },
-                    });
-                    response.cookies.set({
-                        name,
-                        value: '',
-                        ...mergedOptions,
-                    });
+
+                    // Update request cookies
+                    request.cookies.set({ name, value: '', ...mergedOptions });
+
+                    // Update response cookies
+                    response.cookies.set({ name, value: '', ...mergedOptions });
                 },
             },
         }

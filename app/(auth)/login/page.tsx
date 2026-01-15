@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Lock, User, Loader2, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -11,6 +11,28 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                // Fetch profile to redirect
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('role')
+                    .eq('auth_id', user.id)
+                    .single();
+
+                const role = profile?.role || 'staff';
+                if (role === 'admin' || role === 'master' || role === 'manager') {
+                    router.replace('/manager');
+                } else {
+                    router.replace('/staff/attendance');
+                }
+            }
+        };
+        checkUser();
+    }, [router]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
