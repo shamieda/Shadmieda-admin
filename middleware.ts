@@ -17,10 +17,17 @@ export async function middleware(request: NextRequest) {
                     return request.cookies.get(name)?.value;
                 },
                 set(name: string, value: string, options: CookieOptions) {
+                    const mergedOptions = {
+                        ...options,
+                        maxAge: options.maxAge ?? 60 * 60 * 24 * 30, // 30 days if not specified
+                        path: options.path ?? '/',
+                        secure: true,
+                        sameSite: 'lax' as const,
+                    };
                     request.cookies.set({
                         name,
                         value,
-                        ...options,
+                        ...mergedOptions,
                     });
                     response = NextResponse.next({
                         request: {
@@ -30,14 +37,19 @@ export async function middleware(request: NextRequest) {
                     response.cookies.set({
                         name,
                         value,
-                        ...options,
+                        ...mergedOptions,
                     });
                 },
                 remove(name: string, options: CookieOptions) {
+                    const mergedOptions = {
+                        ...options,
+                        maxAge: 0,
+                        path: options.path ?? '/',
+                    };
                     request.cookies.set({
                         name,
                         value: '',
-                        ...options,
+                        ...mergedOptions,
                     });
                     response = NextResponse.next({
                         request: {
@@ -47,7 +59,7 @@ export async function middleware(request: NextRequest) {
                     response.cookies.set({
                         name,
                         value: '',
-                        ...options,
+                        ...mergedOptions,
                     });
                 },
             },
