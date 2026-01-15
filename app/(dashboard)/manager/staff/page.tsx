@@ -196,9 +196,9 @@ export default function StaffListPage() {
                                     const staffRanking = rankings.find(r => r.id === s.id);
                                     if (staffRanking && staffRanking.points > 0) {
                                         return (
-                                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 border border-primary/20 rounded-lg">
+                                            <div className="flex items-center gap-1 px-2 py-1 bg-black/30 border border-white/5 rounded-lg">
+                                                <span className="text-[10px] text-gray-500">⭐</span>
                                                 <span className="text-xs font-bold text-primary">{staffRanking.points}</span>
-                                                <span className="text-[10px] text-primary/70">pts</span>
                                             </div>
                                         );
                                     }
