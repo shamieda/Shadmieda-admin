@@ -214,8 +214,8 @@ export default function StaffProfilePage() {
                                                 <p className="text-lg font-bold text-white tracking-tight">
                                                     RM {staff.base_salary || '0'} <span className="text-xs text-gray-500 font-normal">/ Hari</span>
                                                 </p>
-                                                <div className="p-1.5 rounded-full bg-white/0 group-hover:bg-white/5 transition-colors">
-                                                    <Edit3 className="w-3.5 h-3.5 text-primary opacity-0 group-hover:opacity-100 transition-all" />
+                                                <div className="p-1.5 rounded-full bg-white/5 md:bg-white/0 group-hover:bg-white/5 transition-colors">
+                                                    <Edit3 className="w-3.5 h-3.5 text-primary opacity-100 md:opacity-0 group-hover:opacity-100 transition-all" />
                                                 </div>
                                             </div>
                                         )}
