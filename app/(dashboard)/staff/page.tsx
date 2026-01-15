@@ -67,10 +67,27 @@ export default function StaffDashboard() {
             const result = await getRankingsAction(month);
             if (result.success) {
                 const userRanking = result.rankings?.find((r: any) => r.id === userId);
-                setUserPoints(userRanking || null);
+                // Always set userPoints, even if no data (show 0 points)
+                setUserPoints(userRanking || {
+                    id: userId,
+                    points: 0,
+                    good_deeds_count: 0,
+                    bad_deeds_count: 0,
+                    rank: 0,
+                    reward_amount: 0
+                });
             }
         } catch (error) {
             console.error('Error fetching user points:', error);
+            // Set default values on error
+            setUserPoints({
+                id: userId,
+                points: 0,
+                good_deeds_count: 0,
+                bad_deeds_count: 0,
+                rank: 0,
+                reward_amount: 0
+            });
         }
     };
 
