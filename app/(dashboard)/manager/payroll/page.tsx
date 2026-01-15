@@ -465,7 +465,7 @@ export default function PayrollPage() {
                             <div ref={payslipRef} className="p-6 md:p-10 space-y-6 print:p-0 bg-white">
                                 {/* Header */}
                                 <div className="flex flex-col items-center text-center pb-8 border-b-2 border-[#f3f4f6] print:pb-2 print:border-black">
-                                    <img src="/logo.png" alt="Shamieda Logo" className="h-20 w-auto mb-4 print:h-12 print:mb-2" style={{ filter: 'invert(1)' }} />
+                                    <img src="/logo.png" alt="Shamieda Logo" className="h-20 w-auto mb-4 print:h-12 print:mb-2" />
                                     <h1 className="text-2xl font-black uppercase tracking-widest text-[#1A1A1A] print:text-xl">{shopSettings?.shop_name || "SHAMIEDA BRIYANI HOUSE"}</h1>
                                     <p className="text-xs text-[#6b7280] mt-1 max-w-sm font-medium">{shopSettings?.address || "No 70a Darulaman jaya 06000Jitra Kedah"}</p>
                                     <div className="mt-6 inline-flex items-center gap-3 print:mt-2">
