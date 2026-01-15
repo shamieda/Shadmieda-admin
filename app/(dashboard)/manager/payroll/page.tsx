@@ -580,12 +580,12 @@ export default function PayrollPage() {
                                 </div>
 
                                 {/* Net Salary Highlight */}
-                                <div className="mt-10 bg-[#1A1A1A] rounded-2xl p-6 text-white flex justify-between items-center shadow-xl print:bg-gray-100 print:text-black print:border-2 print:border-black print:shadow-none">
+                                <div className="mt-10 bg-[#1A1A1A] rounded-2xl p-6 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl print:bg-gray-100 print:text-black print:border-2 print:border-black print:shadow-none">
                                     <div>
                                         <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.2em] mb-1">Gaji Bersih (Net Pay)</p>
                                         <p className="text-xs text-gray-500 italic">Setelah semua pendapatan dan potongan</p>
                                     </div>
-                                    <div className="text-right">
+                                    <div className="w-full sm:w-auto text-left sm:text-right">
                                         <p className="text-4xl font-black tracking-tighter text-primary print:text-black">
                                             RM {selectedSlip.earnedSalary.toFixed(2)}
                                         </p>
