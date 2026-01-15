@@ -13,7 +13,6 @@ import {
     OnboardingItem,
     INITIAL_SHOP_SETTINGS,
     INITIAL_TEMPLATE,
-    INITIAL_BONUS,
     INITIAL_POSITION,
     INITIAL_ITEM
 } from "@/types/settings";
@@ -44,10 +43,6 @@ export default function ManagerSettingsPage() {
     // Confirm Delete States
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
     const [confirmDeleteStationId, setConfirmDeleteStationId] = useState<string | null>(null);
-
-    // Bonus State
-    const [bonusConfigs, setBonusConfigs] = useState<BonusConfig[]>([]);
-    const [newBonus, setNewBonus] = useState(INITIAL_BONUS);
 
     // Positions/Stations State
     const [positions, setPositions] = useState<Position[]>([]);
@@ -117,10 +112,6 @@ export default function ManagerSettingsPage() {
             // Fetch Task Templates
             const { data: templates } = await supabase.from('task_templates').select('*').order('created_at', { ascending: false });
             setTaskTemplates(templates || []);
-
-            // Fetch Bonus Configs
-            const { data: bonuses } = await supabase.from('bonus_configs').select('*').order('created_at', { ascending: false });
-            setBonusConfigs(bonuses || []);
 
             // Fetch Positions
             const { data: pos } = await supabase.from('positions').select('*').order('name');
@@ -363,38 +354,6 @@ export default function ManagerSettingsPage() {
             showError(error);
         } finally {
             setLoading(false);
-        }
-    };
-
-    // Bonus Handlers
-    const handleAddBonus = async () => {
-        if (!newBonus.name) return showError("Sila isi nama bonus");
-        setLoading(true);
-        try {
-            const { data, error } = await supabase.from('bonus_configs').insert([{
-                ...newBonus,
-                value: parseFloat(newBonus.value)
-            }]).select();
-
-            if (error) throw error;
-            if (data) setBonusConfigs([data[0], ...bonusConfigs]); // Optimized: targeted update
-            setNewBonus(INITIAL_BONUS);
-            showSuccess("Bonus berjaya ditambah!");
-        } catch (error: any) {
-            showError(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDeleteBonus = async (id: string) => {
-        if (!confirmAction("Padam bonus ini?")) return;
-        try {
-            const { error } = await supabase.from('bonus_configs').delete().eq('id', id);
-            if (error) throw error;
-            setBonusConfigs(bonusConfigs.filter((b: any) => b.id !== id)); // Optimized: targeted update
-        } catch (error: any) {
-            showError(error);
         }
     };
 
@@ -644,11 +603,6 @@ export default function ManagerSettingsPage() {
                     loading={loading}
                     onSettingsChange={handleChange}
                     onSaveSettings={handleSubmit}
-                    bonuses={bonusConfigs}
-                    newBonus={newBonus}
-                    onBonusChange={(field, value) => setNewBonus({ ...newBonus, [field]: value })}
-                    onAdd={handleAddBonus}
-                    onDelete={handleDeleteBonus}
                 />
             )}
 
