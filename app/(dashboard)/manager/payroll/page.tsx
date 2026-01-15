@@ -187,7 +187,10 @@ export default function PayrollPage() {
             const canvas = await html2canvas(payslipRef.current, {
                 scale: 2,
                 useCORS: true,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
+                height: payslipRef.current.scrollHeight,
+                windowHeight: payslipRef.current.scrollHeight + 50,
+                scrollY: 0
             });
 
             const imgData = canvas.toDataURL('image/png');
@@ -238,209 +241,212 @@ export default function PayrollPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-white">Pengurusan Gaji</h1>
-                    <p className="text-gray-400 text-sm">Kira gaji, bonus, dan penalti secara automatik.</p>
-                </div>
-                <div className="flex items-center gap-2 bg-surface border border-white/10 rounded-lg p-1">
-                    <button
-                        onClick={() => handleMonthChange('prev')}
-                        className="p-2 hover:bg-white/5 rounded-md text-gray-400 hover:text-white transition-colors"
-                    >
-                        <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <div className="relative">
-                        <input
-                            type="month"
-                            value={month}
-                            onChange={(e) => setMonth(e.target.value)}
-                            className="bg-transparent text-white font-bold outline-none text-sm w-32 text-center cursor-pointer"
-                        />
+            <div className="print:hidden space-y-6">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-2xl font-bold text-white">Pengurusan Gaji</h1>
+                        <p className="text-gray-400 text-sm">Kira gaji, bonus, dan penalti secara automatik.</p>
                     </div>
-                    <button
-                        onClick={() => handleMonthChange('next')}
-                        className="p-2 hover:bg-white/5 rounded-md text-gray-400 hover:text-white transition-colors"
-                    >
-                        <ChevronRight className="w-4 h-4" />
-                    </button>
-                </div>
-            </div>
-
-
-            {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-                    <Loader2 className="w-8 h-8 animate-spin mb-2" />
-                    <p>Mengira gaji staff...</p>
-                </div>
-            ) : staffPayroll.length === 0 ? (
-                <div className="bg-surface border border-white/5 rounded-xl p-12 text-center">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <User className="w-8 h-8 text-gray-500" />
+                    <div className="flex items-center gap-2 bg-surface border border-white/10 rounded-lg p-1">
+                        <button
+                            onClick={() => handleMonthChange('prev')}
+                            className="p-2 hover:bg-white/5 rounded-md text-gray-400 hover:text-white transition-colors"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <div className="relative">
+                            <input
+                                type="month"
+                                value={month}
+                                onChange={(e) => setMonth(e.target.value)}
+                                className="bg-transparent text-white font-bold outline-none text-sm w-32 text-center cursor-pointer"
+                            />
+                        </div>
+                        <button
+                            onClick={() => handleMonthChange('next')}
+                            className="p-2 hover:bg-white/5 rounded-md text-gray-400 hover:text-white transition-colors"
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-1">Tiada Staff Dijumpai</h3>
-                    <p className="text-gray-500 text-sm">Sila daftar staff untuk mula mengira gaji.</p>
                 </div>
-            ) : (
-                <div className="grid grid-cols-1 gap-4">
-                    {staffPayroll.map((staff) => (
-                        <div key={staff.id} className="bg-surface border border-white/5 rounded-xl p-6 hover:border-primary/30 transition-all">
-                            <div className="flex flex-col md:flex-row justify-between gap-6">
 
-                                {/* Staff Info */}
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <h3 className="text-lg font-bold text-white">{staff.full_name}</h3>
-                                        <span className="px-2 py-0.5 rounded text-xs bg-white/10 text-gray-300 capitalize">Stesen: {staff.position || 'Staff'}</span>
+
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+                        <Loader2 className="w-8 h-8 animate-spin mb-2" />
+                        <p>Mengira gaji staff...</p>
+                    </div>
+                ) : staffPayroll.length === 0 ? (
+                    <div className="bg-surface border border-white/5 rounded-xl p-12 text-center">
+                        <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <User className="w-8 h-8 text-gray-500" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-1">Tiada Staff Dijumpai</h3>
+                        <p className="text-gray-500 text-sm">Sila daftar staff untuk mula mengira gaji.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-4">
+                        {staffPayroll.map((staff) => (
+                            <div key={staff.id} className="bg-surface border border-white/5 rounded-xl p-6 hover:border-primary/30 transition-all">
+                                <div className="flex flex-col md:flex-row justify-between gap-6">
+
+                                    {/* Staff Info */}
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <h3 className="text-lg font-bold text-white">{staff.full_name}</h3>
+                                            <span className="px-2 py-0.5 rounded text-xs bg-white/10 text-gray-300 capitalize">Stesen: {staff.position || 'Staff'}</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4 text-sm text-gray-400">
+                                            <p>Gaji Harian: <span className="text-white">RM{staff.base_salary}</span></p>
+                                            <p>Hari Bekerja: <span className="text-white">{staff.daysWorked} hari</span></p>
+                                            <p>Cuti: <span className="text-blue-400 font-bold">{staff.leaveDays || 0} hari</span></p>
+                                            <p>Lewat: <span className={`font-bold ${staff.lateCount > 0 ? 'text-red-400' : 'text-green-400'}`}>{staff.lateCount} kali</span></p>
+                                            <p className="flex items-center gap-1">Status:
+                                                {staff.paymentStatus === 'paid' ? (
+                                                    <span className="text-green-400 font-bold flex items-center gap-1">
+                                                        <CheckCircle className="w-3 h-3" /> Sudah Bayar
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-yellow-400 font-bold flex items-center gap-1">
+                                                        <AlertCircle className="w-3 h-3" /> Belum Bayar
+                                                    </span>
+                                                )}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4 text-sm text-gray-400">
-                                        <p>Gaji Harian: <span className="text-white">RM{staff.base_salary}</span></p>
-                                        <p>Hari Bekerja: <span className="text-white">{staff.daysWorked} hari</span></p>
-                                        <p>Cuti: <span className="text-blue-400 font-bold">{staff.leaveDays || 0} hari</span></p>
-                                        <p>Lewat: <span className={`font-bold ${staff.lateCount > 0 ? 'text-red-400' : 'text-green-400'}`}>{staff.lateCount} kali</span></p>
-                                        <p className="flex items-center gap-1">Status:
-                                            {staff.paymentStatus === 'paid' ? (
-                                                <span className="text-green-400 font-bold flex items-center gap-1">
-                                                    <CheckCircle className="w-3 h-3" /> Sudah Bayar
+
+                                    {/* Calculations */}
+                                    <div className="flex-1 bg-black/30 rounded-lg p-4 space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-400">Gaji Asas (Pro-rated)</span>
+                                            <span className="text-white">RM{(staff.dailyRate * staff.daysWorked).toFixed(2)}</span>
+                                        </div>
+
+                                        {staff.bonus > 0 && (
+                                            <div className="flex justify-between text-green-400">
+                                                <span className="flex items-center gap-1">
+                                                    <CheckCircle className="w-3 h-3" />
+                                                    Bonus {rankings?.some((r: any) => r.id === staff.id) ? '& Ranking' : 'Kehadiran'}
                                                 </span>
-                                            ) : (
-                                                <span className="text-yellow-400 font-bold flex items-center gap-1">
-                                                    <AlertCircle className="w-3 h-3" /> Belum Bayar
-                                                </span>
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Calculations */}
-                                <div className="flex-1 bg-black/30 rounded-lg p-4 space-y-2 text-sm">
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-400">Gaji Asas (Pro-rated)</span>
-                                        <span className="text-white">RM{(staff.dailyRate * staff.daysWorked).toFixed(2)}</span>
-                                    </div>
-
-                                    {staff.bonus > 0 && (
-                                        <div className="flex justify-between text-green-400">
-                                            <span className="flex items-center gap-1">
-                                                <CheckCircle className="w-3 h-3" />
-                                                Bonus {rankings?.some((r: any) => r.id === staff.id) ? '& Ranking' : 'Kehadiran'}
-                                            </span>
-                                            <span>+ RM{staff.bonus.toFixed(2)}</span>
-                                        </div>
-                                    )}
-
-                                    {staff.penalty > 0 && (
-                                        <div className="flex justify-between text-red-400">
-                                            <span className="flex items-center gap-1"><AlertCircle className="w-3 h-3" /> Penalti Lewat</span>
-                                            <span>- RM{staff.penalty.toFixed(2)}</span>
-                                        </div>
-                                    )}
-
-                                    {staff.onboardingDeduction > 0 && (
-                                        <div className="flex justify-between text-purple-400">
-                                            <span className="flex items-center gap-1"><Package className="w-3 h-3" /> Onboarding Kit</span>
-                                            <span>- RM{staff.onboardingDeduction.toFixed(2)}</span>
-                                        </div>
-                                    )}
-
-                                    <div className="border-t border-white/10 pt-2 mt-2 flex justify-between items-center">
-                                        <span className="font-bold text-white">Gaji Bersih</span>
-                                        <span className="text-xl font-bold text-primary">RM{staff.earnedSalary.toFixed(2)}</span>
-                                    </div>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="flex flex-col gap-2 justify-center min-w-[150px]">
-                                    {staff.paymentStatus === 'paid' ? (
-                                        <div className="space-y-2">
-                                            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 text-center">
-                                                <p className="text-[10px] text-green-500 font-black uppercase tracking-widest">Gaji Telah Dibayar</p>
-                                                <p className="text-sm text-white font-bold">{new Date(staff.paidAt).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                                                <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold">{staff.paymentMethod}</p>
+                                                <span>+ RM{staff.bonus.toFixed(2)}</span>
                                             </div>
+                                        )}
 
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {staff.paymentProofUrl && (
+                                        {staff.penalty > 0 && (
+                                            <div className="flex justify-between text-red-400">
+                                                <span className="flex items-center gap-1"><AlertCircle className="w-3 h-3" /> Penalti Lewat</span>
+                                                <span>- RM{staff.penalty.toFixed(2)}</span>
+                                            </div>
+                                        )}
+
+                                        {staff.onboardingDeduction > 0 && (
+                                            <div className="flex justify-between text-purple-400">
+                                                <span className="flex items-center gap-1"><Package className="w-3 h-3" /> Onboarding Kit</span>
+                                                <span>- RM{staff.onboardingDeduction.toFixed(2)}</span>
+                                            </div>
+                                        )}
+
+                                        <div className="border-t border-white/10 pt-2 mt-2 flex justify-between items-center">
+                                            <span className="font-bold text-white">Gaji Bersih</span>
+                                            <span className="text-xl font-bold text-primary">RM{staff.earnedSalary.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex flex-col gap-2 justify-center min-w-[150px]">
+                                        {staff.paymentStatus === 'paid' ? (
+                                            <div className="space-y-2">
+                                                <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 text-center">
+                                                    <p className="text-[10px] text-green-500 font-black uppercase tracking-widest">Gaji Telah Dibayar</p>
+                                                    <p className="text-sm text-white font-bold">{new Date(staff.paidAt).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                                    <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold">{staff.paymentMethod}</p>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {staff.paymentProofUrl && (
+                                                        <button
+                                                            onClick={() => setProofViewer(staff.paymentProofUrl)}
+                                                            className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+                                                        >
+                                                            <Eye className="w-4 h-4" />
+                                                            Bukti
+                                                        </button>
+                                                    )}
                                                     <button
-                                                        onClick={() => setProofViewer(staff.paymentProofUrl)}
+                                                        onClick={() => setSelectedSlip(staff)}
                                                         className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
                                                     >
-                                                        <Eye className="w-4 h-4" />
-                                                        Bukti
+                                                        <FileText className="w-4 h-4" />
+                                                        Slip
                                                     </button>
-                                                )}
-                                                <button
-                                                    onClick={() => setSelectedSlip(staff)}
-                                                    className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
-                                                >
-                                                    <FileText className="w-4 h-4" />
-                                                    Slip
-                                                </button>
-                                            </div>
+                                                </div>
 
-                                            <button
-                                                onClick={() => handleShareWhatsApp(staff)}
-                                                disabled={generatingPdf}
-                                                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-green-500/20 active:scale-95 disabled:opacity-50"
-                                            >
-                                                {generatingPdf && selectedSlip?.id === staff.id ? (
-                                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                                ) : (
-                                                    <Share2 className="w-5 h-5" />
-                                                )}
-                                                WhatsApp PDF
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-2">
-                                            <button
-                                                onClick={() => setPayingStaff(staff)}
-                                                className="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-black py-4 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(250,204,21,0.3)] active:scale-95 group"
-                                            >
-                                                <Banknote className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                                                Bayar Sekarang
-                                            </button>
-
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <button
-                                                    onClick={() => setSelectedSlip(staff)}
-                                                    className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-400 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
-                                                >
-                                                    <FileText className="w-4 h-4" />
-                                                    Lihat Slip
-                                                </button>
                                                 <button
                                                     onClick={() => handleShareWhatsApp(staff)}
                                                     disabled={generatingPdf}
-                                                    className="flex items-center justify-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-500 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50"
+                                                    className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-green-500/20 active:scale-95 disabled:opacity-50"
                                                 >
                                                     {generatingPdf && selectedSlip?.id === staff.id ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                        <Loader2 className="w-5 h-5 animate-spin" />
                                                     ) : (
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                                                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                                                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                                                         </svg>
                                                     )}
-                                                    WhatsApp
+                                                    WhatsApp PDF
                                                 </button>
                                             </div>
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div className="space-y-2">
+                                                <button
+                                                    onClick={() => setPayingStaff(staff)}
+                                                    className="w-full flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-black py-4 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(250,204,21,0.3)] active:scale-95 group"
+                                                >
+                                                    <Banknote className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                                                    Bayar Sekarang
+                                                </button>
 
-                                    {staff.canRequestAdvance && staff.paymentStatus !== 'paid' && (
-                                        <button className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-500 py-2 rounded-xl text-xs transition-colors mt-1">
-                                            <DollarSign className="w-3 h-3" />
-                                            Beri Advance
-                                        </button>
-                                    )}
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <button
+                                                        onClick={() => setSelectedSlip(staff)}
+                                                        className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-400 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+                                                    >
+                                                        <FileText className="w-4 h-4" />
+                                                        Lihat Slip
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleShareWhatsApp(staff)}
+                                                        disabled={generatingPdf}
+                                                        className="flex items-center justify-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-500 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50"
+                                                    >
+                                                        {generatingPdf && selectedSlip?.id === staff.id ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                        ) : (
+                                                            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                                                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                                                            </svg>
+                                                        )}
+                                                        WhatsApp
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {staff.canRequestAdvance && staff.paymentStatus !== 'paid' && (
+                                            <button className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-500 py-2 rounded-xl text-xs transition-colors mt-1">
+                                                <DollarSign className="w-3 h-3" />
+                                                Beri Advance
+                                            </button>
+                                        )}
+                                    </div>
+
                                 </div>
-
                             </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
+                        ))}
+                    </div>
+                )}
+            </div>
             {/* Payslip Modal */}
             {selectedSlip && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 sm:p-6 print:p-0 print:bg-white overflow-hidden">
@@ -663,41 +669,46 @@ export default function PayrollPage() {
                         </div>
                     </div>
                 </div>
-            )}
+            )
+            }
             {/* Payment Modal */}
-            {payingStaff && (
-                <PaymentModal
-                    staff={payingStaff}
-                    month={month}
-                    onClose={() => setPayingStaff(null)}
-                    onSuccess={() => fetchPayrollData()}
-                />
-            )}
+            {
+                payingStaff && (
+                    <PaymentModal
+                        staff={payingStaff}
+                        month={month}
+                        onClose={() => setPayingStaff(null)}
+                        onSuccess={() => fetchPayrollData()}
+                    />
+                )
+            }
 
             {/* Proof Viewer */}
-            {proofViewer && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl" onClick={() => setProofViewer(null)}>
-                    <button onClick={() => setProofViewer(null)} className="absolute top-6 right-6 p-3 bg-white/10 rounded-full text-white">
-                        <X className="w-6 h-6" />
-                    </button>
-                    <div className="relative max-w-4xl w-full h-full flex items-center justify-center" onClick={e => e.stopPropagation()}>
-                        <img
-                            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${proofViewer}`}
-                            alt="Bukti Bayaran"
-                            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
-                        />
-                        <a
-                            href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${proofViewer}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="absolute bottom-6 right-6 flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg"
-                        >
-                            <ExternalLink className="w-4 h-4" />
-                            Buka Penuh
-                        </a>
+            {
+                proofViewer && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl" onClick={() => setProofViewer(null)}>
+                        <button onClick={() => setProofViewer(null)} className="absolute top-6 right-6 p-3 bg-white/10 rounded-full text-white">
+                            <X className="w-6 h-6" />
+                        </button>
+                        <div className="relative max-w-4xl w-full h-full flex items-center justify-center" onClick={e => e.stopPropagation()}>
+                            <img
+                                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${proofViewer}`}
+                                alt="Bukti Bayaran"
+                                className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
+                            />
+                            <a
+                                href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${proofViewer}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="absolute bottom-6 right-6 flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg"
+                            >
+                                <ExternalLink className="w-4 h-4" />
+                                Buka Penuh
+                            </a>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }
