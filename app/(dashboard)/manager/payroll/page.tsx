@@ -473,178 +473,133 @@ export default function PayrollPage() {
 
                         {/* Scrollable Content */}
                         <div className="overflow-y-auto flex-1">
-                            <div ref={payslipRef} className="p-6 md:p-10 space-y-6 print:p-0 bg-white">
-                                {/* Header */}
-                                <div className="flex flex-col items-center text-center pb-8 border-b-2 border-[#f3f4f6] print:pb-2 print:border-black">
-                                    <img src="/logo.png" alt="Shamieda Logo" className="h-20 w-auto mb-4 print:h-12 print:mb-2" />
-                                    <h1 className="text-2xl font-black uppercase tracking-widest text-[#1A1A1A] print:text-xl">{shopSettings?.shop_name || "SHAMIEDA BRIYANI HOUSE"}</h1>
-                                    <p className="text-xs text-[#6b7280] mt-1 max-w-sm font-medium">{shopSettings?.address || "No 70a Darulaman jaya 06000Jitra Kedah"}</p>
-                                    <div className="mt-6 inline-flex items-center gap-3 print:mt-2">
-                                        <div className="h-[1px] w-12 bg-[#e5e7eb] print:bg-black" />
-                                        <span className="text-sm font-black uppercase tracking-[0.2em] bg-[#000000] text-[#ffffff] px-6 py-1.5 rounded-full print:bg-transparent print:text-black print:border print:border-black print:px-4 print:py-0.5">
-                                            SLIP GAJI: {month}
-                                        </span>
-                                        <div className="h-[1px] w-12 bg-[#e5e7eb] print:bg-black" />
-                                    </div>
-                                </div>
+                            <div ref={payslipRef} className="p-0 bg-white print:p-0 flex justify-center">
+                                {/* A4 Container */}
+                                <div className="w-full md:w-[210mm] min-h-[297mm] bg-white p-[15mm] md:p-[20mm] relative flex flex-col justify-between text-black shadow-none print:shadow-none print:w-[210mm] print:h-[297mm] print:p-[20mm] border border-gray-200 print:border-none my-4 print:my-0">
 
-                                {/* Staff Info Grid */}
-                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-12 py-6 print:py-2 print:gap-y-2">
-                                    <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">Nama Pekerja</p>
-                                        <p className="font-bold text-[#1A1A1A]">{selectedSlip.full_name}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">No. Kad Pengenalan</p>
-                                        <p className="font-mono text-sm">{selectedSlip.ic_number || 'XXXXXX-XX-XXXX'}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">ID Pekerja</p>
-                                        <p className="font-mono text-sm">{selectedSlip.id.substring(0, 8).toUpperCase()}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">Jawatan</p>
-                                        <p className="font-bold text-[#1A1A1A]">{selectedSlip.position || 'Staff'}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">Hari Bekerja</p>
-                                        <p className="font-bold text-[#1A1A1A]">{selectedSlip.daysWorked} hari</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">Tarikh Bayaran</p>
-                                        <p className="font-bold text-[#1A1A1A]">{selectedSlip.paidAt ? new Date(selectedSlip.paidAt).toLocaleDateString('ms-MY') : '-'}</p>
-                                    </div>
-                                </div>
-
-                                {/* Earnings & Deductions Tables */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 print:pt-2 print:gap-4">
-                                    {/* Earnings column */}
-                                    <div className="flex flex-col space-y-4 h-full print:space-y-2">
-                                        <div className="flex-1 space-y-4 print:space-y-2">
-                                            <h4 className="text-xs font-black bg-[#f9fafb] p-2 rounded border-l-4 border-[#22c55e] flex justify-between items-center print:border-black print:bg-transparent print:p-0">
-                                                BUTIRAN PENDAPATAN
-                                                <span className="text-[9px] text-[#9ca3af]">AMUR (RM)</span>
-                                            </h4>
-                                            <div className="space-y-2.5 px-2 print:space-y-1 print:px-0">
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-[#4b5563]">Gaji Asas (Harian)</span>
-                                                    <span className="font-mono">{(selectedSlip.dailyRate * selectedSlip.daysWorked).toFixed(2)}</span>
-                                                </div>
-                                                {selectedSlip.bonus > 0 && (
-                                                    <div className="flex justify-between text-sm">
-                                                        <span className="text-[#4b5563]">Bonus & Insentif</span>
-                                                        <span className="font-mono">{selectedSlip.bonus.toFixed(2)}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black mt-auto print:pt-1">
-                                            <span>JUMLAH PENDAPATAN</span>
-                                            <span>RM {(selectedSlip.dailyRate * selectedSlip.daysWorked + selectedSlip.bonus).toFixed(2)}</span>
-                                        </div>
+                                    {/* Watermark/Background (Optional) */}
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none overflow-hidden">
+                                        <img src="/logo.png" className="w-[80%] grayscale" />
                                     </div>
 
-                                    {/* Deductions column */}
-                                    <div className="flex flex-col space-y-4 h-full print:space-y-2">
-                                        <div className="flex-1 space-y-4 print:space-y-2">
-                                            <h4 className="text-xs font-black bg-[#f9fafb] p-2 rounded border-l-4 border-[#ef4444] flex justify-between items-center print:border-black print:bg-transparent print:p-0">
-                                                BUTIRAN POTONGAN
-                                                <span className="text-[9px] text-[#9ca3af]">AMUR (RM)</span>
-                                            </h4>
-                                            <div className="space-y-2.5 px-2 print:space-y-1 print:px-0">
-                                                {selectedSlip.penalty > 0 ? (
-                                                    <div className="flex justify-between text-sm text-[#dc2626] print:text-black">
-                                                        <span>Penalti lewat ({selectedSlip.lateCount}x)</span>
-                                                        <span className="font-mono">{selectedSlip.penalty.toFixed(2)}</span>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex justify-between text-sm text-[#9ca3af] italic">
-                                                        <span>Penalti lewat</span>
-                                                        <span className="font-mono">0.00</span>
-                                                    </div>
-                                                )}
-
-                                                {selectedSlip.advanceAmount > 0 ? (
-                                                    <div className="flex justify-between text-sm text-[#dc2626] print:text-black">
-                                                        <span>Advance</span>
-                                                        <span className="font-mono">{selectedSlip.advanceAmount.toFixed(2)}</span>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex justify-between text-sm text-[#9ca3af] italic">
-                                                        <span>Advance</span>
-                                                        <span className="font-mono">0.00</span>
-                                                    </div>
-                                                )}
-
-                                                {selectedSlip.onboardingDeduction > 0 && (
-                                                    <div className="flex justify-between text-sm text-[#9333ea] print:text-black">
-                                                        <span>Onboarding Kit</span>
-                                                        <span className="font-mono">{selectedSlip.onboardingDeduction.toFixed(2)}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black mt-auto print:pt-1">
-                                            <span>JUMLAH POTONGAN</span>
-                                            <span>RM {(selectedSlip.penalty + selectedSlip.onboardingDeduction + selectedSlip.advanceAmount).toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Net Salary Highlight */}
-                                <div className="mt-10 bg-[#1A1A1A] rounded-2xl p-6 text-[#ffffff] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl print:bg-[#f3f4f6] print:text-black print:border-2 print:border-black print:shadow-none print:mt-6 print:p-4 print:rounded-lg">
-                                    <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-[0.2em] mb-1 print:text-black">Gaji Bersih (Net Pay)</p>
-                                        <p className="text-xs text-[#6b7280] italic">Setelah semua pendapatan dan potongan</p>
-                                    </div>
-                                    <div className="w-full sm:w-auto text-left sm:text-right">
-                                        <p className="text-4xl font-black tracking-tighter text-[#fbbf24] print:text-black">
-                                            RM {selectedSlip.earnedSalary.toFixed(2)}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Bank Details (If payment recorded) */}
-                                {selectedSlip.paymentMethod && (
-                                    <div className="bg-[#f9fafb] p-4 rounded-xl border border-[#f3f4f6] flex items-center justify-between text-xs print:bg-white print:border-black">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-white rounded-lg shadow-sm border border-[#f3f4f6] print:border-black">
-                                                <Wallet className="w-4 h-4 text-[#9ca3af]" />
-                                            </div>
-                                            <div>
-                                                <p className="font-black uppercase tracking-widest text-[9px] text-[#9ca3af]">Kaedah Bayaran</p>
-                                                <p className="font-bold text-[#1A1A1A]">{selectedSlip.paymentMethod}</p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-black uppercase tracking-widest text-[9px] text-[#9ca3af]">Status Bayaran</p>
-                                            <p className="font-bold text-[#16a34a] flex items-center gap-1 justify-end">
-                                                <CheckCircle className="w-3 h-3" /> Berjaya
+                                    {/* Header Section */}
+                                    <div className="relative z-10">
+                                        <div className="flex flex-col items-center border-b-2 border-black pb-6 mb-8">
+                                            <img src="/logo.png" alt="Shamieda Logo" className="h-24 w-auto mb-4 object-contain" />
+                                            <h1 className="text-3xl font-black uppercase tracking-wider text-black text-center mb-1">
+                                                {shopSettings?.shop_name || "SHAMIEDA BRIYANI HOUSE"}
+                                            </h1>
+                                            <p className="text-sm text-gray-600 font-medium tracking-wide uppercase">
+                                                {shopSettings?.address || "No 70a Darulaman jaya 06000Jitra Kedah"}
                                             </p>
                                         </div>
-                                    </div>
-                                )}
 
-                                {/* Footer Signature Section */}
-                                <div className="grid grid-cols-2 gap-20 pt-16 pb-4 print:pt-8 print:pb-2 print:gap-10">
-                                    <div className="border-t border-[#e5e7eb] pt-2 text-center print:border-black">
-                                        <p className="text-[10px] font-black uppercase text-[#9ca3af] mb-12 print:mb-8 print:text-black">Tandatangan Majikan</p>
-                                        <div className="h-0.5 w-32 mx-auto bg-[#f3f4f6] print:bg-black" />
-                                    </div>
-                                    <div className="border-t border-[#e5e7eb] pt-2 text-center print:border-black">
-                                        <p className="text-[10px] font-black uppercase text-[#9ca3af] mb-12 print:mb-8 print:text-black">Tandatangan Pekerja</p>
-                                        <div className="h-0.5 w-32 mx-auto bg-[#f3f4f6] print:bg-black" />
-                                    </div>
-                                </div>
+                                        <div className="flex justify-between items-end mb-8 border-b border-gray-200 pb-6">
+                                            <div>
+                                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">SLIP GAJI UNTUK</p>
+                                                <h2 className="text-xl font-bold text-black uppercase">{selectedSlip.full_name}</h2>
+                                                <p className="font-mono text-sm text-gray-600 mt-1">{selectedSlip.position || 'Staff'} • {selectedSlip.id.substring(0, 8).toUpperCase()}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">TEMPOH BAYARAN</p>
+                                                <h2 className="text-xl font-black text-black tracking-tight">{month}</h2>
+                                                <p className="text-sm text-gray-600 mt-1 flex items-center justify-end gap-2">
+                                                    <span className="font-bold">{selectedSlip.daysWorked}</span> Hari Bekerja
+                                                </p>
+                                            </div>
+                                        </div>
 
-                                {/* System Footer */}
-                                <div className="text-center pt-8 print:pt-4">
-                                    <p className="text-[9px] text-[#d1d5db] font-medium uppercase tracking-widest">
-                                        Dokumen ini dijana secara automatik oleh Sistem Pengurusan Shamieda
-                                    </p>
-                                    <p className="text-[9px] text-[#9ca3af] mt-1">
-                                        Dicetak pada: {new Date().toLocaleString('ms-MY')}
-                                    </p>
+                                        {/* Financials Grid - "Synching" Columns */}
+                                        <div className="grid grid-cols-2 gap-12">
+                                            {/* Left Column: Earnings */}
+                                            <div className="flex flex-col">
+                                                <h3 className="text-sm font-black uppercase tracking-widest border-b-2 border-green-500 pb-2 mb-4 text-black">
+                                                    PENDAPATAN
+                                                </h3>
+                                                <div className="space-y-3 flex-1">
+                                                    <div className="flex justify-between items-center text-sm">
+                                                        <span className="text-gray-600 font-medium">Gaji Asas</span>
+                                                        <span className="font-mono font-bold">{(selectedSlip.dailyRate * selectedSlip.daysWorked).toFixed(2)}</span>
+                                                    </div>
+                                                    {selectedSlip.bonus > 0 && (
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <span className="text-gray-600 font-medium">Bonus & Insentif</span>
+                                                            <span className="font-mono font-bold">{selectedSlip.bonus.toFixed(2)}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="mt-6 pt-2 border-t border-dashed border-gray-300 flex justify-between items-center bg-green-50 p-2 rounded">
+                                                    <span className="text-xs font-black uppercase text-green-700">Jumlah Pendapatan</span>
+                                                    <span className="font-mono font-bold text-green-700">RM {(selectedSlip.dailyRate * selectedSlip.daysWorked + selectedSlip.bonus).toFixed(2)}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Right Column: Deductions */}
+                                            <div className="flex flex-col">
+                                                <h3 className="text-sm font-black uppercase tracking-widest border-b-2 border-red-500 pb-2 mb-4 text-black">
+                                                    POTONGAN
+                                                </h3>
+                                                <div className="space-y-3 flex-1">
+                                                    <div className="flex justify-between items-center text-sm">
+                                                        <span className="text-gray-600 font-medium">Penalti Lewat ({selectedSlip.lateCount}x)</span>
+                                                        <span className={`font-mono font-bold ${selectedSlip.penalty > 0 ? 'text-red-500' : 'text-gray-300'}`}>
+                                                            {selectedSlip.penalty.toFixed(2)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center text-sm">
+                                                        <span className="text-gray-600 font-medium">Advance</span>
+                                                        <span className={`font-mono font-bold ${selectedSlip.advanceAmount > 0 ? 'text-red-500' : 'text-gray-300'}`}>
+                                                            {selectedSlip.advanceAmount.toFixed(2)}
+                                                        </span>
+                                                    </div>
+                                                    {selectedSlip.onboardingDeduction > 0 && (
+                                                        <div className="flex justify-between items-center text-sm">
+                                                            <span className="text-gray-600 font-medium">Onboarding Kit</span>
+                                                            <span className="font-mono font-bold text-red-500">{selectedSlip.onboardingDeduction.toFixed(2)}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="mt-6 pt-2 border-t border-dashed border-gray-300 flex justify-between items-center bg-red-50 p-2 rounded">
+                                                    <span className="text-xs font-black uppercase text-red-700">Jumlah Potongan</span>
+                                                    <span className="font-mono font-bold text-red-700">RM {(selectedSlip.penalty + selectedSlip.onboardingDeduction + selectedSlip.advanceAmount).toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Footer Section */}
+                                    <div className="relative z-10 mt-auto pt-10">
+                                        {/* Net Pay Box */}
+                                        <div className="border-2 border-black bg-gray-50 p-6 rounded-xl flex justify-between items-center mb-12">
+                                            <div>
+                                                <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500 mb-1">GAJI BERSIH (NET PAY)</p>
+                                                <p className="text-xs text-gray-400 italic font-medium">Disahkan dan muktamad</p>
+                                            </div>
+                                            <p className="text-4xl font-black tracking-tight text-black">
+                                                RM {selectedSlip.earnedSalary.toFixed(2)}
+                                            </p>
+                                        </div>
+
+                                        {/* Signatures */}
+                                        <div className="grid grid-cols-2 gap-20 mb-8">
+                                            <div>
+                                                <div className="h-24 border-b border-black mb-2"></div>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-center text-gray-500">Tandatangan Majikan</p>
+                                            </div>
+                                            <div>
+                                                <div className="h-24 border-b border-black mb-2"></div>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-center text-gray-500">Tandatangan Pekerja</p>
+                                                <p className="text-[9px] text-center text-gray-400 mt-1">{selectedSlip.ic_number}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* System Meta */}
+                                        <div className="text-center border-t border-gray-100 pt-4 flex justify-between items-center text-[9px] text-gray-400 uppercase tracking-widest font-medium">
+                                            <span>SHAMIEDA MANAGEMENT SYSTEM v1.0</span>
+                                            <span>DOC ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+                                            <span>{new Date().toLocaleString('ms-MY')}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
