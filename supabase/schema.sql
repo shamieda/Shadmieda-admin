@@ -409,3 +409,27 @@ USING (EXISTS (SELECT 1 FROM public.users WHERE auth_id = auth.uid() AND role IN
 CREATE POLICY "Managers can update advance requests"
 ON public.advance_requests FOR UPDATE
 USING (EXISTS (SELECT 1 FROM public.users WHERE auth_id = auth.uid() AND role IN ('admin', 'manager', 'master')));
+
+-- 8. USER SESSIONS TABLE (For PWA Persistence)
+create table public.user_sessions (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.users(id) on delete cascade not null,
+  session_id uuid default uuid_generate_v4() unique not null,
+  refresh_token text not null,
+  user_agent text,
+  last_used_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable RLS
+alter table public.user_sessions enable row level security;
+
+-- Policies
+create policy "Users can view own sessions" on public.user_sessions
+  for select using (auth.uid() in (select auth_id from public.users where id = user_id));
+
+create policy "Users can delete own sessions" on public.user_sessions
+  for delete using (auth.uid() in (select auth_id from public.users where id = user_id));
+
+-- Index for faster lookups in middleware
+create index idx_user_sessions_session_id on public.user_sessions(session_id);

@@ -26,7 +26,15 @@ export default function LoginPage() {
 
             if (authError) throw authError;
 
-            if (authData.user) {
+            if (authData.user && authData.session) {
+                // 1.5 Persist session for recovery
+                try {
+                    const { persistSessionAction } = await import("@/app/actions/auth");
+                    await persistSessionAction(authData.user.id, authData.session.refresh_token);
+                } catch (persistErr) {
+                    console.error("Failed to set persistent session:", persistErr);
+                }
+
                 // 2. Check User Role
                 const { data: userData, error: userError } = await supabase
                     .from('users')

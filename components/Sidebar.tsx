@@ -81,6 +81,12 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
     }
 
     const handleLogout = async () => {
+        try {
+            const { clearPersistSessionAction } = await import("@/app/actions/auth");
+            await clearPersistSessionAction();
+        } catch (err) {
+            console.error("Failed to clear persist session:", err);
+        }
         await supabase.auth.signOut();
         router.push("/login");
     };

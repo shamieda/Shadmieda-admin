@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { recoverSessionForMiddleware, SESSION_COOKIE_NAME } from './lib/session-recovery';
 
 export async function middleware(request: NextRequest) {
     let response = NextResponse.next({
@@ -66,7 +67,21 @@ export async function middleware(request: NextRequest) {
         }
     );
 
-    const { data: { user }, error } = await supabase.auth.getUser();
+    let { data: { user }, error } = await supabase.auth.getUser();
+
+    // 1.5 If NO user found in cookies, try RECOVERY from DB
+    if (!user) {
+        const sessionId = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+        if (sessionId) {
+            console.log("MW: Attempting DB Recovery for SID:", sessionId);
+            const recoveredSession = await recoverSessionForMiddleware(supabase, sessionId);
+            if (recoveredSession) {
+                user = recoveredSession.user;
+                console.log("MW: Recovery Successful for User:", user.id);
+            }
+        }
+    }
+
     console.log("MW: Path:", request.nextUrl.pathname, "User:", user?.id, "Error:", error?.message);
 
     // 1. Protect routes
