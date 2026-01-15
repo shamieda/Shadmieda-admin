@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { CheckCircle, Circle, Camera, Loader2, Filter, RefreshCw, ChevronDown } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { awardGoodDeedAction, checkAllDailyTasksCompleteAction } from "@/app/actions/points";
 
 export default function StaffTasksPage() {
     const [tasks, setTasks] = useState<any[]>([]);
@@ -151,6 +152,18 @@ export default function StaffTasksPage() {
             const { error } = await supabase.from('tasks').update({ is_completed: !currentStatus }).eq('id', id);
             if (error) throw error;
             setTasks(tasks.map((t: any) => t.id === id ? { ...t, is_completed: !currentStatus } : t));
+
+            // Check if all tasks are now complete and award good deed
+            if (!currentStatus && userProfile) { // Task was just completed
+                const today = new Date().toISOString().split('T')[0];
+                const { allComplete } = await checkAllDailyTasksCompleteAction(userProfile.id, today);
+
+                if (allComplete) {
+                    // Award good deed for completing all daily tasks
+                    await awardGoodDeedAction(userProfile.id);
+                    console.log('✅ Good deed awarded - all tasks complete!');
+                }
+            }
         } catch (error) {
             console.error('Error updating task:', error);
         }
@@ -295,8 +308,8 @@ export default function StaffTasksPage() {
                                             key={station}
                                             onClick={() => handleStationChange(station)}
                                             className={`w-full text-left px-4 py-3 text-sm transition-all border-b border-white/5 last:border-0 ${selectedStation === station
-                                                    ? 'bg-primary/10 text-primary font-bold'
-                                                    : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                                                ? 'bg-primary/10 text-primary font-bold'
+                                                : 'text-gray-300 hover:bg-white/5 hover:text-white'
                                                 }`}
                                         >
                                             {station}

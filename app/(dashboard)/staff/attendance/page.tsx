@@ -5,6 +5,7 @@ import { Camera, MapPin, RefreshCw, CheckCircle, AlertTriangle } from "lucide-re
 import { supabase } from "@/lib/supabase";
 import AttendanceHistory from "@/components/AttendanceHistory";
 import { createNotificationAction, getManagersAction } from "@/app/actions/notifications";
+import { deductBadDeedAction } from "@/app/actions/points";
 
 // Mock Shop Coordinates (Replace with real ones later)
 // Mock Shop Coordinates (Replace with real ones later)
@@ -379,8 +380,13 @@ export default function StaffAttendancePage() {
 
             if (insertError) throw insertError;
 
-            // 5. Notify Manager if Late
-            // 5. Notify Manager if Late
+            // 5. Deduct points if late (Bad Deed)
+            if (status === 'late') {
+                await deductBadDeedAction(profile.id);
+                console.log('❌ Bad deed deducted - late attendance');
+            }
+
+            // 6. Notify Manager if Late
             if (status === 'late') {
                 console.log("DEBUG: Status is late. Fetching managers...");
                 const managersResult = await getManagersAction();
