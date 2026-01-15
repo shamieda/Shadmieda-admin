@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Wallet, Send, AlertCircle, CheckCircle, DollarSign, Loader2, User, FileText, Printer, X, ChevronLeft, ChevronRight, Package, Trophy, Banknote } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Wallet, Send, AlertCircle, CheckCircle, DollarSign, Loader2, User, FileText, Printer, X, ChevronLeft, ChevronRight, Package, Trophy, Banknote, Share2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { getRankingsAction } from "@/app/actions/get-rankings";
 import PaymentModal from "@/components/PaymentModal";
 import { Eye, ExternalLink } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 export default function PayrollPage() {
     const [month, setMonth] = useState(new Date().toISOString().substring(0, 7));
@@ -16,6 +18,8 @@ export default function PayrollPage() {
     const [selectedSlip, setSelectedSlip] = useState<any>(null);
     const [payingStaff, setPayingStaff] = useState<any>(null);
     const [proofViewer, setProofViewer] = useState<string | null>(null);
+    const payslipRef = useRef<HTMLDivElement>(null);
+    const [generatingPdf, setGeneratingPdf] = useState(false);
 
     useEffect(() => {
         fetchPayrollData();
@@ -165,30 +169,61 @@ export default function PayrollPage() {
         }
     };
 
-    const sendWhatsApp = (staff: any) => {
-        const paymentInfo = staff.paymentStatus === 'paid'
-            ? `\n\n*STATUS: TELAH DIBAYAR*\nKaedah: ${staff.paymentMethod}\nTarikh: ${new Date(staff.paidAt).toLocaleDateString('ms-MY')}`
-            : `\n\n*STATUS: MENUNGGU BAYARAN*`;
+    const handleShareWhatsApp = async (staff: any) => {
+        if (!selectedSlip || selectedSlip.id !== staff.id) {
+            setSelectedSlip(staff);
+            // Wait for render
+            setTimeout(() => sharePdfLogic(staff), 500);
+            return;
+        }
+        sharePdfLogic(staff);
+    };
 
-        const message = `
-*SLIP GAJI SHAMIEDA FAMILY*
----------------------------
-Nama: ${staff.full_name}
-Bulan: ${month}
+    const sharePdfLogic = async (staff: any) => {
+        if (!payslipRef.current) return;
+        setGeneratingPdf(true);
 
-Gaji Harian: RM${staff.base_salary}
-Hari Bekerja: ${staff.daysWorked} hari
+        try {
+            const canvas = await html2canvas(payslipRef.current, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
 
-+ Bonus Kehadiran: RM${staff.bonus.toFixed(2)}
-- Penalti Lewat (${staff.lateCount}x): RM${staff.penalty.toFixed(2)}
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-*BERSIH: RM${staff.earnedSalary.toFixed(2)}*${paymentInfo}
----------------------------
-Terima kasih atas usaha anda!
-    `.trim();
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            const fileName = `Slip_Gaji_${staff.full_name.replace(/\s+/g, '_')}_${month}.pdf`;
 
-        const encodedMessage = encodeURIComponent(message);
-        window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+            // Try native sharing (Mobile)
+            if (navigator.share) {
+                const blob = pdf.output('blob');
+                const file = new File([blob], fileName, { type: 'application/pdf' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Slip Gaji',
+                        text: `Slip Gaji untuk ${staff.full_name} - ${month}`
+                    });
+                    setGeneratingPdf(false);
+                    return;
+                }
+            }
+
+            // Fallback: Download and simple message
+            pdf.save(fileName);
+            const message = `*SLIP GAJI SHAMIEDA*\nSila lihat slip gaji PDF yang telah dimuat turun.`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+            alert("Gagal menjana PDF. Sila cuba lagi.");
+        } finally {
+            setGeneratingPdf(false);
+        }
     };
 
     const handlePrint = () => {
@@ -344,13 +379,16 @@ Terima kasih atas usaha anda!
                                             </div>
 
                                             <button
-                                                onClick={() => sendWhatsApp(staff)}
-                                                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-green-500/20 active:scale-95"
+                                                onClick={() => handleShareWhatsApp(staff)}
+                                                disabled={generatingPdf}
+                                                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-green-500/20 active:scale-95 disabled:opacity-50"
                                             >
-                                                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.414 0 .004 5.412.001 12.049a11.866 11.866 0 001.592 5.953L0 24l6.117-1.605a11.82 11.82 0 005.925 1.586h.005c6.637 0 12.048-5.414 12.052-12.051a11.83 11.83 0 00-3.535-8.528z" />
-                                                </svg>
-                                                Hantar Resit WA
+                                                {generatingPdf && selectedSlip?.id === staff.id ? (
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                ) : (
+                                                    <Share2 className="w-5 h-5" />
+                                                )}
+                                                WhatsApp PDF
                                             </button>
                                         </div>
                                     ) : (
@@ -372,11 +410,16 @@ Terima kasih atas usaha anda!
                                                     Lihat Slip
                                                 </button>
                                                 <button
-                                                    onClick={() => sendWhatsApp(staff)}
-                                                    className="flex items-center justify-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-500 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+                                                    onClick={() => handleShareWhatsApp(staff)}
+                                                    disabled={generatingPdf}
+                                                    className="flex items-center justify-center gap-2 bg-green-500/10 hover:bg-green-500/20 text-green-500 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50"
                                                 >
-                                                    <Send className="w-4 h-4" />
-                                                    Slip WA
+                                                    {generatingPdf && selectedSlip?.id === staff.id ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <Share2 className="w-4 h-4" />
+                                                    )}
+                                                    PDF
                                                 </button>
                                             </div>
                                         </div>
@@ -398,208 +441,223 @@ Terima kasih atas usaha anda!
 
             {/* Payslip Modal */}
             {selectedSlip && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 print:p-0 print:bg-white">
-                    <div className="bg-white text-black rounded-2xl w-full max-w-2xl overflow-hidden print:shadow-none print:w-full print:max-w-none print:rounded-none">
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 sm:p-6 print:p-0 print:bg-white overflow-hidden">
+                    {/* Added p-4 sm:p-6 for padding on mobile/desktop */}
+                    <div className="bg-white text-black rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden print:w-full print:max-w-none print:shadow-none print:rounded-none print:max-h-none">
                         {/* Modal Header (Hidden in Print) */}
-                        <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50 print:hidden">
+                        <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50 print:hidden shrink-0 sticky top-0 z-10">
                             <h3 className="font-bold text-lg">Slip Gaji Terperinci</h3>
                             <button onClick={() => setSelectedSlip(null)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-                                <X className="w-5 h-5" />
+                                <X className="w-6 h-6 text-gray-500" />
                             </button>
                         </div>
 
-                        {/* Slip Content */}
-                        <div className="p-8 space-y-6 print:p-0">
-                            {/* Header */}
-                            <div className="flex flex-col items-center text-center pb-8 border-b-2 border-gray-100 print:border-black">
-                                <img src="/logo.png" alt="Shamieda Logo" className="h-20 w-auto mb-4" />
-                                <h1 className="text-2xl font-black uppercase tracking-widest text-[#1A1A1A]">{shopSettings?.shop_name || "SHAMIEDA BRIYANI HOUSE"}</h1>
-                                <p className="text-xs text-gray-500 mt-1 max-w-sm font-medium">{shopSettings?.address || "No 70a Darulaman jaya 06000Jitra Kedah"}</p>
-                                <div className="mt-6 inline-flex items-center gap-3">
-                                    <div className="h-[1px] w-12 bg-gray-200 print:bg-black" />
-                                    <span className="text-sm font-black uppercase tracking-[0.2em] bg-black text-white px-6 py-1.5 rounded-full">
-                                        SLIP GAJI: {month}
-                                    </span>
-                                    <div className="h-[1px] w-12 bg-gray-200 print:bg-black" />
+                        {/* Scrollable Content */}
+                        <div className="overflow-y-auto flex-1">
+                            <div ref={payslipRef} className="p-6 md:p-10 space-y-6 print:p-0 bg-white">
+                                {/* Header */}
+                                <div className="flex flex-col items-center text-center pb-8 border-b-2 border-gray-100 print:border-black">
+                                    <img src="/logo.png" alt="Shamieda Logo" className="h-20 w-auto mb-4" />
+                                    <h1 className="text-2xl font-black uppercase tracking-widest text-[#1A1A1A]">{shopSettings?.shop_name || "SHAMIEDA BRIYANI HOUSE"}</h1>
+                                    <p className="text-xs text-gray-500 mt-1 max-w-sm font-medium">{shopSettings?.address || "No 70a Darulaman jaya 06000Jitra Kedah"}</p>
+                                    <div className="mt-6 inline-flex items-center gap-3">
+                                        <div className="h-[1px] w-12 bg-gray-200 print:bg-black" />
+                                        <span className="text-sm font-black uppercase tracking-[0.2em] bg-black text-white px-6 py-1.5 rounded-full">
+                                            SLIP GAJI: {month}
+                                        </span>
+                                        <div className="h-[1px] w-12 bg-gray-200 print:bg-black" />
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Staff Info Grid */}
-                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-12 py-6">
-                                <div>
-                                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Nama Pekerja</p>
-                                    <p className="font-bold text-[#1A1A1A]">{selectedSlip.full_name}</p>
+                                {/* Staff Info Grid */}
+                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-12 py-6">
+                                    <div>
+                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Nama Pekerja</p>
+                                        <p className="font-bold text-[#1A1A1A]">{selectedSlip.full_name}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">No. Kad Pengenalan</p>
+                                        <p className="font-mono text-sm">{selectedSlip.ic_number || 'XXXXXX-XX-XXXX'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">ID Pekerja</p>
+                                        <p className="font-mono text-sm">{selectedSlip.id.substring(0, 8).toUpperCase()}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Jawatan</p>
+                                        <p className="font-bold text-[#1A1A1A]">{selectedSlip.position || 'Staff'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Hari Bekerja</p>
+                                        <p className="font-bold text-[#1A1A1A]">{selectedSlip.daysWorked} hari</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Tarikh Bayaran</p>
+                                        <p className="font-bold text-[#1A1A1A]">{selectedSlip.paidAt ? new Date(selectedSlip.paidAt).toLocaleDateString('ms-MY') : '-'}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">No. Kad Pengenalan</p>
-                                    <p className="font-mono text-sm">{selectedSlip.ic_number || 'XXXXXX-XX-XXXX'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">ID Pekerja</p>
-                                    <p className="font-mono text-sm">{selectedSlip.id.substring(0, 8).toUpperCase()}</p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Jawatan</p>
-                                    <p className="font-bold text-[#1A1A1A]">{selectedSlip.position || 'Staff'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Hari Bekerja</p>
-                                    <p className="font-bold text-[#1A1A1A]">{selectedSlip.daysWorked} hari</p>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Tarikh Bayaran</p>
-                                    <p className="font-bold text-[#1A1A1A]">{selectedSlip.paidAt ? new Date(selectedSlip.paidAt).toLocaleDateString('ms-MY') : '-'}</p>
-                                </div>
-                            </div>
 
-                            {/* Earnings & Deductions Tables */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-                                {/* Earnings column */}
-                                <div className="space-y-4">
-                                    <h4 className="text-xs font-black bg-gray-50 p-2 rounded border-l-4 border-green-500 flex justify-between items-center">
-                                        BUTIRAN PENDAPATAN
-                                        <span className="text-[9px] text-gray-400">AMUR (RM)</span>
-                                    </h4>
-                                    <div className="space-y-2.5 px-2">
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-gray-600">Gaji Asas (Harian)</span>
-                                            <span className="font-mono">{(selectedSlip.dailyRate * selectedSlip.daysWorked).toFixed(2)}</span>
+                                {/* Earnings & Deductions Tables */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                                    {/* Earnings column */}
+                                    <div className="flex flex-col space-y-4 h-full">
+                                        <div className="flex-1 space-y-4">
+                                            <h4 className="text-xs font-black bg-gray-50 p-2 rounded border-l-4 border-green-500 flex justify-between items-center">
+                                                BUTIRAN PENDAPATAN
+                                                <span className="text-[9px] text-gray-400">AMUR (RM)</span>
+                                            </h4>
+                                            <div className="space-y-2.5 px-2">
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-gray-600">Gaji Asas (Harian)</span>
+                                                    <span className="font-mono">{(selectedSlip.dailyRate * selectedSlip.daysWorked).toFixed(2)}</span>
+                                                </div>
+                                                {selectedSlip.bonus > 0 && (
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-600">Bonus & Insentif</span>
+                                                        <span className="font-mono">{selectedSlip.bonus.toFixed(2)}</span>
+                                                    </div>
+                                                )}
+                                                {/* Row for spacing/consistency */}
+                                                <div className="flex justify-between text-sm opacity-20 h-5">
+                                                    <span>-</span>
+                                                    <span>-</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        {selectedSlip.bonus > 0 && (
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-gray-600">Bonus & Insentif</span>
-                                                <span className="font-mono">{selectedSlip.bonus.toFixed(2)}</span>
-                                            </div>
-                                        )}
-                                        {/* Row for spacing/consistency */}
-                                        <div className="flex justify-between text-sm opacity-20 h-5">
-                                            <span>-</span>
-                                            <span>-</span>
+                                        <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black mt-auto">
+                                            <span>JUMLAH PENDAPATAN</span>
+                                            <span>RM {(selectedSlip.dailyRate * selectedSlip.daysWorked + selectedSlip.bonus).toFixed(2)}</span>
                                         </div>
                                     </div>
-                                    <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black">
-                                        <span>JUMLAH PENDAPATAN</span>
-                                        <span>RM {(selectedSlip.dailyRate * selectedSlip.daysWorked + selectedSlip.bonus).toFixed(2)}</span>
+
+                                    {/* Deductions column */}
+                                    <div className="flex flex-col space-y-4 h-full">
+                                        <div className="flex-1 space-y-4">
+                                            <h4 className="text-xs font-black bg-gray-50 p-2 rounded border-l-4 border-red-500 flex justify-between items-center">
+                                                BUTIRAN POTONGAN
+                                                <span className="text-[9px] text-gray-400">AMUR (RM)</span>
+                                            </h4>
+                                            <div className="space-y-2.5 px-2">
+                                                {selectedSlip.penalty > 0 ? (
+                                                    <div className="flex justify-between text-sm text-red-600">
+                                                        <span>Penalti lewat ({selectedSlip.lateCount}x)</span>
+                                                        <span className="font-mono">{selectedSlip.penalty.toFixed(2)}</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex justify-between text-sm text-gray-400 italic">
+                                                        <span>Penalti lewat</span>
+                                                        <span className="font-mono">0.00</span>
+                                                    </div>
+                                                )}
+
+                                                {selectedSlip.advanceAmount > 0 ? (
+                                                    <div className="flex justify-between text-sm text-red-600">
+                                                        <span>Advance</span>
+                                                        <span className="font-mono">{selectedSlip.advanceAmount.toFixed(2)}</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex justify-between text-sm text-gray-400 italic">
+                                                        <span>Advance</span>
+                                                        <span className="font-mono">0.00</span>
+                                                    </div>
+                                                )}
+
+                                                {selectedSlip.onboardingDeduction > 0 && (
+                                                    <div className="flex justify-between text-sm text-purple-600">
+                                                        <span>Onboarding Kit</span>
+                                                        <span className="font-mono">{selectedSlip.onboardingDeduction.toFixed(2)}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black mt-auto">
+                                            <span>JUMLAH POTONGAN</span>
+                                            <span>RM {(selectedSlip.penalty + selectedSlip.onboardingDeduction + selectedSlip.advanceAmount).toFixed(2)}</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Deductions column */}
-                                <div className="space-y-4">
-                                    <h4 className="text-xs font-black bg-gray-50 p-2 rounded border-l-4 border-red-500 flex justify-between items-center">
-                                        BUTIRAN POTONGAN
-                                        <span className="text-[9px] text-gray-400">AMUR (RM)</span>
-                                    </h4>
-                                    <div className="space-y-2.5 px-2">
-                                        {selectedSlip.penalty > 0 ? (
-                                            <div className="flex justify-between text-sm text-red-600">
-                                                <span>Penalti lewat ({selectedSlip.lateCount}x)</span>
-                                                <span className="font-mono">{selectedSlip.penalty.toFixed(2)}</span>
-                                            </div>
-                                        ) : (
-                                            <div className="flex justify-between text-sm text-gray-400 italic">
-                                                <span>Penalti lewat</span>
-                                                <span className="font-mono">0.00</span>
-                                            </div>
-                                        )}
-
-                                        {selectedSlip.advanceAmount > 0 ? (
-                                            <div className="flex justify-between text-sm text-red-600">
-                                                <span>Advance</span>
-                                                <span className="font-mono">{selectedSlip.advanceAmount.toFixed(2)}</span>
-                                            </div>
-                                        ) : (
-                                            <div className="flex justify-between text-sm text-gray-400 italic">
-                                                <span>Advance</span>
-                                                <span className="font-mono">0.00</span>
-                                            </div>
-                                        )}
-
-                                        {selectedSlip.onboardingDeduction > 0 && (
-                                            <div className="flex justify-between text-sm text-purple-600">
-                                                <span>Onboarding Kit</span>
-                                                <span className="font-mono">{selectedSlip.onboardingDeduction.toFixed(2)}</span>
-                                            </div>
-                                        )}
+                                {/* Net Salary Highlight */}
+                                <div className="mt-10 bg-[#1A1A1A] rounded-2xl p-6 text-white flex justify-between items-center shadow-xl print:bg-gray-100 print:text-black print:border-2 print:border-black print:shadow-none">
+                                    <div>
+                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.2em] mb-1">Gaji Bersih (Net Pay)</p>
+                                        <p className="text-xs text-gray-500 italic">Setelah semua pendapatan dan potongan</p>
                                     </div>
-                                    <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black">
-                                        <span>JUMLAH POTONGAN</span>
-                                        <span>RM {(selectedSlip.penalty + selectedSlip.onboardingDeduction + selectedSlip.advanceAmount).toFixed(2)}</span>
+                                    <div className="text-right">
+                                        <p className="text-4xl font-black tracking-tighter text-primary print:text-black">
+                                            RM {selectedSlip.earnedSalary.toFixed(2)}
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Net Salary Highlight */}
-                            <div className="mt-10 bg-[#1A1A1A] rounded-2xl p-6 text-white flex justify-between items-center shadow-xl print:bg-gray-100 print:text-black print:border-2 print:border-black print:shadow-none">
-                                <div>
-                                    <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.2em] mb-1">Gaji Bersih (Net Pay)</p>
-                                    <p className="text-xs text-gray-500 italic">Setelah semua pendapatan dan potongan</p>
+                                {/* Bank Details (If payment recorded) */}
+                                {selectedSlip.paymentMethod && (
+                                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center justify-between text-xs print:bg-white print:border-black">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-100 print:border-black">
+                                                <Wallet className="w-4 h-4 text-gray-400" />
+                                            </div>
+                                            <div>
+                                                <p className="font-black uppercase tracking-widest text-[9px] text-gray-400">Kaedah Bayaran</p>
+                                                <p className="font-bold text-[#1A1A1A]">{selectedSlip.paymentMethod}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="font-black uppercase tracking-widest text-[9px] text-gray-400">Status Bayaran</p>
+                                            <p className="font-bold text-green-600 flex items-center gap-1 justify-end">
+                                                <CheckCircle className="w-3 h-3" /> Berjaya
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Footer Signature Section */}
+                                <div className="grid grid-cols-2 gap-20 pt-16 pb-4">
+                                    <div className="border-t border-gray-200 pt-2 text-center print:border-black">
+                                        <p className="text-[10px] font-black uppercase text-gray-400 mb-12">Tandatangan Majikan</p>
+                                        <div className="h-0.5 w-32 mx-auto bg-gray-100 print:bg-black" />
+                                    </div>
+                                    <div className="border-t border-gray-200 pt-2 text-center print:border-black">
+                                        <p className="text-[10px] font-black uppercase text-gray-400 mb-12">Tandatangan Pekerja</p>
+                                        <div className="h-0.5 w-32 mx-auto bg-gray-100 print:bg-black" />
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-4xl font-black tracking-tighter text-primary print:text-black">
-                                        RM {selectedSlip.earnedSalary.toFixed(2)}
+
+                                {/* System Footer */}
+                                <div className="text-center pt-8">
+                                    <p className="text-[9px] text-gray-300 font-medium uppercase tracking-widest">
+                                        Dokumen ini dijana secara automatik oleh Sistem Pengurusan Shamieda
+                                    </p>
+                                    <p className="text-[9px] text-gray-400 mt-1">
+                                        Dicetak pada: {new Date().toLocaleString('ms-MY')}
                                     </p>
                                 </div>
                             </div>
 
-                            {/* Bank Details (If payment recorded) */}
-                            {selectedSlip.paymentMethod && (
-                                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center justify-between text-xs print:bg-white print:border-black">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-100 print:border-black">
-                                            <Wallet className="w-4 h-4 text-gray-400" />
-                                        </div>
-                                        <div>
-                                            <p className="font-black uppercase tracking-widest text-[9px] text-gray-400">Kaedah Bayaran</p>
-                                            <p className="font-bold text-[#1A1A1A]">{selectedSlip.paymentMethod}</p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-black uppercase tracking-widest text-[9px] text-gray-400">Status Bayaran</p>
-                                        <p className="font-bold text-green-600 flex items-center gap-1 justify-end">
-                                            <CheckCircle className="w-3 h-3" /> Berjaya
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Footer Signature Section */}
-                            <div className="grid grid-cols-2 gap-20 pt-16 pb-4">
-                                <div className="border-t border-gray-200 pt-2 text-center print:border-black">
-                                    <p className="text-[10px] font-black uppercase text-gray-400 mb-12">Tandatangan Majikan</p>
-                                    <div className="h-0.5 w-32 mx-auto bg-gray-100 print:bg-black" />
-                                </div>
-                                <div className="border-t border-gray-200 pt-2 text-center print:border-black">
-                                    <p className="text-[10px] font-black uppercase text-gray-400 mb-12">Tandatangan Pekerja</p>
-                                    <div className="h-0.5 w-32 mx-auto bg-gray-100 print:bg-black" />
-                                </div>
+                            {/* Modal Footer (Hidden in Print) */}
+                            <div className="p-4 border-t border-gray-200 bg-gray-50 flex gap-3 print:hidden shrink-0 pb-safe">
+                                <button
+                                    onClick={() => setSelectedSlip(null)}
+                                    className="flex-1 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-200 transition-colors"
+                                >
+                                    Tutup
+                                </button>
+                                <button
+                                    onClick={() => handleShareWhatsApp(selectedSlip)}
+                                    disabled={generatingPdf}
+                                    className="flex-1 py-3 rounded-xl font-bold bg-[#25D366] text-white hover:bg-[#20ba5a] transition-colors flex items-center justify-center gap-2"
+                                >
+                                    {generatingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />}
+                                    Kongsi PDF
+                                </button>
+                                <button
+                                    onClick={handlePrint}
+                                    className="flex-1 py-3 rounded-xl font-bold bg-black text-white hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 hidden md:flex"
+                                >
+                                    <Printer className="w-4 h-4" />
+                                    Cetak
+                                </button>
                             </div>
-
-                            {/* System Footer */}
-                            <div className="text-center pt-8">
-                                <p className="text-[9px] text-gray-300 font-medium uppercase tracking-widest">
-                                    Dokumen ini dijana secara automatik oleh Sistem Pengurusan Shamieda
-                                </p>
-                                <p className="text-[9px] text-gray-400 mt-1">
-                                    Dicetak pada: {new Date().toLocaleString('ms-MY')}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Modal Footer (Hidden in Print) */}
-                        <div className="p-4 border-t border-gray-200 bg-gray-50 flex gap-3 print:hidden">
-                            <button
-                                onClick={() => setSelectedSlip(null)}
-                                className="flex-1 py-3 rounded-lg font-bold text-gray-600 hover:bg-gray-200 transition-colors"
-                            >
-                                Tutup
-                            </button>
-                            <button
-                                onClick={handlePrint}
-                                className="flex-1 py-3 rounded-lg font-bold bg-black text-white hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Printer className="w-4 h-4" />
-                                Cetak Slip
-                            </button>
                         </div>
                     </div>
                 </div>
