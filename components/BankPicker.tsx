@@ -59,10 +59,21 @@ export default function BankPicker({ value, onChange, label, disabled }: BankPic
                     {selectedBank ? (
                         <>
                             <div
-                                className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white shadow-sm"
+                                className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-white/10 shrink-0 shadow-inner"
                                 style={{ backgroundColor: selectedBank.color }}
                             >
-                                {selectedBank.name.substring(0, 2)}
+                                {selectedBank.domain ? (
+                                    <img
+                                        src={`https://www.google.com/s2/favicons?domain=${selectedBank.domain}&sz=128`}
+                                        alt={selectedBank.name}
+                                        className="w-full h-full object-contain p-1"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).parentElement!.innerHTML = `<span class="text-[10px] font-bold text-white">${selectedBank.name.substring(0, 2)}</span>`;
+                                        }}
+                                    />
+                                ) : (
+                                    <span className="text-[10px] font-bold text-white">{selectedBank.name.substring(0, 2)}</span>
+                                )}
                             </div>
                             <span className="text-white text-sm font-medium">{selectedBank.name}</span>
                         </>
@@ -120,17 +131,28 @@ export default function BankPicker({ value, onChange, label, disabled }: BankPic
                                                 setIsOpen(false);
                                             }}
                                             className={`flex items-center justify-between p-3 rounded-xl transition-all ${(value === bank.name || value === bank.id)
-                                                    ? 'bg-primary text-black'
-                                                    : 'text-gray-300 hover:bg-white/5 active:scale-[0.98]'
+                                                ? 'bg-primary text-black'
+                                                : 'text-gray-300 hover:bg-white/5 active:scale-[0.98]'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div
-                                                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shadow-sm ${(value === bank.name || value === bank.id) ? 'bg-black/20 text-white' : 'text-white'
+                                                    className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shrink-0 shadow-sm transition-transform group-active:scale-95 ${(value === bank.name || value === bank.id) ? 'bg-black/20' : 'bg-white/10'
                                                         }`}
                                                     style={{ backgroundColor: (value === bank.name || value === bank.id) ? undefined : bank.color }}
                                                 >
-                                                    {bank.name.substring(0, 2)}
+                                                    {bank.domain ? (
+                                                        <img
+                                                            src={`https://www.google.com/s2/favicons?domain=${bank.domain}&sz=128`}
+                                                            alt={bank.name}
+                                                            className="w-full h-full object-contain p-1.5"
+                                                            onError={(e) => {
+                                                                (e.target as HTMLImageElement).parentElement!.innerHTML = `<span class="text-xs font-bold text-white">${bank.name.substring(0, 2)}</span>`;
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <span className="text-xs font-bold text-white">{bank.name.substring(0, 2)}</span>
+                                                    )}
                                                 </div>
                                                 <span className="font-bold">{bank.name}</span>
                                             </div>
