@@ -458,43 +458,43 @@ export default function PayrollPage() {
                         <div className="overflow-y-auto flex-1">
                             <div ref={payslipRef} className="p-6 md:p-10 space-y-6 print:p-0 bg-white">
                                 {/* Header */}
-                                <div className="flex flex-col items-center text-center pb-8 border-b-2 border-gray-100 print:border-black">
+                                <div className="flex flex-col items-center text-center pb-8 border-b-2 border-[#f3f4f6] print:border-black">
                                     <img src="/logo.png" alt="Shamieda Logo" className="h-20 w-auto mb-4" />
                                     <h1 className="text-2xl font-black uppercase tracking-widest text-[#1A1A1A]">{shopSettings?.shop_name || "SHAMIEDA BRIYANI HOUSE"}</h1>
-                                    <p className="text-xs text-gray-500 mt-1 max-w-sm font-medium">{shopSettings?.address || "No 70a Darulaman jaya 06000Jitra Kedah"}</p>
+                                    <p className="text-xs text-[#6b7280] mt-1 max-w-sm font-medium">{shopSettings?.address || "No 70a Darulaman jaya 06000Jitra Kedah"}</p>
                                     <div className="mt-6 inline-flex items-center gap-3">
-                                        <div className="h-[1px] w-12 bg-gray-200 print:bg-black" />
-                                        <span className="text-sm font-black uppercase tracking-[0.2em] bg-black text-white px-6 py-1.5 rounded-full">
+                                        <div className="h-[1px] w-12 bg-[#e5e7eb] print:bg-black" />
+                                        <span className="text-sm font-black uppercase tracking-[0.2em] bg-[#000000] text-[#ffffff] px-6 py-1.5 rounded-full">
                                             SLIP GAJI: {month}
                                         </span>
-                                        <div className="h-[1px] w-12 bg-gray-200 print:bg-black" />
+                                        <div className="h-[1px] w-12 bg-[#e5e7eb] print:bg-black" />
                                     </div>
                                 </div>
 
                                 {/* Staff Info Grid */}
                                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-12 py-6">
                                     <div>
-                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Nama Pekerja</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">Nama Pekerja</p>
                                         <p className="font-bold text-[#1A1A1A]">{selectedSlip.full_name}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">No. Kad Pengenalan</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">No. Kad Pengenalan</p>
                                         <p className="font-mono text-sm">{selectedSlip.ic_number || 'XXXXXX-XX-XXXX'}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">ID Pekerja</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">ID Pekerja</p>
                                         <p className="font-mono text-sm">{selectedSlip.id.substring(0, 8).toUpperCase()}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Jawatan</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">Jawatan</p>
                                         <p className="font-bold text-[#1A1A1A]">{selectedSlip.position || 'Staff'}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Hari Bekerja</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">Hari Bekerja</p>
                                         <p className="font-bold text-[#1A1A1A]">{selectedSlip.daysWorked} hari</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Tarikh Bayaran</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">Tarikh Bayaran</p>
                                         <p className="font-bold text-[#1A1A1A]">{selectedSlip.paidAt ? new Date(selectedSlip.paidAt).toLocaleDateString('ms-MY') : '-'}</p>
                                     </div>
                                 </div>
@@ -504,18 +504,18 @@ export default function PayrollPage() {
                                     {/* Earnings column */}
                                     <div className="flex flex-col space-y-4 h-full">
                                         <div className="flex-1 space-y-4">
-                                            <h4 className="text-xs font-black bg-gray-50 p-2 rounded border-l-4 border-green-500 flex justify-between items-center">
+                                            <h4 className="text-xs font-black bg-[#f9fafb] p-2 rounded border-l-4 border-[#22c55e] flex justify-between items-center">
                                                 BUTIRAN PENDAPATAN
-                                                <span className="text-[9px] text-gray-400">AMUR (RM)</span>
+                                                <span className="text-[9px] text-[#9ca3af]">AMUR (RM)</span>
                                             </h4>
                                             <div className="space-y-2.5 px-2">
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-600">Gaji Asas (Harian)</span>
+                                                    <span className="text-[#4b5563]">Gaji Asas (Harian)</span>
                                                     <span className="font-mono">{(selectedSlip.dailyRate * selectedSlip.daysWorked).toFixed(2)}</span>
                                                 </div>
                                                 {selectedSlip.bonus > 0 && (
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-600">Bonus & Insentif</span>
+                                                        <span className="text-[#4b5563]">Bonus & Insentif</span>
                                                         <span className="font-mono">{selectedSlip.bonus.toFixed(2)}</span>
                                                     </div>
                                                 )}
@@ -535,37 +535,37 @@ export default function PayrollPage() {
                                     {/* Deductions column */}
                                     <div className="flex flex-col space-y-4 h-full">
                                         <div className="flex-1 space-y-4">
-                                            <h4 className="text-xs font-black bg-gray-50 p-2 rounded border-l-4 border-red-500 flex justify-between items-center">
+                                            <h4 className="text-xs font-black bg-[#f9fafb] p-2 rounded border-l-4 border-[#ef4444] flex justify-between items-center">
                                                 BUTIRAN POTONGAN
-                                                <span className="text-[9px] text-gray-400">AMUR (RM)</span>
+                                                <span className="text-[9px] text-[#9ca3af]">AMUR (RM)</span>
                                             </h4>
                                             <div className="space-y-2.5 px-2">
                                                 {selectedSlip.penalty > 0 ? (
-                                                    <div className="flex justify-between text-sm text-red-600">
+                                                    <div className="flex justify-between text-sm text-[#dc2626]">
                                                         <span>Penalti lewat ({selectedSlip.lateCount}x)</span>
                                                         <span className="font-mono">{selectedSlip.penalty.toFixed(2)}</span>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex justify-between text-sm text-gray-400 italic">
+                                                    <div className="flex justify-between text-sm text-[#9ca3af] italic">
                                                         <span>Penalti lewat</span>
                                                         <span className="font-mono">0.00</span>
                                                     </div>
                                                 )}
 
                                                 {selectedSlip.advanceAmount > 0 ? (
-                                                    <div className="flex justify-between text-sm text-red-600">
+                                                    <div className="flex justify-between text-sm text-[#dc2626]">
                                                         <span>Advance</span>
                                                         <span className="font-mono">{selectedSlip.advanceAmount.toFixed(2)}</span>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex justify-between text-sm text-gray-400 italic">
+                                                    <div className="flex justify-between text-sm text-[#9ca3af] italic">
                                                         <span>Advance</span>
                                                         <span className="font-mono">0.00</span>
                                                     </div>
                                                 )}
 
                                                 {selectedSlip.onboardingDeduction > 0 && (
-                                                    <div className="flex justify-between text-sm text-purple-600">
+                                                    <div className="flex justify-between text-sm text-[#9333ea]">
                                                         <span>Onboarding Kit</span>
                                                         <span className="font-mono">{selectedSlip.onboardingDeduction.toFixed(2)}</span>
                                                     </div>
@@ -580,13 +580,13 @@ export default function PayrollPage() {
                                 </div>
 
                                 {/* Net Salary Highlight */}
-                                <div className="mt-10 bg-[#1A1A1A] rounded-2xl p-6 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl print:bg-gray-100 print:text-black print:border-2 print:border-black print:shadow-none">
+                                <div className="mt-10 bg-[#1A1A1A] rounded-2xl p-6 text-[#ffffff] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl print:bg-[#f3f4f6] print:text-black print:border-2 print:border-black print:shadow-none">
                                     <div>
-                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-[0.2em] mb-1">Gaji Bersih (Net Pay)</p>
-                                        <p className="text-xs text-gray-500 italic">Setelah semua pendapatan dan potongan</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-[0.2em] mb-1">Gaji Bersih (Net Pay)</p>
+                                        <p className="text-xs text-[#6b7280] italic">Setelah semua pendapatan dan potongan</p>
                                     </div>
                                     <div className="w-full sm:w-auto text-left sm:text-right">
-                                        <p className="text-4xl font-black tracking-tighter text-primary print:text-black">
+                                        <p className="text-4xl font-black tracking-tighter text-[#fbbf24] print:text-black">
                                             RM {selectedSlip.earnedSalary.toFixed(2)}
                                         </p>
                                     </div>
@@ -594,19 +594,19 @@ export default function PayrollPage() {
 
                                 {/* Bank Details (If payment recorded) */}
                                 {selectedSlip.paymentMethod && (
-                                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center justify-between text-xs print:bg-white print:border-black">
+                                    <div className="bg-[#f9fafb] p-4 rounded-xl border border-[#f3f4f6] flex items-center justify-between text-xs print:bg-white print:border-black">
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-100 print:border-black">
-                                                <Wallet className="w-4 h-4 text-gray-400" />
+                                            <div className="p-2 bg-white rounded-lg shadow-sm border border-[#f3f4f6] print:border-black">
+                                                <Wallet className="w-4 h-4 text-[#9ca3af]" />
                                             </div>
                                             <div>
-                                                <p className="font-black uppercase tracking-widest text-[9px] text-gray-400">Kaedah Bayaran</p>
+                                                <p className="font-black uppercase tracking-widest text-[9px] text-[#9ca3af]">Kaedah Bayaran</p>
                                                 <p className="font-bold text-[#1A1A1A]">{selectedSlip.paymentMethod}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-black uppercase tracking-widest text-[9px] text-gray-400">Status Bayaran</p>
-                                            <p className="font-bold text-green-600 flex items-center gap-1 justify-end">
+                                            <p className="font-black uppercase tracking-widest text-[9px] text-[#9ca3af]">Status Bayaran</p>
+                                            <p className="font-bold text-[#16a34a] flex items-center gap-1 justify-end">
                                                 <CheckCircle className="w-3 h-3" /> Berjaya
                                             </p>
                                         </div>
@@ -615,22 +615,22 @@ export default function PayrollPage() {
 
                                 {/* Footer Signature Section */}
                                 <div className="grid grid-cols-2 gap-20 pt-16 pb-4">
-                                    <div className="border-t border-gray-200 pt-2 text-center print:border-black">
-                                        <p className="text-[10px] font-black uppercase text-gray-400 mb-12">Tandatangan Majikan</p>
-                                        <div className="h-0.5 w-32 mx-auto bg-gray-100 print:bg-black" />
+                                    <div className="border-t border-[#e5e7eb] pt-2 text-center print:border-black">
+                                        <p className="text-[10px] font-black uppercase text-[#9ca3af] mb-12">Tandatangan Majikan</p>
+                                        <div className="h-0.5 w-32 mx-auto bg-[#f3f4f6] print:bg-black" />
                                     </div>
-                                    <div className="border-t border-gray-200 pt-2 text-center print:border-black">
-                                        <p className="text-[10px] font-black uppercase text-gray-400 mb-12">Tandatangan Pekerja</p>
-                                        <div className="h-0.5 w-32 mx-auto bg-gray-100 print:bg-black" />
+                                    <div className="border-t border-[#e5e7eb] pt-2 text-center print:border-black">
+                                        <p className="text-[10px] font-black uppercase text-[#9ca3af] mb-12">Tandatangan Pekerja</p>
+                                        <div className="h-0.5 w-32 mx-auto bg-[#f3f4f6] print:bg-black" />
                                     </div>
                                 </div>
 
                                 {/* System Footer */}
                                 <div className="text-center pt-8">
-                                    <p className="text-[9px] text-gray-300 font-medium uppercase tracking-widest">
+                                    <p className="text-[9px] text-[#d1d5db] font-medium uppercase tracking-widest">
                                         Dokumen ini dijana secara automatik oleh Sistem Pengurusan Shamieda
                                     </p>
-                                    <p className="text-[9px] text-gray-400 mt-1">
+                                    <p className="text-[9px] text-[#9ca3af] mt-1">
                                         Dicetak pada: {new Date().toLocaleString('ms-MY')}
                                     </p>
                                 </div>
