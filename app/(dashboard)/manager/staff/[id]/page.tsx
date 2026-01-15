@@ -2,11 +2,33 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, User, Phone, CreditCard, Calendar, MapPin, Mail, Edit3, Check, X } from "lucide-react";
+import { ArrowLeft, Loader2, User, Phone, CreditCard, Calendar, MapPin, Mail, Edit3, Check, X, Maximize2, Eye } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import BankPicker from "@/components/BankPicker";
 import { uploadStaffDocAction } from "@/app/actions/upload-doc";
+
+const FullScreenModal = ({ url, onClose }: { url: string; onClose: () => void }) => (
+    <div
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300"
+        onClick={onClose}
+    >
+        <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
+        <div className="relative w-full h-full flex items-center justify-center max-w-5xl mx-auto" onClick={e => e.stopPropagation()}>
+            <button
+                onClick={onClose}
+                className="absolute -top-12 right-0 p-3 text-white/50 hover:text-white transition-colors bg-white/5 rounded-full hover:bg-white/10"
+            >
+                <X className="w-6 h-6" />
+            </button>
+            <img
+                src={url}
+                alt="IC Full View"
+                className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl border border-white/10 animate-in zoom-in-95 duration-300"
+            />
+        </div>
+    </div>
+);
 
 export default function StaffProfilePage() {
     const params = useParams();
@@ -18,6 +40,9 @@ export default function StaffProfilePage() {
     // Universal Editing State
     const [editingField, setEditingField] = useState<string | null>(null);
     const [tempValues, setTempValues] = useState<any>({});
+
+    // Lightbox State
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     useEffect(() => {
         if (params.id) {
@@ -617,11 +642,28 @@ export default function StaffProfilePage() {
                                     </div>
                                     <div className="relative aspect-[1.6/1] rounded-2xl overflow-hidden border border-white/10 bg-black/20 group hover:border-primary/50 transition-all">
                                         {staff.ic_front_url ? (
-                                            <img
-                                                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${staff.ic_front_url}`}
-                                                alt="IC Depan"
-                                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                            />
+                                            <>
+                                                <img
+                                                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${staff.ic_front_url}`}
+                                                    alt="IC Depan"
+                                                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                                />
+                                                {/* View/Edit Overlay */}
+                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-4 cursor-default">
+                                                    <button
+                                                        onClick={() => setSelectedImage(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${staff.ic_front_url}`)}
+                                                        className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 hover:bg-white/20 transition-all text-white text-xs font-bold uppercase tracking-wider scale-90 group-hover:scale-100"
+                                                    >
+                                                        <Maximize2 className="w-4 h-4 text-primary" />
+                                                        Lihat Penuh
+                                                    </button>
+                                                    <label className="flex items-center gap-2 px-4 py-2 bg-primary/20 backdrop-blur-md rounded-xl border border-primary/30 hover:bg-primary/30 transition-all text-primary text-xs font-bold uppercase tracking-wider cursor-pointer scale-90 group-hover:scale-100">
+                                                        <Edit3 className="w-4 h-4" />
+                                                        Tukar Gambar
+                                                        <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'ic_front_url')} />
+                                                    </label>
+                                                </div>
+                                            </>
                                         ) : (
                                             <div className="w-full h-full flex flex-col items-center justify-center text-gray-600 gap-2">
                                                 <Mail className="w-8 h-8 opacity-20" />
@@ -647,11 +689,28 @@ export default function StaffProfilePage() {
                                     </div>
                                     <div className="relative aspect-[1.6/1] rounded-2xl overflow-hidden border border-white/10 bg-black/20 group hover:border-primary/50 transition-all">
                                         {staff.ic_back_url ? (
-                                            <img
-                                                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${staff.ic_back_url}`}
-                                                alt="IC Belakang"
-                                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                            />
+                                            <>
+                                                <img
+                                                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${staff.ic_back_url}`}
+                                                    alt="IC Belakang"
+                                                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                                />
+                                                {/* View/Edit Overlay */}
+                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-4 cursor-default">
+                                                    <button
+                                                        onClick={() => setSelectedImage(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${staff.ic_back_url}`)}
+                                                        className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 hover:bg-white/20 transition-all text-white text-xs font-bold uppercase tracking-wider scale-90 group-hover:scale-100"
+                                                    >
+                                                        <Maximize2 className="w-4 h-4 text-primary" />
+                                                        Lihat Penuh
+                                                    </button>
+                                                    <label className="flex items-center gap-2 px-4 py-2 bg-primary/20 backdrop-blur-md rounded-xl border border-primary/30 hover:bg-primary/30 transition-all text-primary text-xs font-bold uppercase tracking-wider cursor-pointer scale-90 group-hover:scale-100">
+                                                        <Edit3 className="w-4 h-4" />
+                                                        Tukar Gambar
+                                                        <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'ic_back_url')} />
+                                                    </label>
+                                                </div>
+                                            </>
                                         ) : (
                                             <div className="w-full h-full flex flex-col items-center justify-center text-gray-600 gap-2">
                                                 <Mail className="w-8 h-8 opacity-20" />
@@ -670,6 +729,13 @@ export default function StaffProfilePage() {
                     </div>
                 </div>
             </div>
+
+            {selectedImage && (
+                <FullScreenModal
+                    url={selectedImage}
+                    onClose={() => setSelectedImage(null)}
+                />
+            )}
         </div>
     );
 }
