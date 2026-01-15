@@ -17,7 +17,7 @@ export const MALAYSIAN_BANKS: Bank[] = [
     { id: 'affin', name: 'Affin Bank', color: '#004A99', domain: 'affinalways.com' },
 
     // Islamic
-    { id: 'bank-islam', name: 'Bank Islam', color: '#911B1E', domain: 'bankislam.biz' },
+    { id: 'bank-islam', name: 'Bank Islam', color: '#911B1E', domain: 'bankislam.com' },
     { id: 'bank-muamalat', name: 'Bank Muamalat', color: '#8C1D18', domain: 'muamalat.com.my' },
     { id: 'bank-rakyat', name: 'Bank Rakyat', color: '#0054A6', domain: 'bankrakyat.com.my' },
     { id: 'bsn', name: 'Bank Simpanan Nasional (BSN)', color: '#00549F', domain: 'bsn.com.my' },
