@@ -13,14 +13,17 @@ const FullScreenModal = ({ url, onClose }: { url: string; onClose: () => void })
         className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300"
         onClick={onClose}
     >
-        <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
+        <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" />
+
+        {/* Close Button - Prominent for Mobile & Desktop */}
+        <button
+            onClick={onClose}
+            className="absolute top-6 right-6 md:top-10 md:right-10 z-[110] p-3 md:p-4 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 text-white hover:bg-white/20 active:scale-95 transition-all shadow-2xl"
+        >
+            <X className="w-6 h-6 md:w-7 md:h-7" />
+        </button>
+
         <div className="relative w-full h-full flex items-center justify-center max-w-5xl mx-auto" onClick={e => e.stopPropagation()}>
-            <button
-                onClick={onClose}
-                className="absolute -top-12 right-0 p-3 text-white/50 hover:text-white transition-colors bg-white/5 rounded-full hover:bg-white/10"
-            >
-                <X className="w-6 h-6" />
-            </button>
             <img
                 src={url}
                 alt="IC Full View"
