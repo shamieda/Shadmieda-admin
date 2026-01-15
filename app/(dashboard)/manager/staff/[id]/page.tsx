@@ -544,17 +544,6 @@ export default function StaffProfilePage() {
                         <div className="pt-6 border-t border-white/5">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-gray-400 font-bold text-sm uppercase tracking-wider">Maklumat Kecemasan (Waris)</h3>
-                                <button
-                                    onClick={() => {
-                                        const newContacts = [...(tempValues.emergency_contacts || []), { name: "", phone: "", relation: "" }];
-                                        setTempValues({ ...tempValues, emergency_contacts: newContacts });
-                                        setEditingField(`waris_${newContacts.length - 1}`);
-                                    }}
-                                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 text-primary text-xs font-bold hover:bg-white/10 transition-all border border-white/5"
-                                >
-                                    <Plus className="w-3.5 h-3.5" />
-                                    Tambah Waris
-                                </button>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {tempValues.emergency_contacts && tempValues.emergency_contacts.map((contact: any, idx: number) => {
