@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wallet, Send, AlertCircle, CheckCircle, DollarSign, Loader2, User, FileText, Printer, X, ChevronLeft, ChevronRight, Package, Trophy } from "lucide-react";
+import { Wallet, Send, AlertCircle, CheckCircle, DollarSign, Loader2, User, FileText, Printer, X, ChevronLeft, ChevronRight, Package, Trophy, Banknote } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { getRankingsAction } from "@/app/actions/get-rankings";
+import PaymentModal from "@/components/PaymentModal";
+import { Eye, ExternalLink } from "lucide-react";
 
 export default function PayrollPage() {
     const [month, setMonth] = useState(new Date().toISOString().substring(0, 7));
@@ -12,6 +14,8 @@ export default function PayrollPage() {
     const [loading, setLoading] = useState(true);
     const [shopSettings, setShopSettings] = useState<any>(null);
     const [selectedSlip, setSelectedSlip] = useState<any>(null);
+    const [payingStaff, setPayingStaff] = useState<any>(null);
+    const [proofViewer, setProofViewer] = useState<string | null>(null);
 
     useEffect(() => {
         fetchPayrollData();
@@ -34,6 +38,12 @@ export default function PayrollPage() {
                 .from('users')
                 .select('*')
                 .eq('role', 'staff');
+
+            // 2b. Fetch existing payroll records for this month
+            const { data: payrollRecords } = await supabase
+                .from('payroll')
+                .select('*')
+                .eq('month', month);
 
             // 3. Fetch attendance for the month
             const startDate = `${month}-01T00:00:00`;
@@ -110,6 +120,10 @@ export default function PayrollPage() {
 
                 const earnedSalary = (dailyRate * daysWorked) + bonus - penalty - onboardingDeduction;
 
+
+                // Sync with DB payroll record
+                const dbRecord = payrollRecords?.find(p => p.user_id === staff.id);
+
                 return {
                     ...staff,
                     daysWorked,
@@ -120,7 +134,11 @@ export default function PayrollPage() {
                     onboardingDeduction,
                     earnedSalary,
                     dailyRate,
-                    canRequestAdvance: daysWorked >= 3
+                    canRequestAdvance: daysWorked >= 3,
+                    paymentStatus: dbRecord?.status || 'pending',
+                    paymentMethod: dbRecord?.payment_method,
+                    paymentProofUrl: dbRecord?.payment_proof_url,
+                    paidAt: dbRecord?.paid_at
                 };
             });
 
@@ -226,7 +244,17 @@ Terima kasih atas usaha anda!
                                         <p>Hari Bekerja: <span className="text-white">{staff.daysWorked} hari</span></p>
                                         <p>Cuti: <span className="text-blue-400 font-bold">{staff.leaveDays || 0} hari</span></p>
                                         <p>Lewat: <span className={`font-bold ${staff.lateCount > 0 ? 'text-red-400' : 'text-green-400'}`}>{staff.lateCount} kali</span></p>
-                                        <p>Advance: <span className="text-white">RM0.00</span></p>
+                                        <p className="flex items-center gap-1">Status:
+                                            {staff.paymentStatus === 'paid' ? (
+                                                <span className="text-green-400 font-bold flex items-center gap-1">
+                                                    <CheckCircle className="w-3 h-3" /> Sudah Bayar
+                                                </span>
+                                            ) : (
+                                                <span className="text-yellow-400 font-bold flex items-center gap-1">
+                                                    <AlertCircle className="w-3 h-3" /> Berlum Bayar
+                                                </span>
+                                            )}
+                                        </p>
                                     </div>
                                 </div>
 
@@ -269,32 +297,37 @@ Terima kasih atas usaha anda!
 
                                 {/* Actions */}
                                 <div className="flex flex-col gap-2 justify-center min-w-[150px]">
-                                    <button
-                                        onClick={() => sendWhatsApp(staff)}
-                                        className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-bold transition-colors text-sm"
-                                    >
-                                        <Send className="w-4 h-4" />
-                                        WhatsApp Slip
-                                    </button>
+                                    {staff.paymentStatus === 'paid' ? (
+                                        <div className="space-y-2">
+                                            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-2 text-center">
+                                                <p className="text-[10px] text-green-500 font-bold uppercase">Dibayar pada</p>
+                                                <p className="text-xs text-white font-medium">{new Date(staff.paidAt).toLocaleDateString()}</p>
+                                            </div>
+                                            {staff.paymentProofUrl && (
+                                                <button
+                                                    onClick={() => setProofViewer(staff.paymentProofUrl)}
+                                                    className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-2 rounded-lg text-sm transition-colors"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                    Bukti Bayaran
+                                                </button>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={() => setPayingStaff(staff)}
+                                            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white py-2 rounded-lg font-bold transition-colors text-sm shadow-lg shadow-primary/20"
+                                        >
+                                            <Banknote className="w-4 h-4" />
+                                            Bayar Sekarang
+                                        </button>
+                                    )}
 
-                                    <button
-                                        onClick={() => setSelectedSlip(staff)}
-                                        className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-bold transition-colors text-sm"
-                                    >
-                                        <FileText className="w-4 h-4" />
-                                        Lihat Slip
-                                    </button>
-
-                                    {staff.canRequestAdvance ? (
+                                    {staff.canRequestAdvance && staff.paymentStatus !== 'paid' && (
                                         <button className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-2 rounded-lg text-sm transition-colors">
                                             <DollarSign className="w-4 h-4" />
                                             Beri Advance
                                         </button>
-                                    ) : (
-                                        <div className="text-center text-xs text-gray-600 py-2 border border-white/5 rounded-lg">
-                                            Tidak Layak Advance
-                                            <br />(Kerja &lt; 3 hari)
-                                        </div>
                                     )}
                                 </div>
 
@@ -418,6 +451,40 @@ Terima kasih atas usaha anda!
                                 Cetak Slip
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+            {/* Payment Modal */}
+            {payingStaff && (
+                <PaymentModal
+                    staff={payingStaff}
+                    month={month}
+                    onClose={() => setPayingStaff(null)}
+                    onSuccess={() => fetchPayrollData()}
+                />
+            )}
+
+            {/* Proof Viewer */}
+            {proofViewer && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl" onClick={() => setProofViewer(null)}>
+                    <button onClick={() => setProofViewer(null)} className="absolute top-6 right-6 p-3 bg-white/10 rounded-full text-white">
+                        <X className="w-6 h-6" />
+                    </button>
+                    <div className="relative max-w-4xl w-full h-full flex items-center justify-center" onClick={e => e.stopPropagation()}>
+                        <img
+                            src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${proofViewer}`}
+                            alt="Bukti Bayaran"
+                            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
+                        />
+                        <a
+                            href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${proofViewer}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute bottom-6 right-6 flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg"
+                        >
+                            <ExternalLink className="w-4 h-4" />
+                            Buka Penuh
+                        </a>
                     </div>
                 </div>
             )}

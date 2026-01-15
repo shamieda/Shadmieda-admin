@@ -69,3 +69,48 @@ export async function resetPayrollAction() {
         return { success: false, error: error.message };
     }
 }
+
+/**
+ * Pay Salary Action
+ * Records a payment in the payroll table.
+ */
+export async function paySalaryAction(paymentData: {
+    userId: string;
+    month: string;
+    basicSalary: number;
+    totalPenalty: number;
+    totalBonus: number;
+    finalAmount: number;
+    paymentMethod: string;
+    paymentProofUrl?: string;
+}) {
+    try {
+        if (!supabaseAdmin) throw new Error("Supabase Admin client not initialized");
+
+        const { data, error } = await supabaseAdmin
+            .from('payroll')
+            .upsert({
+                user_id: paymentData.userId,
+                month: paymentData.month,
+                basic_salary: paymentData.basicSalary,
+                total_penalty: paymentData.totalPenalty,
+                total_bonus: paymentData.totalBonus,
+                final_amount: paymentData.finalAmount,
+                payment_method: paymentData.paymentMethod,
+                payment_proof_url: paymentData.paymentProofUrl,
+                status: 'paid',
+                paid_at: new Date().toISOString()
+            }, {
+                onConflict: 'user_id,month'
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        return { success: true, data };
+    } catch (error: any) {
+        console.error("[Pay Salary] Error:", error.message);
+        return { success: false, error: error.message };
+    }
+}
