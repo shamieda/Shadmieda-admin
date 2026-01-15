@@ -74,10 +74,14 @@ export async function middleware(request: NextRequest) {
         const sessionId = request.cookies.get(SESSION_COOKIE_NAME)?.value;
         if (sessionId) {
             console.log("MW: Attempting DB Recovery for SID:", sessionId);
-            const recoveredSession = await recoverSessionForMiddleware(supabase, sessionId);
-            if (recoveredSession) {
-                user = recoveredSession.user;
-                console.log("MW: Recovery Successful for User:", user.id);
+            try {
+                const recoveredSession = await recoverSessionForMiddleware(supabase, sessionId);
+                if (recoveredSession && recoveredSession.user) {
+                    user = recoveredSession.user;
+                    console.log("MW: Recovery Successful for User:", recoveredSession.user.id);
+                }
+            } catch (recoveryErr) {
+                console.error("MW: Recovery Error:", recoveryErr);
             }
         }
     }
