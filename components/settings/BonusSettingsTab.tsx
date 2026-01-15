@@ -118,7 +118,7 @@ export default function BonusSettingsTab({
                             </div>
                         </div>
                         <p className="text-xs text-gray-500 leading-relaxed">
-                            Staff didenda automatik jika gagal menyiapkan tugasan harian dalam masa 8 jam.
+                            Staff didenda automatik jika gagal menyiapkan tugasan harian sebelum waktu kedai tutup.
                         </p>
                     </div>
                 </div>
