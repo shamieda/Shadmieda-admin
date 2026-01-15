@@ -565,7 +565,7 @@ export default function StaffProfilePage() {
                                                 {!isEditing && (
                                                     <button
                                                         onClick={() => setEditingField(fieldKey)}
-                                                        className="p-1.5 rounded-full bg-white/5 text-primary opacity-0 group-hover/waris:opacity-100 transition-all hover:bg-white/10"
+                                                        className="p-1.5 rounded-full bg-white/5 text-primary opacity-100 md:opacity-0 md:group-hover/waris:opacity-100 transition-all hover:bg-white/10"
                                                     >
                                                         <Edit3 className="w-3.5 h-3.5" />
                                                     </button>
@@ -660,7 +660,7 @@ export default function StaffProfilePage() {
                                 <div className="space-y-2 group/ic relative">
                                     <div className="flex justify-between items-center">
                                         <p className="text-xs text-gray-500">IC Depan</p>
-                                        <label className="cursor-pointer opacity-0 group-ic:opacity-100 transition-all hover:text-primary">
+                                        <label className="cursor-pointer opacity-100 md:opacity-0 md:group-ic:opacity-100 transition-all hover:text-primary">
                                             <Edit3 className="w-3.5 h-3.5" />
                                             <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'ic_front_url')} />
                                         </label>
@@ -674,17 +674,19 @@ export default function StaffProfilePage() {
                                                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                                                 />
                                                 {/* View/Edit Overlay */}
-                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-4 cursor-default">
+                                                <div className="absolute inset-x-0 bottom-0 md:inset-0 bg-black/60 md:bg-black/60 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all flex md:flex-col items-center justify-center gap-2 md:gap-4 p-3 md:p-0 cursor-default">
                                                     <button
                                                         onClick={() => setSelectedImage(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${staff.ic_front_url}`)}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 hover:bg-white/20 transition-all text-white text-xs font-bold uppercase tracking-wider scale-90 group-hover:scale-100"
+                                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 hover:bg-white/20 transition-all text-white text-[10px] md:text-xs font-bold uppercase tracking-wider"
                                                     >
-                                                        <Maximize2 className="w-4 h-4 text-primary" />
-                                                        Lihat Penuh
+                                                        <Maximize2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+                                                        <span className="hidden sm:inline">Lihat Penuh</span>
+                                                        <span className="sm:hidden">Lihat</span>
                                                     </button>
-                                                    <label className="flex items-center gap-2 px-4 py-2 bg-primary/20 backdrop-blur-md rounded-xl border border-primary/30 hover:bg-primary/30 transition-all text-primary text-xs font-bold uppercase tracking-wider cursor-pointer scale-90 group-hover:scale-100">
-                                                        <Edit3 className="w-4 h-4" />
-                                                        Tukar Gambar
+                                                    <label className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-primary/20 backdrop-blur-md rounded-xl border border-primary/30 hover:bg-primary/30 transition-all text-primary text-[10px] md:text-xs font-bold uppercase tracking-wider cursor-pointer">
+                                                        <Edit3 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                                        <span className="hidden sm:inline">Tukar Gambar</span>
+                                                        <span className="sm:hidden">Tukar</span>
                                                         <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'ic_front_url')} />
                                                     </label>
                                                 </div>
@@ -707,7 +709,7 @@ export default function StaffProfilePage() {
                                 <div className="space-y-2 group/ic relative">
                                     <div className="flex justify-between items-center">
                                         <p className="text-xs text-gray-500">IC Belakang</p>
-                                        <label className="cursor-pointer opacity-0 group-ic:opacity-100 transition-all hover:text-primary">
+                                        <label className="cursor-pointer opacity-100 md:opacity-0 md:group-ic:opacity-100 transition-all hover:text-primary">
                                             <Edit3 className="w-3.5 h-3.5" />
                                             <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'ic_back_url')} />
                                         </label>
@@ -721,17 +723,19 @@ export default function StaffProfilePage() {
                                                     className="w-full h-full object-cover transition-transform group-hover:scale-105"
                                                 />
                                                 {/* View/Edit Overlay */}
-                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-4 cursor-default">
+                                                <div className="absolute inset-x-0 bottom-0 md:inset-0 bg-black/60 md:bg-black/60 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all flex md:flex-col items-center justify-center gap-2 md:gap-4 p-3 md:p-0 cursor-default">
                                                     <button
                                                         onClick={() => setSelectedImage(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/staff-docs/${staff.ic_back_url}`)}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 hover:bg-white/20 transition-all text-white text-xs font-bold uppercase tracking-wider scale-90 group-hover:scale-100"
+                                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 hover:bg-white/20 transition-all text-white text-[10px] md:text-xs font-bold uppercase tracking-wider"
                                                     >
-                                                        <Maximize2 className="w-4 h-4 text-primary" />
-                                                        Lihat Penuh
+                                                        <Maximize2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+                                                        <span className="hidden sm:inline">Lihat Penuh</span>
+                                                        <span className="sm:hidden">Lihat</span>
                                                     </button>
-                                                    <label className="flex items-center gap-2 px-4 py-2 bg-primary/20 backdrop-blur-md rounded-xl border border-primary/30 hover:bg-primary/30 transition-all text-primary text-xs font-bold uppercase tracking-wider cursor-pointer scale-90 group-hover:scale-100">
-                                                        <Edit3 className="w-4 h-4" />
-                                                        Tukar Gambar
+                                                    <label className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-primary/20 backdrop-blur-md rounded-xl border border-primary/30 hover:bg-primary/30 transition-all text-primary text-[10px] md:text-xs font-bold uppercase tracking-wider cursor-pointer">
+                                                        <Edit3 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                                        <span className="hidden sm:inline">Tukar Gambar</span>
+                                                        <span className="sm:hidden">Tukar</span>
                                                         <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'ic_back_url')} />
                                                     </label>
                                                 </div>
