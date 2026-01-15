@@ -464,13 +464,13 @@ export default function PayrollPage() {
                         <div className="overflow-y-auto flex-1">
                             <div ref={payslipRef} className="p-6 md:p-10 space-y-6 print:p-0 bg-white">
                                 {/* Header */}
-                                <div className="flex flex-col items-center text-center pb-8 border-b-2 border-[#f3f4f6] print:border-black">
-                                    <img src="/logo.png" alt="Shamieda Logo" className="h-20 w-auto mb-4" style={{ filter: 'invert(1)' }} />
-                                    <h1 className="text-2xl font-black uppercase tracking-widest text-[#1A1A1A]">{shopSettings?.shop_name || "SHAMIEDA BRIYANI HOUSE"}</h1>
+                                <div className="flex flex-col items-center text-center pb-8 border-b-2 border-[#f3f4f6] print:pb-2 print:border-black">
+                                    <img src="/logo.png" alt="Shamieda Logo" className="h-20 w-auto mb-4 print:h-12 print:mb-2" style={{ filter: 'invert(1)' }} />
+                                    <h1 className="text-2xl font-black uppercase tracking-widest text-[#1A1A1A] print:text-xl">{shopSettings?.shop_name || "SHAMIEDA BRIYANI HOUSE"}</h1>
                                     <p className="text-xs text-[#6b7280] mt-1 max-w-sm font-medium">{shopSettings?.address || "No 70a Darulaman jaya 06000Jitra Kedah"}</p>
-                                    <div className="mt-6 inline-flex items-center gap-3">
+                                    <div className="mt-6 inline-flex items-center gap-3 print:mt-2">
                                         <div className="h-[1px] w-12 bg-[#e5e7eb] print:bg-black" />
-                                        <span className="text-sm font-black uppercase tracking-[0.2em] bg-[#000000] text-[#ffffff] px-6 py-1.5 rounded-full">
+                                        <span className="text-sm font-black uppercase tracking-[0.2em] bg-[#000000] text-[#ffffff] px-6 py-1.5 rounded-full print:bg-transparent print:text-black print:border print:border-black print:px-4 print:py-0.5">
                                             SLIP GAJI: {month}
                                         </span>
                                         <div className="h-[1px] w-12 bg-[#e5e7eb] print:bg-black" />
@@ -478,43 +478,43 @@ export default function PayrollPage() {
                                 </div>
 
                                 {/* Staff Info Grid */}
-                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-12 py-6">
+                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-12 py-6 print:py-2 print:gap-y-2">
                                     <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">Nama Pekerja</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">Nama Pekerja</p>
                                         <p className="font-bold text-[#1A1A1A]">{selectedSlip.full_name}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">No. Kad Pengenalan</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">No. Kad Pengenalan</p>
                                         <p className="font-mono text-sm">{selectedSlip.ic_number || 'XXXXXX-XX-XXXX'}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">ID Pekerja</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">ID Pekerja</p>
                                         <p className="font-mono text-sm">{selectedSlip.id.substring(0, 8).toUpperCase()}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">Jawatan</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">Jawatan</p>
                                         <p className="font-bold text-[#1A1A1A]">{selectedSlip.position || 'Staff'}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">Hari Bekerja</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">Hari Bekerja</p>
                                         <p className="font-bold text-[#1A1A1A]">{selectedSlip.daysWorked} hari</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1">Tarikh Bayaran</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-widest mb-1 print:mb-0">Tarikh Bayaran</p>
                                         <p className="font-bold text-[#1A1A1A]">{selectedSlip.paidAt ? new Date(selectedSlip.paidAt).toLocaleDateString('ms-MY') : '-'}</p>
                                     </div>
                                 </div>
 
                                 {/* Earnings & Deductions Tables */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 print:pt-2 print:gap-4">
                                     {/* Earnings column */}
-                                    <div className="flex flex-col space-y-4 h-full">
-                                        <div className="flex-1 space-y-4">
-                                            <h4 className="text-xs font-black bg-[#f9fafb] p-2 rounded border-l-4 border-[#22c55e] flex justify-between items-center">
+                                    <div className="flex flex-col space-y-4 h-full print:space-y-2">
+                                        <div className="flex-1 space-y-4 print:space-y-2">
+                                            <h4 className="text-xs font-black bg-[#f9fafb] p-2 rounded border-l-4 border-[#22c55e] flex justify-between items-center print:border-black print:bg-transparent print:p-0">
                                                 BUTIRAN PENDAPATAN
                                                 <span className="text-[9px] text-[#9ca3af]">AMUR (RM)</span>
                                             </h4>
-                                            <div className="space-y-2.5 px-2">
+                                            <div className="space-y-2.5 px-2 print:space-y-1 print:px-0">
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-[#4b5563]">Gaji Asas (Harian)</span>
                                                     <span className="font-mono">{(selectedSlip.dailyRate * selectedSlip.daysWorked).toFixed(2)}</span>
@@ -525,29 +525,24 @@ export default function PayrollPage() {
                                                         <span className="font-mono">{selectedSlip.bonus.toFixed(2)}</span>
                                                     </div>
                                                 )}
-                                                {/* Row for spacing/consistency */}
-                                                <div className="flex justify-between text-sm opacity-20 h-5">
-                                                    <span>-</span>
-                                                    <span>-</span>
-                                                </div>
                                             </div>
                                         </div>
-                                        <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black mt-auto">
+                                        <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black mt-auto print:pt-1">
                                             <span>JUMLAH PENDAPATAN</span>
                                             <span>RM {(selectedSlip.dailyRate * selectedSlip.daysWorked + selectedSlip.bonus).toFixed(2)}</span>
                                         </div>
                                     </div>
 
                                     {/* Deductions column */}
-                                    <div className="flex flex-col space-y-4 h-full">
-                                        <div className="flex-1 space-y-4">
-                                            <h4 className="text-xs font-black bg-[#f9fafb] p-2 rounded border-l-4 border-[#ef4444] flex justify-between items-center">
+                                    <div className="flex flex-col space-y-4 h-full print:space-y-2">
+                                        <div className="flex-1 space-y-4 print:space-y-2">
+                                            <h4 className="text-xs font-black bg-[#f9fafb] p-2 rounded border-l-4 border-[#ef4444] flex justify-between items-center print:border-black print:bg-transparent print:p-0">
                                                 BUTIRAN POTONGAN
                                                 <span className="text-[9px] text-[#9ca3af]">AMUR (RM)</span>
                                             </h4>
-                                            <div className="space-y-2.5 px-2">
+                                            <div className="space-y-2.5 px-2 print:space-y-1 print:px-0">
                                                 {selectedSlip.penalty > 0 ? (
-                                                    <div className="flex justify-between text-sm text-[#dc2626]">
+                                                    <div className="flex justify-between text-sm text-[#dc2626] print:text-black">
                                                         <span>Penalti lewat ({selectedSlip.lateCount}x)</span>
                                                         <span className="font-mono">{selectedSlip.penalty.toFixed(2)}</span>
                                                     </div>
@@ -559,7 +554,7 @@ export default function PayrollPage() {
                                                 )}
 
                                                 {selectedSlip.advanceAmount > 0 ? (
-                                                    <div className="flex justify-between text-sm text-[#dc2626]">
+                                                    <div className="flex justify-between text-sm text-[#dc2626] print:text-black">
                                                         <span>Advance</span>
                                                         <span className="font-mono">{selectedSlip.advanceAmount.toFixed(2)}</span>
                                                     </div>
@@ -571,14 +566,14 @@ export default function PayrollPage() {
                                                 )}
 
                                                 {selectedSlip.onboardingDeduction > 0 && (
-                                                    <div className="flex justify-between text-sm text-[#9333ea]">
+                                                    <div className="flex justify-between text-sm text-[#9333ea] print:text-black">
                                                         <span>Onboarding Kit</span>
                                                         <span className="font-mono">{selectedSlip.onboardingDeduction.toFixed(2)}</span>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
-                                        <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black mt-auto">
+                                        <div className="pt-2 border-t border-dashed flex justify-between text-sm font-black mt-auto print:pt-1">
                                             <span>JUMLAH POTONGAN</span>
                                             <span>RM {(selectedSlip.penalty + selectedSlip.onboardingDeduction + selectedSlip.advanceAmount).toFixed(2)}</span>
                                         </div>
@@ -586,9 +581,9 @@ export default function PayrollPage() {
                                 </div>
 
                                 {/* Net Salary Highlight */}
-                                <div className="mt-10 bg-[#1A1A1A] rounded-2xl p-6 text-[#ffffff] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl print:bg-[#f3f4f6] print:text-black print:border-2 print:border-black print:shadow-none">
+                                <div className="mt-10 bg-[#1A1A1A] rounded-2xl p-6 text-[#ffffff] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl print:bg-[#f3f4f6] print:text-black print:border-2 print:border-black print:shadow-none print:mt-6 print:p-4 print:rounded-lg">
                                     <div>
-                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-[0.2em] mb-1">Gaji Bersih (Net Pay)</p>
+                                        <p className="text-[10px] text-[#9ca3af] uppercase font-black tracking-[0.2em] mb-1 print:text-black">Gaji Bersih (Net Pay)</p>
                                         <p className="text-xs text-[#6b7280] italic">Setelah semua pendapatan dan potongan</p>
                                     </div>
                                     <div className="w-full sm:w-auto text-left sm:text-right">
@@ -620,19 +615,19 @@ export default function PayrollPage() {
                                 )}
 
                                 {/* Footer Signature Section */}
-                                <div className="grid grid-cols-2 gap-20 pt-16 pb-4">
+                                <div className="grid grid-cols-2 gap-20 pt-16 pb-4 print:pt-8 print:pb-2 print:gap-10">
                                     <div className="border-t border-[#e5e7eb] pt-2 text-center print:border-black">
-                                        <p className="text-[10px] font-black uppercase text-[#9ca3af] mb-12">Tandatangan Majikan</p>
+                                        <p className="text-[10px] font-black uppercase text-[#9ca3af] mb-12 print:mb-8 print:text-black">Tandatangan Majikan</p>
                                         <div className="h-0.5 w-32 mx-auto bg-[#f3f4f6] print:bg-black" />
                                     </div>
                                     <div className="border-t border-[#e5e7eb] pt-2 text-center print:border-black">
-                                        <p className="text-[10px] font-black uppercase text-[#9ca3af] mb-12">Tandatangan Pekerja</p>
+                                        <p className="text-[10px] font-black uppercase text-[#9ca3af] mb-12 print:mb-8 print:text-black">Tandatangan Pekerja</p>
                                         <div className="h-0.5 w-32 mx-auto bg-[#f3f4f6] print:bg-black" />
                                     </div>
                                 </div>
 
                                 {/* System Footer */}
-                                <div className="text-center pt-8">
+                                <div className="text-center pt-8 print:pt-4">
                                     <p className="text-[9px] text-[#d1d5db] font-medium uppercase tracking-widest">
                                         Dokumen ini dijana secara automatik oleh Sistem Pengurusan Shamieda
                                     </p>
