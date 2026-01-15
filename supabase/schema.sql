@@ -77,7 +77,29 @@ create table public.shop_settings (
   salary_reward_pct decimal(5, 2) default 0.00,
   onboarding_kit_config jsonb default '[]'::jsonb,
   advance_limit decimal(10, 2) default 500.00,
+  task_penalty_amount decimal(10, 2) default 2.00,
+  ranking_reward_1 decimal(10, 2) default 100.00,
+  ranking_reward_2 decimal(10, 2) default 50.00,
+  ranking_reward_3 decimal(10, 2) default 25.00,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Monthly Points Tracking (Gamification)
+create table public.monthly_points (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.users(id) on delete cascade not null,
+  month text not null, -- Format: 'YYYY-MM'
+  points integer default 0,
+  good_deeds_count integer default 0,
+  bad_deeds_count integer default 0,
+  unique(user_id, month)
+);
+
+alter table public.monthly_points enable row level security;
+
+create policy "Enable read access for all" on public.monthly_points for select using (true);
+create policy "Enable all access for managers" on public.monthly_points for all using (
+  exists (select 1 from public.users where auth_id = auth.uid() and role in ('admin', 'manager', 'master'))
 );
 
 -- Dynamic Bonus Configurations

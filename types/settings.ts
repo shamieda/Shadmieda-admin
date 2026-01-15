@@ -46,6 +46,10 @@ export interface ShopSettings {
     penalty15m: string;
     penalty30m: string;
     penaltyMax: string;
+    task_penalty_amount: string;
+    ranking_reward_1: string;
+    ranking_reward_2: string;
+    ranking_reward_3: string;
 }
 
 // Initial state constants
@@ -61,7 +65,11 @@ export const INITIAL_SHOP_SETTINGS: ShopSettings = {
     endTime: "18:00",
     penalty15m: "0.00",
     penalty30m: "0.00",
-    penaltyMax: "0.00"
+    penaltyMax: "0.00",
+    task_penalty_amount: "2.00",
+    ranking_reward_1: "100.00",
+    ranking_reward_2: "50.00",
+    ranking_reward_3: "25.00"
 };
 
 export const INITIAL_TEMPLATE = {

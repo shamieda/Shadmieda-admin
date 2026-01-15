@@ -86,14 +86,44 @@ export default function PayrollPage() {
                 .gte('created_at', startDate)
                 .lte('created_at', endDate);
 
-            // 8. Process Payroll for each staff
+            // 8. Fetch Monthly Points (Gamification)
+            const { data: monthlyPoints } = await supabase
+                .from('monthly_points')
+                .select('*')
+                .eq('month', month);
+
+            // 9. Fetch Task Failures (Incomplete daily, older than 24h or daily reset logic - simplified here to "status=incomplete")
+            // For precise "daily deadline" logic, we'd need a robust backend job. 
+            // Here, we simulate by penalizing "incomplete" tasks assigned to them this month.
+            const { data: incompleteTasks } = await supabase
+                .from('tasks')
+                .select('*')
+                .eq('assigned_to', staffList?.map(s => s.id) || [])
+                .eq('is_completed', false)
+                .gte('created_at', startDate)
+                .lte('created_at', endDate);
+
+            // 10. Process Payroll for each staff
             const processed = (staffList || []).map(staff => {
                 const staffAttendance = attendance?.filter(a => a.user_id === staff.id) || [];
-                const daysWorked = staffAttendance.length;
+
+                // Smart Attendance: Ignore absences on Mondays (Day 1)
+                const realAbsences = staffAttendance.filter(a => {
+                    const isMonday = new Date(a.clock_in || a.created_at).getDay() === 1;
+                    return a.status === 'absent' && !isMonday;
+                }).length;
+
+                const daysWorked = staffAttendance.filter(a => a.status !== 'absent').length; // Only count present/late days
                 const lateCount = staffAttendance.filter(a => a.status === 'late').length;
 
                 // Sum real penalty amounts from attendance records
-                const penalty = staffAttendance.reduce((sum, a) => sum + (Number(a.penalty_amount) || 0), 0);
+                const attendancePenalty = staffAttendance.reduce((sum, a) => sum + (Number(a.penalty_amount) || 0), 0);
+
+                // Task Penalty: -RM 2.00 per incomplete task
+                const staffIncompleteTasks = incompleteTasks?.filter(t => t.assigned_to === staff.id).length || 0;
+                const taskPenalty = staffIncompleteTasks * (Number(settings?.task_penalty_amount) || 2.00);
+
+                const totalPenalty = attendancePenalty + taskPenalty;
 
                 // Calculate Approved Leave Days
                 const staffLeaves = leaves?.filter(l => l.user_id === staff.id) || [];
@@ -101,26 +131,32 @@ export default function PayrollPage() {
                 staffLeaves.forEach(leave => {
                     const start = new Date(leave.start_date);
                     const end = new Date(leave.end_date);
-                    // Simple day count approximation
                     const diffTime = Math.abs(end.getTime() - start.getTime());
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
                     leaveDays += diffDays;
                 });
 
 
-                // Bonus logic: If worked >= 26 days, give attendance bonus from settings
+                // Bonus logic: Attendance Bonus (If 0 Real Absences & 0 Lates)
                 let bonus = 0;
-                if (daysWorked >= 26 && settings?.attendance_bonus) {
+                if (daysWorked >= 20 && lateCount === 0 && realAbsences === 0 && settings?.attendance_bonus) {
                     bonus = Number(settings.attendance_bonus);
                 }
 
-                // Ranking Bonus logic
-                const staffRank = rankingData?.findIndex((r: any) => r.id === staff.id);
-                if (staffRank !== undefined && staffRank !== -1) {
-                    const rankPos = staffRank + 1;
-                    const rankBonus = rankingBonuses?.find(b => parseInt(b.requirement_value) === rankPos);
-                    if (rankBonus) {
-                        bonus += Number(rankBonus.value);
+                // Ranking Bonus logic (Gamification)
+                const staffRankIndex = rankings?.findIndex((r: any) => r.id === staff.id);
+                if (staffRankIndex !== undefined && staffRankIndex !== -1) {
+                    const rankPos = staffRankIndex + 1;
+
+                    // Award Top 3 Prizes
+                    if (rankPos === 1) bonus += Number(settings?.ranking_reward_1 || 100);
+                    else if (rankPos === 2) bonus += Number(settings?.ranking_reward_2 || 50);
+                    else if (rankPos === 3) bonus += Number(settings?.ranking_reward_3 || 25);
+
+                    // Legacy ranking bonuses (if any)
+                    const legacyBonus = rankingBonuses?.find(b => parseInt(b.requirement_value) === rankPos);
+                    if (legacyBonus) {
+                        bonus += Number(legacyBonus.value);
                     }
                 }
 
@@ -136,7 +172,7 @@ export default function PayrollPage() {
                 const staffAdvances = advances?.filter(a => a.user_id === staff.id) || [];
                 const advanceAmount = staffAdvances.reduce((sum, a) => sum + (Number(a.amount) || 0), 0);
 
-                const earnedSalary = (dailyRate * daysWorked) + bonus - penalty - onboardingDeduction - advanceAmount;
+                const earnedSalary = (dailyRate * daysWorked) + bonus - totalPenalty - onboardingDeduction - advanceAmount;
 
 
                 // Sync with DB payroll record
@@ -147,7 +183,11 @@ export default function PayrollPage() {
                     daysWorked,
                     leaveDays,
                     lateCount,
-                    penalty,
+                    realAbsences, // Excludes Mondays
+                    penalty: totalPenalty,
+                    attendancePenalty,
+                    taskPenalty,
+                    incompleteTaskCount: staffIncompleteTasks,
                     bonus,
                     onboardingDeduction,
                     advanceAmount,

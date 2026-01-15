@@ -106,7 +106,11 @@ export default function ManagerSettingsPage() {
                     endTime: shopData.end_time || "18:00",
                     penalty15m: shopData.penalty_15m?.toString() || "0.00",
                     penalty30m: shopData.penalty_30m?.toString() || "0.00",
-                    penaltyMax: shopData.penalty_max?.toString() || "0.00"
+                    penaltyMax: shopData.penalty_max?.toString() || "0.00",
+                    task_penalty_amount: shopData.task_penalty_amount?.toString() || "2.00",
+                    ranking_reward_1: shopData.ranking_reward_1?.toString() || "100.00",
+                    ranking_reward_2: shopData.ranking_reward_2?.toString() || "50.00",
+                    ranking_reward_3: shopData.ranking_reward_3?.toString() || "25.00"
                 });
             }
 
@@ -179,7 +183,11 @@ export default function ManagerSettingsPage() {
                 end_time: settings.endTime,
                 penalty_15m: parseFloat(settings.penalty15m),
                 penalty_30m: parseFloat(settings.penalty30m),
-                penalty_max: parseFloat(settings.penaltyMax)
+                penalty_max: parseFloat(settings.penaltyMax),
+                task_penalty_amount: parseFloat(settings.task_penalty_amount),
+                ranking_reward_1: parseFloat(settings.ranking_reward_1),
+                ranking_reward_2: parseFloat(settings.ranking_reward_2),
+                ranking_reward_3: parseFloat(settings.ranking_reward_3)
             });
 
             if (error) throw error;
@@ -632,6 +640,10 @@ export default function ManagerSettingsPage() {
 
             {activeTab === 'bonus' && (
                 <BonusSettingsTab
+                    settings={settings}
+                    loading={loading}
+                    onSettingsChange={handleChange}
+                    onSaveSettings={handleSubmit}
                     bonuses={bonusConfigs}
                     newBonus={newBonus}
                     onBonusChange={(field, value) => setNewBonus({ ...newBonus, [field]: value })}
