@@ -5,7 +5,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { Clock, ClipboardList, Wallet, User, Loader2, Trophy, Medal } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { getRankingsAction } from "@/app/actions/get-rankings";
+import { getRankingsAction } from "@/app/actions/rankings";
 import { getStaffPointsHistoryAction } from "@/app/actions/rankings";
 import PointsHistoryCard from "@/components/PointsHistoryCard";
 
@@ -33,7 +33,7 @@ export default function StaffDashboard() {
         const month = new Date().toISOString().substring(0, 7);
         const result = await getRankingsAction(month);
         if (result.success) {
-            setRankings(result.rankings || []);
+            setRankings(result.data || []);
         }
         setRankingsLoading(false);
     };
@@ -66,7 +66,7 @@ export default function StaffDashboard() {
             const month = new Date().toISOString().substring(0, 7);
             const result = await getRankingsAction(month);
             if (result.success) {
-                const userRanking = result.rankings?.find((r: any) => r.id === userId);
+                const userRanking = result.data?.find((r: any) => r.id === userId);
                 // Always set userPoints, even if no data (show 0 points)
                 setUserPoints(userRanking || {
                     id: userId,

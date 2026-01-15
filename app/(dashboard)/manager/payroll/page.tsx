@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Wallet, Send, AlertCircle, CheckCircle, DollarSign, Loader2, User, FileText, Printer, X, ChevronLeft, ChevronRight, Package, Trophy, Banknote, Share2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { getRankingsAction } from "@/app/actions/get-rankings";
+import { getRankingsAction } from "@/app/actions/rankings";
 import PaymentModal from "@/components/PaymentModal";
 import { Eye, ExternalLink } from "lucide-react";
 import html2canvas from "html2canvas";
@@ -59,7 +59,7 @@ export default function PayrollPage() {
                 .lte('clock_in', endDate);
 
             // 4. Fetch Rankings for the month
-            const { rankings: rankingData } = await getRankingsAction(month);
+            const { data: rankingData } = await getRankingsAction(month);
             setRankings(rankingData || []);
 
             // 5. Fetch Ranking Bonuses
