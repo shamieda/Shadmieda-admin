@@ -1,0 +1,477 @@
+===============================================
+  PANDUAN PANEL ADMIN/MANAGER - SHAMIEDA SAAS
+===============================================
+
+VERSI: 1.0
+TARIKH: 15 Januari 2026
+
+===============================================
+KANDUNGAN
+===============================================
+
+1. Pengenalan
+2. Dashboard Manager
+3. Pengurusan Staff
+4. Pengurusan Kehadiran
+5. Pengurusan Tugasan
+6. Permohonan Cuti
+7. Sistem Payroll
+8. Sistem Ranking & Mata
+9. Tetapan Sistem
+10. Laporan & Analitik
+11. Soalan Lazim
+
+===============================================
+1. PENGENALAN
+===============================================
+
+Panel Admin/Manager membolehkan anda:
+- Urus maklumat staff
+- Pantau kehadiran harian
+- Agih dan pantau tugasan
+- Luluskan permohonan cuti
+- Jana dan bayar gaji
+- Lihat ranking prestasi staff
+- Tetapkan ganjaran dan bonus
+- Lihat laporan prestasi
+
+===============================================
+2. DASHBOARD MANAGER
+===============================================
+
+Paparan Dashboard:
+- Ringkasan kehadiran hari ini
+- Jumlah staff aktif
+- Tugasan pending
+- Permohonan cuti pending
+- Top 3 staff bulan ini
+- Statistik prestasi keseluruhan
+
+Widget Utama:
+- Kehadiran Hari Ini - Siapa hadir/lewat/absent
+- Tugasan Aktif - Status tugasan semua staff
+- Permohonan Pending - Cuti/advance menunggu kelulusan
+- Ranking Bulanan - Top performers
+
+===============================================
+3. PENGURUSAN STAFF
+===============================================
+
+Melihat Senarai Staff:
+1. Pergi ke menu "Staff"
+2. Lihat senarai semua staff
+3. Setiap kad papar:
+   - Nama dan jawatan
+   - Mata bulan semasa
+   - Status aktif/tidak aktif
+   - Maklumat hubungan
+
+Tambah Staff Baru:
+1. Klik "Tambah Staff"
+2. Isi maklumat peribadi:
+   - Nama Penuh
+   - Email
+   - Nombor Telefon
+   - Alamat
+   - Nombor IC
+3. Isi maklumat pekerjaan:
+   - Jawatan/Stesen
+   - Jenis Pekerjaan (Full-Time/Part-Time)
+   - Gaji Pokok
+   - Tarikh Mula Kerja
+4. Isi maklumat bank:
+   - Nama Bank
+   - Nombor Akaun
+5. Pilih Onboarding Kit
+6. Klik "Simpan"
+
+Edit Maklumat Staff:
+1. Klik pada kad staff
+2. Klik butang "Edit"
+3. Ubah maklumat yang perlu
+4. Klik "Simpan"
+
+Upload Dokumen Staff:
+- Gambar IC Depan
+- Gambar IC Belakang
+- Gambar Profil
+
+Padam Staff:
+1. Klik pada kad staff
+2. Klik menu tiga titik
+3. Pilih "Padam Staff"
+4. Sahkan tindakan
+5. Semua data staff akan dipadam
+
+Lihat Profil Lengkap Staff:
+1. Klik pada kad staff
+2. Lihat:
+   - Maklumat peribadi
+   - Maklumat pekerjaan
+   - Sejarah kehadiran
+   - Sejarah tugasan
+   - Prestasi mata
+   - Sejarah gaji
+
+===============================================
+4. PENGURUSAN KEHADIRAN
+===============================================
+
+Melihat Kehadiran Harian:
+1. Pergi ke menu "Kehadiran"
+2. Pilih tarikh
+3. Lihat senarai:
+   - Staff hadir (hijau)
+   - Staff lewat (kuning)
+   - Staff absent (merah)
+
+Maklumat Kehadiran:
+- Masa clock-in
+- Lokasi GPS
+- Selfie bukti
+- Status (Hadir/Lewat/Absent)
+- Jumlah penalti (jika lewat)
+
+Tandakan Absent Manual:
+1. Pilih staff yang absent
+2. Klik "Tandakan Absent"
+3. Sistem auto kurangkan mata -1 point
+
+Lihat Sejarah Kehadiran:
+1. Pilih staff
+2. Pilih julat tarikh
+3. Lihat:
+   - Jumlah hari hadir
+   - Jumlah hari lewat
+   - Jumlah hari absent
+   - Jumlah penalti terkumpul
+
+Export Laporan Kehadiran:
+1. Pilih bulan
+2. Klik "Export"
+3. Pilih format (PDF/Excel)
+4. Muat turun fail
+
+===============================================
+5. PENGURUSAN TUGASAN
+===============================================
+
+Melihat Tugasan:
+1. Pergi ke menu "Operasi"
+2. Pilih stesen kerja
+3. Lihat tugasan semua staff
+
+Tambah Template Tugasan:
+1. Klik "Template Tugasan"
+2. Klik "Tambah Template"
+3. Isi maklumat:
+   - Nama tugasan
+   - Penerangan
+   - Stesen kerja
+   - Keutamaan (Rendah/Sederhana/Tinggi)
+4. Klik "Simpan"
+
+Edit Template Tugasan:
+1. Cari template
+2. Klik butang "Edit"
+3. Ubah maklumat
+4. Klik "Simpan"
+
+Padam Template:
+1. Cari template
+2. Klik ikon sampah
+3. Sahkan tindakan
+
+Jana Tugasan Harian:
+- Sistem auto jana tugasan setiap hari
+- Berdasarkan template yang aktif
+- Diagihkan kepada staff mengikut stesen
+
+Pantau Status Tugasan:
+- Lihat tugasan siap/belum siap
+- Lihat bukti gambar (jika ada)
+- Track prestasi staff
+
+===============================================
+6. PERMOHONAN CUTI
+===============================================
+
+Melihat Permohonan:
+1. Pergi ke menu "Permohonan"
+2. Lihat senarai permohonan cuti
+3. Status:
+   - Pending (kuning)
+   - Approved (hijau)
+   - Rejected (merah)
+
+Luluskan Permohonan:
+1. Klik pada permohonan
+2. Semak maklumat:
+   - Nama staff
+   - Jenis cuti
+   - Tarikh
+   - Sebab
+3. Klik "Lulus" atau "Tolak"
+4. Tulis nota (jika tolak)
+5. Klik "Sahkan"
+
+Notifikasi:
+- Staff akan terima notifikasi automatik
+- Email juga dihantar (jika aktif)
+
+Lihat Sejarah Cuti Staff:
+1. Pergi ke profil staff
+2. Lihat tab "Sejarah Cuti"
+3. Lihat semua permohonan lepas
+
+===============================================
+7. SISTEM PAYROLL
+===============================================
+
+Jana Payroll Bulanan:
+1. Pergi ke menu "Payroll"
+2. Pilih bulan
+3. Klik "Jana Payroll"
+4. Sistem akan kira automatik:
+   - Gaji pokok
+   - Bonus kehadiran
+   - Bonus ranking (Top 3)
+   - Potongan penalti lewat
+   - Potongan advance
+   - Jumlah bersih
+
+Semak Slip Gaji:
+1. Lihat senarai staff
+2. Semak pecahan gaji setiap staff
+3. Pastikan semua pengiraan betul
+
+Edit Gaji (Jika Perlu):
+1. Klik pada slip gaji staff
+2. Klik "Edit"
+3. Ubah nilai yang perlu
+4. Tambah nota
+5. Klik "Simpan"
+
+Tandakan Dibayar:
+1. Selepas bayar gaji
+2. Klik "Tandakan Dibayar"
+3. Pilih kaedah bayaran:
+   - Bank Transfer
+   - Tunai
+   - Lain-lain
+4. Klik "Sahkan"
+5. Status bertukar "Paid"
+
+Export Slip Gaji:
+1. Pilih staff
+2. Klik "Cetak Slip"
+3. Atau "Hantar Email"
+4. Staff akan terima slip gaji
+
+Lihat Sejarah Payroll:
+- Pilih bulan lepas
+- Lihat rekod gaji semua staff
+- Export untuk rekod
+
+===============================================
+8. SISTEM RANKING & MATA
+===============================================
+
+Melihat Ranking:
+1. Dashboard papar Top 3 staff
+2. Atau pergi ke "Staff" untuk lihat semua
+3. Setiap staff papar mata semasa
+
+Cara Mata Dikira:
+
+GOOD DEEDS (+1 mata):
+- Siapkan 1 tugasan = +1 mata
+- Hadir tepat waktu = Tiada penalti
+
+BAD DEEDS (-1 mata):
+- Lewat clock-in = -1 mata
+- Absent = -1 mata
+
+Lihat Sejarah Mata Staff:
+1. Klik pada profil staff
+2. Lihat bahagian "Prestasi Anda"
+3. Lihat:
+   - Mata bulan semasa
+   - Ranking
+   - Good deeds count
+   - Bad deeds count
+   - Sejarah 6 bulan lepas
+
+Bonus Ranking Automatik:
+- Sistem auto apply bonus dalam payroll
+- Rank 1: Dapat bonus mengikut tetapan
+- Rank 2: Dapat bonus mengikut tetapan
+- Rank 3: Dapat bonus mengikut tetapan
+
+Adjust Mata Manual (Jika Perlu):
+Guna SQL Editor di Supabase:
+
+-- Tambah mata
+UPDATE monthly_points 
+SET points = points + 5,
+    good_deeds_count = good_deeds_count + 5
+WHERE user_id = 'USER_ID' AND month = '2026-01';
+
+-- Tolak mata
+UPDATE monthly_points 
+SET points = points - 3,
+    bad_deeds_count = bad_deeds_count + 3
+WHERE user_id = 'USER_ID' AND month = '2026-01';
+
+Reset Mata (Awal Bulan Baru):
+-- Sistem auto create rekod baru setiap bulan
+-- Tidak perlu reset manual
+
+===============================================
+9. TETAPAN SISTEM
+===============================================
+
+Tetapan Kedai:
+1. Pergi ke menu "Tetapan"
+2. Tab "Kedai"
+3. Tetapkan:
+   - Nama kedai
+   - Alamat
+   - Koordinat GPS (Latitude/Longitude)
+   - Radius clock-in (meter)
+   - Masa mula kerja
+   - Masa tamat kerja
+
+Tetapan Penalti:
+1. Tab "Penalti & Bonus"
+2. Tetapkan:
+   - Penalti lewat 15 minit
+   - Penalti lewat 30 minit
+   - Penalti maksimum
+   - Bonus kehadiran harian
+   - Bonus kehadiran mingguan
+   - Bonus kehadiran bulanan
+
+Tetapan Ranking:
+1. Tab "Bonus & Gamifikasi"
+2. Tetapkan ganjaran:
+   - Ranking Reward 1 (Rank 1)
+   - Ranking Reward 2 (Rank 2)
+   - Ranking Reward 3 (Rank 3)
+3. Klik "Simpan"
+
+Tetapan Advance:
+- Limit maksimum advance
+- Syarat kelayakan
+
+Tetapan Onboarding Kit:
+1. Tab "Onboarding"
+2. Tambah item kit:
+   - Nama item
+   - Kuantiti
+3. Klik "Simpan"
+
+Tetapan Stesen Kerja:
+1. Tab "Stesen"
+2. Tambah stesen baru:
+   - Nama stesen (contoh: Barista, Waiter)
+3. Padam stesen yang tidak guna
+
+===============================================
+10. LAPORAN & ANALITIK
+===============================================
+
+Laporan Kehadiran:
+- Jumlah hadir/lewat/absent per bulan
+- Trend kehadiran
+- Staff dengan kehadiran terbaik
+- Staff dengan kehadiran teruk
+
+Laporan Tugasan:
+- Kadar siap tugasan
+- Tugasan paling kerap tak siap
+- Prestasi mengikut stesen
+
+Laporan Payroll:
+- Jumlah gaji dibayar per bulan
+- Breakdown bonus dan potongan
+- Trend kos gaji
+
+Laporan Ranking:
+- Top performers setiap bulan
+- Trend mata staff
+- Perbandingan prestasi
+
+Export Laporan:
+- Pilih jenis laporan
+- Pilih julat tarikh
+- Export ke PDF atau Excel
+
+===============================================
+11. SOALAN LAZIM
+===============================================
+
+Q: Bagaimana ubah ganjaran ranking?
+A: Pergi ke Tetapan > Bonus & Gamifikasi, ubah nilai, klik Simpan.
+
+Q: Boleh tambah mata staff manual?
+A: Ya, guna SQL Editor di Supabase untuk update monthly_points table.
+
+Q: Apa jadi kalau staff lupa clock-in?
+A: Tandakan absent manual atau biarkan sistem auto tandakan.
+
+Q: Bila bonus ranking dibayar?
+A: Automatik apply masa jana payroll bulan tersebut.
+
+Q: Boleh edit slip gaji selepas jana?
+A: Ya, klik pada slip gaji, klik Edit, ubah nilai, Simpan.
+
+Q: Bagaimana padam staff?
+A: Klik profil staff, menu tiga titik, Padam Staff. AMARAN: Semua data akan dipadam.
+
+Q: Boleh import staff dari Excel?
+A: Tidak buat masa ini, perlu tambah satu-satu.
+
+Q: Bagaimana backup data?
+A: Guna Supabase dashboard untuk export database.
+
+Q: Sistem mata rosak, apa buat?
+A: Semak database monthly_points, pastikan rekod wujud dan betul.
+
+Q: Boleh ubah template tugasan?
+A: Ya, pergi ke Operasi > Template Tugasan, edit template yang ada.
+
+===============================================
+SOKONGAN TEKNIKAL
+===============================================
+
+Masalah Biasa:
+
+1. Staff tak dapat clock-in
+   - Semak GPS aktif
+   - Semak radius dalam tetapan
+   - Semak koordinat kedai betul
+
+2. Mata tak update
+   - Refresh page
+   - Semak database monthly_points
+   - Pastikan rekod bulan wujud
+
+3. Bonus tak apply dalam payroll
+   - Semak tetapan ranking reward
+   - Semak shop_settings table
+   - Jana semula payroll
+
+4. Tugasan tak dijana
+   - Semak template aktif
+   - Semak RPC function dalam database
+   - Trigger manual sync
+
+Database Access:
+- Guna Supabase dashboard
+- SQL Editor untuk query manual
+- Table Editor untuk lihat data
+
+===============================================
+TAMAT PANDUAN
+===============================================

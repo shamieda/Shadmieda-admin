@@ -1,0 +1,307 @@
+===============================================
+  PANDUAN PANEL STAFF - SHAMIEDA SAAS
+===============================================
+
+VERSI: 1.0
+TARIKH: 15 Januari 2026
+
+===============================================
+KANDUNGAN
+===============================================
+
+1. Pengenalan
+2. Log Masuk
+3. Dashboard Utama
+4. Rekod Kehadiran (Attendance)
+5. Senarai Tugasan (Tasks)
+6. Permohonan Cuti (Leave)
+7. Gaji & Advance (Payroll)
+8. Profil Peribadi
+9. Tetapan
+10. Sistem Mata & Ranking
+11. Soalan Lazim
+
+===============================================
+1. PENGENALAN
+===============================================
+
+Sistem Shamieda SaaS adalah platform pengurusan staff yang membantu anda:
+- Rekod kehadiran harian
+- Lihat dan siapkan tugasan
+- Mohon cuti
+- Semak slip gaji
+- Kumpul mata untuk ganjaran
+
+===============================================
+2. LOG MASUK
+===============================================
+
+Cara Log Masuk:
+1. Buka aplikasi di pelayar web
+2. Masukkan email anda
+3. Masukkan kata laluan
+4. Klik butang "Log Masuk"
+
+Lupa Kata Laluan:
+1. Klik "Lupa Kata Laluan?"
+2. Masukkan email anda
+3. Semak email untuk pautan reset
+4. Ikut arahan dalam email
+
+===============================================
+3. DASHBOARD UTAMA
+===============================================
+
+Paparan Dashboard:
+- Nama dan jawatan anda
+- Prestasi mata bulan semasa
+- Ranking anda berbanding staff lain
+- Top 3 pekerja terbaik bulan ini
+- Pautan pantas ke fungsi utama
+
+Fungsi Pantas:
+- Rekod Kehadiran - Clock in/out
+- Senarai Tugas - Lihat tugasan harian
+- Gaji & Advance - Semak slip gaji
+- Profil Saya - Kemaskini maklumat
+
+===============================================
+4. REKOD KEHADIRAN (ATTENDANCE)
+===============================================
+
+Cara Clock-In:
+1. Pergi ke menu "Rekod Kehadiran"
+2. Pastikan GPS telefon aktif
+3. Pastikan anda berada dalam radius 50 meter dari kedai
+4. Klik "Semak Lokasi"
+5. Tunggu sistem sahkan lokasi anda
+6. Klik "Buka Kamera untuk Selfie"
+7. Ambil gambar selfie anda
+8. Klik "SAHKAN CLOCK-IN"
+
+Penting:
+- Mesti berada dalam radius 50m dari kedai
+- Mesti ambil selfie untuk bukti
+- Hanya boleh clock-in sekali sehari
+- Lewat clock-in akan dikenakan penalti
+
+Penalti Lewat:
+- 1-15 minit: RM5
+- 16-30 minit: RM10
+- Lebih 30 minit: RM15
+- Mata dikurangkan -1 point
+
+Sejarah Kehadiran:
+- Lihat rekod clock-in lepas
+- Semak status (Hadir/Lewat)
+- Lihat jumlah penalti
+
+===============================================
+5. SENARAI TUGASAN (TASKS)
+===============================================
+
+Melihat Tugasan:
+1. Pergi ke menu "Tugasan"
+2. Pilih stesen kerja anda dari dropdown
+3. Lihat senarai tugasan harian
+
+Menandakan Tugasan Siap:
+1. Klik pada tugasan
+2. Tugasan akan bertukar warna hijau
+3. Mata +1 point akan ditambah automatik
+
+Mengambil Bukti (Opsional):
+1. Klik ikon kamera pada tugasan
+2. Ambil gambar bukti kerja
+3. Klik "Simpan"
+
+Penting:
+- Setiap tugasan siap = +1 mata
+- Tugasan dijana automatik setiap hari
+- Pastikan semua tugasan siap sebelum waktu tutup
+
+===============================================
+6. PERMOHONAN CUTI (LEAVE)
+===============================================
+
+Cara Mohon Cuti:
+1. Pergi ke menu "Permohonan"
+2. Klik "Mohon Cuti Baru"
+3. Pilih tarikh mula
+4. Pilih tarikh tamat
+5. Pilih jenis cuti:
+   - Cuti Sakit
+   - Cuti Tahunan
+   - Cuti Kecemasan
+   - Cuti Tanpa Gaji
+6. Tulis sebab cuti
+7. Klik "Hantar Permohonan"
+
+Status Permohonan:
+- Pending - Menunggu kelulusan
+- Approved - Diluluskan
+- Rejected - Ditolak
+
+Melihat Sejarah Cuti:
+- Semua permohonan lepas
+- Status setiap permohonan
+- Sebab jika ditolak
+
+===============================================
+7. GAJI & ADVANCE (PAYROLL)
+===============================================
+
+Melihat Slip Gaji:
+1. Pergi ke menu "Gaji & Advance"
+2. Pilih bulan
+3. Lihat pecahan gaji:
+   - Gaji Pokok
+   - Bonus Kehadiran
+   - Bonus Ranking (jika Top 3)
+   - Potongan Penalti
+   - Potongan Advance
+   - Jumlah Bersih
+
+Mohon Advance:
+1. Klik "Mohon Advance"
+2. Masukkan jumlah (maksimum RM500)
+3. Tulis sebab
+4. Klik "Hantar"
+5. Tunggu kelulusan manager
+
+Penting:
+- Advance akan ditolak dari gaji bulan depan
+- Maksimum advance: RM500
+- Perlu kelulusan manager
+
+===============================================
+8. PROFIL PERIBADI
+===============================================
+
+Melihat Profil:
+1. Pergi ke menu "Profil Saya"
+2. Lihat maklumat peribadi:
+   - Nama Penuh
+   - Email
+   - Nombor Telefon
+   - Alamat
+   - Nombor IC
+   - Maklumat Bank
+
+Kemaskini Profil:
+1. Klik butang "Edit"
+2. Ubah maklumat yang perlu
+3. Klik "Simpan"
+
+Tukar Kata Laluan:
+1. Pergi ke "Tetapan"
+2. Klik "Tukar Kata Laluan"
+3. Masukkan kata laluan lama
+4. Masukkan kata laluan baru
+5. Sahkan kata laluan baru
+6. Klik "Simpan"
+
+===============================================
+9. TETAPAN
+===============================================
+
+Tetapan Tersedia:
+- Tukar Kata Laluan
+- Notifikasi Push
+- Bahasa Sistem
+- Tema (Gelap/Terang)
+
+Notifikasi:
+- Tugasan baru
+- Permohonan cuti diluluskan/ditolak
+- Slip gaji tersedia
+- Pengumuman dari manager
+
+===============================================
+10. SISTEM MATA & RANKING
+===============================================
+
+Cara Kumpul Mata:
+
+GOOD DEEDS (+1 mata):
+- Siapkan 1 tugasan = +1 mata
+- Hadir tepat waktu = Tiada penalti
+
+BAD DEEDS (-1 mata):
+- Lewat clock-in = -1 mata
+- Absent = -1 mata
+
+Melihat Mata Anda:
+1. Dashboard utama papar:
+   - Mata bulan semasa
+   - Ranking anda
+   - Good deeds count
+   - Bad deeds count
+   - Ganjaran (jika Top 3)
+
+Ganjaran Ranking Bulanan:
+- Rank 1: RM100
+- Rank 2: RM50
+- Rank 3: RM25
+
+Tips Tingkatkan Ranking:
+1. Siapkan semua tugasan setiap hari
+2. Clock-in tepat waktu
+3. Elakkan absent tanpa sebab kukuh
+4. Maintain prestasi konsisten
+
+Sejarah Mata:
+- Lihat prestasi 6 bulan lepas
+- Track good deeds vs bad deeds
+- Lihat trend ranking anda
+
+===============================================
+11. SOALAN LAZIM
+===============================================
+
+Q: Bila mata dikira?
+A: Setiap kali anda siap tugasan atau clock-in, mata dikira automatik.
+
+Q: Boleh lihat mata staff lain?
+A: Tidak, anda hanya boleh lihat mata dan ranking sendiri. Hanya Top 3 dipaparkan di dashboard.
+
+Q: Apa jadi kalau saya lupa clock-in?
+A: Anda akan ditandakan absent dan mata dikurangkan -1 point. Hubungi manager jika ada kecemasan.
+
+Q: Bila bonus ranking dibayar?
+A: Bonus ranking dibayar bersama gaji bulan tersebut.
+
+Q: Boleh mohon cuti last minute?
+A: Boleh, tetapi bergantung pada kelulusan manager. Lebih awal mohon, lebih baik.
+
+Q: Berapa lama advance diluluskan?
+A: Bergantung pada manager, biasanya dalam 1-2 hari bekerja.
+
+Q: Apa jadi kalau GPS tak betul?
+A: Klik "Laporkan Masalah Lokasi ke Manager" untuk maklumkan kepada manager.
+
+Q: Boleh edit tugasan yang dah siap?
+A: Tidak, sekali ditandakan siap, tidak boleh undo. Hubungi manager jika ada kesilapan.
+
+Q: Mata bulan lepas hilang?
+A: Tidak, sejarah mata disimpan selama 6 bulan.
+
+Q: Apa jadi kalau tie ranking?
+A: Yang clock-in lebih awal dan konsisten akan dapat ranking lebih tinggi.
+
+===============================================
+SOKONGAN
+===============================================
+
+Jika ada masalah atau soalan:
+1. Hubungi manager anda
+2. Atau hubungi admin sistem
+
+Masalah Teknikal:
+- Refresh page jika sistem lambat
+- Clear cache jika ada masalah paparan
+- Pastikan internet stabil
+
+===============================================
+TAMAT PANDUAN
+===============================================
