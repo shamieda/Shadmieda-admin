@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Search, Filter, Download, MapPin, Camera, Loader2, User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { updateAttendanceAction } from "@/app/actions/update-attendance";
 
 export default function AttendancePage() {
     const [attendance, setAttendance] = useState<any[]>([]);
@@ -86,19 +87,21 @@ export default function AttendancePage() {
             // Convert local time back to ISO string for storage
             const updatedTime = new Date(editForm.clock_in).toISOString();
 
-            const { error } = await supabase
-                .from('attendance')
-                .update({
-                    clock_in: updatedTime,
-                    status: editForm.status
-                })
-                .eq('id', editingRecord.id);
+            // Use server action with business logic
+            const result = await updateAttendanceAction(
+                editingRecord.id,
+                updatedTime,
+                editForm.status
+            );
 
-            if (error) throw error;
+            if (!result.success) {
+                throw new Error(result.error || "Gagal mengemaskini rekod.");
+            }
 
-            setAttendance(attendance.map(a => a.id === editingRecord.id ? { ...a, clock_in: updatedTime, status: editForm.status } : a));
+            // Refresh attendance data from server to get updated penalty
+            await fetchAttendance();
             setEditingRecord(null);
-            alert("Rekod berjaya dikemaskini.");
+            alert(result.message || "Rekod berjaya dikemaskini.");
         } catch (error: any) {
             console.error("Error updating record:", error);
             alert("Gagal mengemaskini rekod: " + error.message);

@@ -43,10 +43,7 @@ Cara Log Masuk:
 4. Klik butang "Log Masuk"
 
 Lupa Kata Laluan:
-1. Klik "Lupa Kata Laluan?"
-2. Masukkan email anda
-3. Semak email untuk pautan reset
-4. Ikut arahan dalam email
+1. Contact Admin untuk mengubah kata laluan baru
 
 ===============================================
 3. DASHBOARD UTAMA
