@@ -53,7 +53,7 @@ export default function SupervisorAttendancePage() {
 
         setEditForm({
             clock_in: localISOTime,
-            status: record.status || "Hadir"
+            status: record.status || "present"
         });
     };
 
@@ -397,8 +397,8 @@ export default function SupervisorAttendancePage() {
                                 onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
                                 className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary"
                             >
-                                <option value="Hadir">Hadir (On Time)</option>
-                                <option value="Late">Lewat (Late)</option>
+                                <option value="present">Hadir (On Time)</option>
+                                <option value="late">Lewat (Late)</option>
                             </select>
                         </div>
 
