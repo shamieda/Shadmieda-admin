@@ -43,7 +43,8 @@ function calculatePenalty(clockInTime: Date, shopSettings: any) {
 export async function createManualAttendanceAction(
     userId: string,
     clockInTime: string, // ISO String
-    overrideStatus?: string
+    overrideStatus?: string,
+    selfieUrl?: string
 ): Promise<CreateAttendanceResult> {
     try {
         const supabase = await createClient();
@@ -103,7 +104,7 @@ export async function createManualAttendanceAction(
                 penalty_amount: penalty,
                 location_lat: null, // Manual entry
                 location_long: null,
-                selfie_url: null
+                selfie_url: selfieUrl || null
             });
 
         if (insertError) throw insertError;

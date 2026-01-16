@@ -91,9 +91,10 @@ export default function SupervisorAttendancePage() {
     const [createModal, setCreateModal] = useState(false);
     const [createForm, setCreateForm] = useState({
         userId: "",
-        clock_in: new Date().toISOString().slice(0, 16), // Now formatted for input (YYYY-MM-DDTHH:mm)
+        clock_in: new Date().toISOString().slice(0, 16),
         status: "present"
     });
+    const [selfieFile, setSelfieFile] = useState<File | null>(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -111,18 +112,43 @@ export default function SupervisorAttendancePage() {
 
         setLoading(true);
         try {
+            let selfieUrl = "";
+
+            // Upload Selfie if exists
+            if (selfieFile) {
+                const fileExt = selfieFile.name.split('.').pop();
+                const fileName = `${createForm.userId}_manual_${Date.now()}.${fileExt}`;
+                const { error: uploadError } = await supabase.storage
+                    .from('attendance-selfies')
+                    .upload(fileName, selfieFile);
+
+                if (uploadError) {
+                    console.error("Upload error:", uploadError);
+                    if (!confirm("Gagal muat naik gambar. Teruskan tanpa gambar?")) {
+                        throw new Error("Dibatalkan oleh pengguna.");
+                    }
+                } else {
+                    const { data: { publicUrl } } = supabase.storage
+                        .from('attendance-selfies')
+                        .getPublicUrl(fileName);
+                    selfieUrl = publicUrl;
+                }
+            }
+
             // Import dynamically to avoid build issues if file is new
             const { createManualAttendanceAction } = await import("@/app/actions/create-attendance");
             const result = await createManualAttendanceAction(
                 createForm.userId,
                 new Date(createForm.clock_in).toISOString(),
-                createForm.status
+                createForm.status,
+                selfieUrl
             );
 
             if (!result.success) throw new Error(result.error);
 
             alert(result.message);
             setCreateModal(false);
+            setSelfieFile(null); // Reset file
             fetchAttendance();
         } catch (error: any) {
             alert("Gagal: " + error.message);
@@ -296,6 +322,37 @@ export default function SupervisorAttendancePage() {
                                 <option value="present">Hadir (On Time)</option>
                                 <option value="late">Lewat (Late)</option>
                             </select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs text-gray-400 uppercase font-bold">Bukti Selfie (Pilihan)</label>
+                            <div className="flex items-center gap-2">
+                                <label className="flex-1 cursor-pointer bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white hover:bg-white/5 transition-colors flex items-center justify-between">
+                                    <span className="text-sm truncate">
+                                        {selfieFile ? selfieFile.name : "Ambil Gambar / Upload"}
+                                    </span>
+                                    <Camera className="w-4 h-4 text-gray-400" />
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        capture="environment"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            if (e.target.files && e.target.files[0]) {
+                                                setSelfieFile(e.target.files[0]);
+                                            }
+                                        }}
+                                    />
+                                </label>
+                                {selfieFile && (
+                                    <button
+                                        onClick={() => setSelfieFile(null)}
+                                        className="p-3 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20"
+                                    >
+                                        <div className="w-4 h-4 font-bold">✕</div>
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex gap-3 pt-4">
