@@ -131,6 +131,10 @@ export default function SupervisorAttendancePage() {
         }
     };
 
+    const filteredAttendance = attendance.filter(a =>
+        a.users?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
