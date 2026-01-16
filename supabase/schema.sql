@@ -7,7 +7,7 @@ create table public.users (
   auth_id uuid references auth.users(id) on delete set null,
   full_name text not null,
   email text unique,
-  role text check (role in ('admin', 'master', 'manager', 'staff')) not null default 'staff',
+  role text check (role in ('admin', 'master', 'manager', 'supervisor', 'staff')) not null default 'staff',
   position text, -- 'waiter', 'barista', etc.
   phone text,
   ic_number text,
@@ -222,11 +222,11 @@ create policy "Users can delete their own tasks" on public.tasks
     )
   );
 
-create policy "Managers can manage all tasks" on public.tasks
+create policy "Managers and supervisors can manage all tasks" on public.tasks
   for all using (
     exists (
       select 1 from public.users
-      where users.auth_id = auth.uid() and users.role in ('admin', 'manager', 'master')
+      where users.auth_id = auth.uid() and users.role in ('admin', 'manager', 'master', 'supervisor')
     )
   );
 
@@ -455,3 +455,60 @@ create policy "Users can delete own sessions" on public.user_sessions
 
 -- Index for faster lookups in middleware
 create index idx_user_sessions_session_id on public.user_sessions(session_id);
+
+-- 9. TASK TEMPLATES TABLE (For Supervisor Task Management)
+CREATE TABLE public.task_templates (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  position TEXT NOT NULL, -- 'waiter', 'barista', 'staff' (all), etc.
+  deadline_time TIME, -- e.g., '18:00:00'
+  penalty_amount DECIMAL(10, 2) DEFAULT 0.00,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Enable RLS
+ALTER TABLE public.task_templates ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for task_templates
+CREATE POLICY "Managers and supervisors can view task templates"
+ON public.task_templates FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM public.users
+    WHERE users.auth_id = auth.uid() 
+    AND users.role IN ('admin', 'manager', 'master', 'supervisor')
+  )
+);
+
+CREATE POLICY "Managers and supervisors can create task templates"
+ON public.task_templates FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.users
+    WHERE users.auth_id = auth.uid() 
+    AND users.role IN ('admin', 'manager', 'master', 'supervisor')
+  )
+);
+
+CREATE POLICY "Managers and supervisors can update task templates"
+ON public.task_templates FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM public.users
+    WHERE users.auth_id = auth.uid() 
+    AND users.role IN ('admin', 'manager', 'master', 'supervisor')
+  )
+);
+
+CREATE POLICY "Managers and supervisors can delete task templates"
+ON public.task_templates FOR DELETE
+USING (
+  EXISTS (
+    SELECT 1 FROM public.users
+    WHERE users.auth_id = auth.uid() 
+    AND users.role IN ('admin', 'manager', 'master', 'supervisor')
+  )
+);
+

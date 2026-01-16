@@ -40,6 +40,16 @@ const staffItems = [
     { name: "Tetapan", href: "/staff/settings", icon: Settings },
 ];
 
+const supervisorItems = [
+    { name: "Dashboard", href: "/staff", icon: LayoutDashboard },
+    { name: "Rekod Kehadiran", href: "/staff/attendance", icon: Clock },
+    { name: "Tugasan", href: "/staff/tasks", icon: ClipboardList },
+    { name: "Urus Tugasan", href: "/staff/manage-tasks", icon: Settings },
+    { name: "Permohonan", href: "/staff/applications", icon: FileText },
+    { name: "Gaji & Advance", href: "/staff/payroll", icon: Wallet },
+    { name: "Tetapan", href: "/staff/settings", icon: Settings },
+];
+
 interface SidebarProps {
     isCollapsed: boolean;
     toggleSidebar: () => void;
@@ -72,7 +82,9 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
     let menuItems = isStaff ? staffItems : managerItems; // Default based on URL
 
     if (user) {
-        if (user.role === 'staff') {
+        if (user.role === 'supervisor') {
+            menuItems = supervisorItems;
+        } else if (user.role === 'staff') {
             menuItems = staffItems;
         } else if (user.role === 'manager' || user.role === 'admin' || user.role === 'master') {
             // Managers, Admins, and Masters get everything including Settings
@@ -129,7 +141,8 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
                         <p className="text-xs text-gray-500 mt-1 animate-fade-in">
                             {user ? (
                                 user.role === 'admin' || user.role === 'master' ? "Admin Access" :
-                                    user.role === 'manager' ? "Manager Access" : "Staff Access"
+                                    user.role === 'manager' ? "Manager Access" :
+                                        user.role === 'supervisor' ? "Supervisor Access" : "Staff Access"
                             ) : (
                                 isStaff ? "Staff Access" : "Management Access"
                             )}

@@ -16,6 +16,7 @@ export default function StaffListPage() {
 
     const [positions, setPositions] = useState<string[]>([]);
     const [stationModal, setStationModal] = useState<{ id: string, name: string, currentStation: string } | null>(null);
+    const [roleModal, setRoleModal] = useState<{ id: string, name: string, currentRole: string } | null>(null);
     const [rankings, setRankings] = useState<any[]>([]);
 
     useEffect(() => {
@@ -75,6 +76,48 @@ export default function StaffListPage() {
 
         } catch (error: any) {
             alert("Gagal kemaskini stesen: " + error.message);
+        }
+    };
+
+    const handleUpdateRole = async (newRole: string) => {
+        if (!roleModal) return;
+
+        // Get current logged-in user to prevent self-demotion
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { data: currentUser } = await supabase
+                .from('users')
+                .select('id, role')
+                .eq('auth_id', user.id)
+                .single();
+
+            // Prevent self-demotion
+            if (currentUser && currentUser.id === roleModal.id && newRole === 'staff' && currentUser.role !== 'staff') {
+                alert("Anda tidak boleh turunkan peranan anda sendiri!");
+                return;
+            }
+        }
+
+        // Confirmation for sensitive role changes
+        if (newRole === 'admin' || newRole === 'manager') {
+            if (!confirm(`Adakah anda pasti mahu jadikan ${roleModal.name} sebagai ${newRole}? Mereka akan dapat akses penuh.`)) {
+                return;
+            }
+        }
+
+        try {
+            const { error } = await supabase
+                .from('users')
+                .update({ role: newRole })
+                .eq('id', roleModal.id);
+
+            if (error) throw error;
+
+            setStaff(staff.map((s: any) => s.id === roleModal.id ? { ...s, role: newRole } : s));
+            setRoleModal(null);
+            alert(`Peranan berjaya dikemaskini kepada ${newRole.toUpperCase()}`);
+        } catch (error: any) {
+            alert("Gagal kemaskini peranan: " + error.message);
         }
     };
 
@@ -205,18 +248,41 @@ export default function StaffListPage() {
                                     return null;
                                 })()}
                             </div>
-                            <div className="flex items-center gap-2 mb-4">
-                                <p className="text-primary text-sm font-medium capitalize">Stesen: {s.position || 'Staff'} ({s.employment_type || 'Full-Time'})</p>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setStationModal({ id: s.id, name: s.full_name, currentStation: s.position || 'Staff' });
-                                    }}
-                                    className="p-1 hover:bg-white/10 rounded text-gray-500 hover:text-primary transition-colors"
-                                    title="Tukar Stesen"
-                                >
-                                    <Edit className="w-3 h-3" />
-                                </button>
+                            <div className="space-y-2 mb-4">
+                                {/* Role Selector */}
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-gray-500">Peranan:</span>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setRoleModal({ id: s.id, name: s.full_name, currentRole: s.role || 'staff' });
+                                        }}
+                                        className="flex items-center gap-2 px-2 py-1 bg-white/5 hover:bg-white/10 rounded-lg transition-all group"
+                                    >
+                                        <span className={`text-xs font-bold uppercase ${s.role === 'supervisor' ? 'text-primary' :
+                                                s.role === 'manager' ? 'text-blue-400' :
+                                                    s.role === 'admin' || s.role === 'master' ? 'text-red-400' :
+                                                        'text-gray-400'
+                                            }`}>
+                                            {s.role || 'staff'}
+                                        </span>
+                                        <Edit className="w-3 h-3 text-gray-500 group-hover:text-primary" />
+                                    </button>
+                                </div>
+                                {/* Position Selector */}
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-gray-500">Stesen:</span>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setStationModal({ id: s.id, name: s.full_name, currentStation: s.position || 'Staff' });
+                                        }}
+                                        className="flex items-center gap-2 px-2 py-1 bg-white/5 hover:bg-white/10 rounded-lg transition-all group"
+                                    >
+                                        <span className="text-primary text-xs capitalize">{s.position || 'Staff'}</span>
+                                        <Edit className="w-3 h-3 text-gray-500 group-hover:text-primary" />
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="space-y-2 text-sm text-gray-400">
@@ -275,6 +341,49 @@ export default function StaffListPage() {
                                             }`}
                                     >
                                         {pos}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Role Change Modal */}
+            {roleModal && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" onClick={() => setRoleModal(null)}>
+                    <div className="bg-surface border border-white/10 rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-bold text-white">Tukar Peranan</h3>
+                            <button onClick={() => setRoleModal(null)} className="text-gray-500 hover:text-white">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="mb-6">
+                            <p className="text-sm text-gray-400 mb-2">Pilih peranan baru untuk <span className="text-white font-bold">{roleModal.name}</span>:</p>
+                            <div className="space-y-2">
+                                {['staff', 'supervisor', 'manager', 'admin'].map((role) => (
+                                    <button
+                                        key={role}
+                                        onClick={() => handleUpdateRole(role)}
+                                        className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${roleModal.currentRole === role
+                                                ? 'bg-primary/10 border-primary text-primary font-bold'
+                                                : 'bg-white/5 border-transparent hover:border-white/20 text-gray-300'
+                                            }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="capitalize">{role}</span>
+                                            {role === 'supervisor' && (
+                                                <span className="text-xs text-gray-500">Boleh urus tugasan</span>
+                                            )}
+                                            {role === 'manager' && (
+                                                <span className="text-xs text-gray-500">Akses penuh</span>
+                                            )}
+                                            {role === 'admin' && (
+                                                <span className="text-xs text-gray-500">Akses tertinggi</span>
+                                            )}
+                                        </div>
                                     </button>
                                 ))}
                             </div>
