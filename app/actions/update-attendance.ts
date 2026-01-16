@@ -118,7 +118,7 @@ export async function updateAttendanceAction(
             .eq('auth_id', user.id)
             .single();
 
-        if (!profile || !['admin', 'manager', 'master'].includes(profile.role)) {
+        if (!profile || !['admin', 'manager', 'master', 'supervisor'].includes(profile.role)) {
             return { success: false, error: "Anda tidak mempunyai kebenaran untuk mengubah rekod kehadiran." };
         }
 

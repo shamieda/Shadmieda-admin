@@ -43,6 +43,7 @@ const staffItems = [
 const supervisorItems = [
     { name: "Dashboard", href: "/staff", icon: LayoutDashboard },
     { name: "Rekod Kehadiran", href: "/staff/attendance", icon: Clock },
+    { name: "Urus Kehadiran", href: "/staff/manage-attendance", icon: Users },
     { name: "Tugasan", href: "/staff/tasks", icon: ClipboardList },
     { name: "Urus Tugasan", href: "/staff/manage-tasks", icon: Settings },
     { name: "Permohonan", href: "/staff/applications", icon: FileText },

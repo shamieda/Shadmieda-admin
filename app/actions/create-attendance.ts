@@ -1,0 +1,120 @@
+"use server";
+
+import { createClient } from "@/lib/supabase-server";
+import { revalidatePath } from "next/cache";
+
+interface CreateAttendanceResult {
+    success: boolean;
+    message?: string;
+    error?: string;
+}
+
+/**
+ * Calculate penalty based on clock-in time and shop settings
+ * (Duplicated helper to ensure standalone consistency)
+ */
+function calculatePenalty(clockInTime: Date, shopSettings: any) {
+    const [startH, startM, startS] = shopSettings.start_time.split(':').map(Number);
+    const startTimeDate = new Date(clockInTime);
+    startTimeDate.setHours(startH, startM, startS || 0, 0);
+
+    if (clockInTime <= startTimeDate) {
+        return { status: 'present', penalty: 0 };
+    }
+
+    const diffMs = clockInTime.getTime() - startTimeDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+
+    let penalty = 0;
+
+    if (shopSettings.penalty_max > 0 && diffMins > 30) {
+        penalty = shopSettings.penalty_max;
+    } else if (shopSettings.penalty_30m > 0 && diffMins > 15) {
+        penalty = shopSettings.penalty_30m;
+    } else if (shopSettings.penalty_15m > 0 && diffMins > 0) {
+        penalty = shopSettings.penalty_15m;
+    } else {
+        penalty = diffMins * (shopSettings.late_penalty_per_minute || 0);
+    }
+
+    return { status: 'late', penalty };
+}
+
+export async function createManualAttendanceAction(
+    userId: string,
+    clockInTime: string, // ISO String
+    overrideStatus?: string
+): Promise<CreateAttendanceResult> {
+    try {
+        const supabase = await createClient();
+
+        // 1. Verify Permission
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) throw new Error("Pengesahan gagal.");
+
+        const { data: currentUser } = await supabase
+            .from('users')
+            .select('role')
+            .eq('auth_id', user.id)
+            .single();
+
+        if (!currentUser || !['admin', 'manager', 'master', 'supervisor'].includes(currentUser.role)) {
+            throw new Error("Tiada kebenaran untuk mencipta rekod kehadiran.");
+        }
+
+        // 2. Check for Duplicate Attendance (Same Day)
+        const clockInDate = new Date(clockInTime);
+        const startOfDay = new Date(clockInDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(clockInDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const { data: existing } = await supabase
+            .from('attendance')
+            .select('id')
+            .eq('user_id', userId)
+            .gte('clock_in', startOfDay.toISOString())
+            .lte('clock_in', endOfDay.toISOString())
+            .single();
+
+        if (existing) {
+            return { success: false, error: "Staff ini sudah mempunyai rekod kehadiran untuk tarikh tersebut." };
+        }
+
+        // 3. Get Shop Settings for Penalty
+        const { data: shopSettings } = await supabase
+            .from('shop_settings')
+            .select('*')
+            .single();
+
+        if (!shopSettings) throw new Error("Tetapan kedai tidak dijumpai.");
+
+        // 4. Calculate Penalty
+        const { status: calculatedStatus, penalty } = calculatePenalty(clockInDate, shopSettings);
+        const finalStatus = overrideStatus || calculatedStatus;
+
+        // 5. Insert Record
+        const { error: insertError } = await supabase
+            .from('attendance')
+            .insert({
+                user_id: userId,
+                clock_in: clockInDate.toISOString(),
+                status: finalStatus,
+                penalty_amount: penalty,
+                location_lat: null, // Manual entry
+                location_long: null,
+                selfie_url: null
+            });
+
+        if (insertError) throw insertError;
+
+        revalidatePath('/staff/manage-attendance');
+        revalidatePath('/manager/attendance');
+
+        return { success: true, message: `Kehadiran berjaya direkodkan. (${finalStatus}, RM${penalty})` };
+
+    } catch (error: any) {
+        console.error("Manual Attendance Error:", error);
+        return { success: false, error: error.message };
+    }
+}
