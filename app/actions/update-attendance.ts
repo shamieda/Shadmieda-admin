@@ -134,16 +134,21 @@ export async function updateAttendanceAction(
         }
 
         // 3. Get shop settings for penalty calculation
-        const { data: shopSettings, error: settingsError } = await supabase
+        const { data: shopData } = await supabase
             .from('shop_settings')
             .select('start_time, late_penalty_per_minute, penalty_15m, penalty_30m, penalty_max')
             .order('updated_at', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle();
 
-        if (settingsError || !shopSettings) {
-            return { success: false, error: "Gagal mendapatkan tetapan kedai." };
-        }
+        // Fallback to defaults if no settings exist
+        const shopSettings = shopData || {
+            start_time: '09:00:00',
+            late_penalty_per_minute: 0,
+            penalty_15m: 0,
+            penalty_30m: 0,
+            penalty_max: 0
+        };
 
         // 4. Calculate new penalty based on new clock-in time
         const newClockInDate = new Date(newClockIn);
