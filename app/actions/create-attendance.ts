@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { revalidatePath } from "next/cache";
 
 interface CreateAttendanceResult {
@@ -82,15 +83,19 @@ export async function createManualAttendanceAction(
             return { success: false, error: "Staff ini sudah mempunyai rekod kehadiran untuk tarikh tersebut." };
         }
 
-        // 3. Get Shop Settings for Penalty
-        const { data: shopData } = await supabase
+        // 3. Get Shop Settings for Penalty - Use Admin for reliability
+        const { data: shopData, error: settingsError } = await (supabaseAdmin || supabase)
             .from('shop_settings')
             .select('*')
             .order('updated_at', { ascending: false })
             .limit(1)
             .maybeSingle();
 
-        // Fallback to defaults if no settings exist
+        if (settingsError) {
+            console.error("Error fetching shop settings:", settingsError);
+        }
+
+        // Fallback to defaults only if no settings exist in DB
         const shopSettings = shopData || {
             start_time: '09:00:00',
             late_penalty_per_minute: 0,
@@ -98,6 +103,10 @@ export async function createManualAttendanceAction(
             penalty_30m: 0,
             penalty_max: 0
         };
+
+        if (!shopData) {
+            console.warn("⚠️ Shop settings NOT FOUND in DB. Using fallbacks (RM0 penalties).");
+        }
 
         // 4. Calculate Penalty
         const { status: calculatedStatus, penalty } = calculatePenalty(clockInDate, shopSettings);

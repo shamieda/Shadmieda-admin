@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { awardGoodDeedAction, deductBadDeedAction } from "./points";
 
 interface ShopSettings {
@@ -133,13 +134,17 @@ export async function updateAttendanceAction(
             return { success: false, error: "Rekod kehadiran tidak dijumpai." };
         }
 
-        // 3. Get shop settings for penalty calculation
-        const { data: shopData } = await supabase
+        // 3. Get shop settings for penalty calculation - Use Admin for reliability
+        const { data: shopData, error: settingsError } = await (supabaseAdmin || supabase)
             .from('shop_settings')
             .select('start_time, late_penalty_per_minute, penalty_15m, penalty_30m, penalty_max')
             .order('updated_at', { ascending: false })
             .limit(1)
             .maybeSingle();
+
+        if (settingsError) {
+            console.error("Error fetching shop settings in update:", settingsError);
+        }
 
         // Fallback to defaults if no settings exist
         const shopSettings = shopData || {
@@ -149,6 +154,10 @@ export async function updateAttendanceAction(
             penalty_30m: 0,
             penalty_max: 0
         };
+
+        if (!shopData) {
+            console.warn("⚠️ Shop settings NOT FOUND in DB during update. Using fallbacks.");
+        }
 
         // 4. Calculate new penalty based on new clock-in time
         const newClockInDate = new Date(newClockIn);
