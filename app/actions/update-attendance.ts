@@ -58,6 +58,17 @@ function calculatePenaltyFromTime(
 }
 
 /**
+ * Normalize status values to ensure database constraint compliance ('present', 'late', 'absent')
+ */
+const normalizeStatus = (status: string) => {
+    const lower = status.toLowerCase();
+    if (lower === 'late' || lower === 'lewat') return 'late';
+    if (lower === 'present' || lower === 'hadir') return 'present';
+    if (lower === 'absent' || lower === 'ponteng') return 'absent';
+    return lower;
+};
+
+/**
  * Adjust monthly points based on status change
  */
 async function adjustPointsForStatusChange(
@@ -66,14 +77,6 @@ async function adjustPointsForStatusChange(
     newStatus: string,
     month: string
 ): Promise<void> {
-    // Normalize status values (handle both "late"/"Late" and "present"/"Hadir")
-    const normalizeStatus = (status: string) => {
-        const lower = status.toLowerCase();
-        if (lower === 'late' || lower === 'lewat') return 'late';
-        if (lower === 'present' || lower === 'hadir') return 'present';
-        return lower;
-    };
-
     const oldNormalized = normalizeStatus(oldStatus);
     const newNormalized = normalizeStatus(newStatus);
 
@@ -167,8 +170,8 @@ export async function updateAttendanceAction(
         );
 
         // 5. Determine final status (use manual override if provided, otherwise use calculated)
-        // If user manually selects a status, respect it, but still calculate penalty based on time
-        const finalStatus = newStatus || calculatedStatus;
+        // Normalize status to ensure database constraint compliance ('present', 'late', 'absent')
+        const finalStatus = normalizeStatus(newStatus || calculatedStatus);
         const finalPenalty = calculatedPenalty;
 
         // 6. Adjust monthly points if status changed

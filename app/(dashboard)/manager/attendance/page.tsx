@@ -76,7 +76,7 @@ export default function AttendancePage() {
 
         setEditForm({
             clock_in: localISOTime,
-            status: record.status || "Hadir"
+            status: record.status || "present"
         });
     };
 
@@ -202,9 +202,13 @@ export default function AttendancePage() {
                                         <span className="text-green-400">Dalam Premis</span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${a.status === 'Late' ? 'bg-red-400/10 text-red-400' : 'bg-green-400/10 text-green-400'
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${a.status?.toLowerCase() === 'late' ? 'bg-red-400/10 text-red-400' :
+                                            a.status?.toLowerCase() === 'absent' ? 'bg-orange-400/10 text-orange-400' :
+                                                'bg-green-400/10 text-green-400'
                                             }`}>
-                                            {a.status || 'Hadir'}
+                                            {a.status?.toLowerCase() === 'late' ? 'Lewat' :
+                                                a.status?.toLowerCase() === 'absent' ? 'Ponteng' :
+                                                    'Hadir'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
@@ -270,8 +274,9 @@ export default function AttendancePage() {
                                 onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
                                 className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary"
                             >
-                                <option value="Hadir">Hadir (On Time)</option>
-                                <option value="Late">Lewat (Late)</option>
+                                <option value="present">Hadir (On Time)</option>
+                                <option value="late">Lewat (Late)</option>
+                                <option value="absent">Ponteng (Absent)</option>
                             </select>
                         </div>
 

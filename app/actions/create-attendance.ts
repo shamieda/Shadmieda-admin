@@ -110,7 +110,17 @@ export async function createManualAttendanceAction(
 
         // 4. Calculate Penalty
         const { status: calculatedStatus, penalty } = calculatePenalty(clockInDate, shopSettings);
-        const finalStatus = overrideStatus || calculatedStatus;
+
+        // Normalize status to ensure database constraint compliance ('present', 'late', 'absent')
+        const normalizeStatus = (status: string) => {
+            const lower = status.toLowerCase();
+            if (lower === 'late' || lower === 'lewat') return 'late';
+            if (lower === 'present' || lower === 'hadir') return 'present';
+            if (lower === 'absent' || lower === 'ponteng') return 'absent';
+            return lower;
+        };
+
+        const finalStatus = normalizeStatus(overrideStatus || calculatedStatus);
 
         // 5. Insert Record
         const { error: insertError } = await supabase

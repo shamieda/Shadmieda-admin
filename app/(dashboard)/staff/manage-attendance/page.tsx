@@ -245,9 +245,13 @@ export default function SupervisorAttendancePage() {
                                         <span className="text-green-400">Dalam Premis</span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${a.status === 'Late' ? 'bg-red-400/10 text-red-400' : 'bg-green-400/10 text-green-400'
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${a.status?.toLowerCase() === 'late' ? 'bg-red-400/10 text-red-400' :
+                                            a.status?.toLowerCase() === 'absent' ? 'bg-orange-400/10 text-orange-400' :
+                                                'bg-green-400/10 text-green-400'
                                             }`}>
-                                            {a.status || 'Hadir'}
+                                            {a.status?.toLowerCase() === 'late' ? 'Lewat' :
+                                                a.status?.toLowerCase() === 'absent' ? 'Ponteng' :
+                                                    'Hadir'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
