@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import AttendanceHistory from "@/components/AttendanceHistory";
 import { createNotificationAction, getManagersAction } from "@/app/actions/notifications";
 import { deductBadDeedAction } from "@/app/actions/points";
+import { calculatePenalty } from "@/lib/attendance-utils";
 
 // Mock Shop Coordinates (Replace with real ones later)
 // Mock Shop Coordinates (Replace with real ones later)
@@ -290,30 +291,10 @@ export default function StaffAttendancePage() {
             let status = 'present';
             let penalty = 0;
 
-            if (shopSettings && shopSettings.start_time) {
-                const [startH, startM, startS] = shopSettings.start_time.split(':').map(Number);
-                const startTimeDate = new Date();
-                startTimeDate.setHours(startH, startM, startS || 0, 0);
-
-                if (now > startTimeDate) {
-                    status = 'late';
-                    const diffMs = now.getTime() - startTimeDate.getTime();
-                    const diffMins = Math.floor(diffMs / 60000);
-
-                    if (diffMins > 0) {
-                        // Tiered Penalty Logic
-                        if (shopSettings.penalty_max > 0 && diffMins > 30) {
-                            penalty = shopSettings.penalty_max;
-                        } else if (shopSettings.penalty_30m > 0 && diffMins > 15) {
-                            penalty = shopSettings.penalty_30m;
-                        } else if (shopSettings.penalty_15m > 0 && diffMins > 0) {
-                            penalty = shopSettings.penalty_15m;
-                        } else {
-                            // Fallback to per-minute
-                            penalty = diffMins * (shopSettings.late_penalty_per_minute || 0);
-                        }
-                    }
-                }
+            if (shopSettings) {
+                const { status: calculatedStatus, penalty: calculatedPenalty } = calculatePenalty(now, shopSettings as any);
+                status = calculatedStatus;
+                penalty = calculatedPenalty;
             }
 
             // 2.5 Check if already clocked in today

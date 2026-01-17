@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { awardGoodDeedAction, deductBadDeedAction } from "./points";
+import { calculatePenalty, normalizeStatus } from "@/lib/attendance-utils";
 
 interface ShopSettings {
     start_time: string;
@@ -19,54 +20,6 @@ interface UpdateAttendanceResult {
     updatedRecord?: any;
 }
 
-/**
- * Calculate penalty based on clock-in time and shop settings
- */
-function calculatePenaltyFromTime(
-    clockInTime: Date,
-    shopSettings: ShopSettings
-): { status: string; penalty: number } {
-    const [startH, startM, startS] = shopSettings.start_time.split(':').map(Number);
-    const startTimeDate = new Date(clockInTime);
-    startTimeDate.setHours(startH, startM, startS || 0, 0);
-
-    // If clocked in before or at start time, no penalty
-    if (clockInTime <= startTimeDate) {
-        return { status: 'present', penalty: 0 };
-    }
-
-    // Calculate how late in minutes
-    const diffMs = clockInTime.getTime() - startTimeDate.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-
-    let penalty = 0;
-    const status = 'late';
-
-    // Tiered Penalty Logic (matching staff attendance page logic)
-    if (shopSettings.penalty_max > 0 && diffMins > 30) {
-        penalty = shopSettings.penalty_max;
-    } else if (shopSettings.penalty_30m > 0 && diffMins > 15) {
-        penalty = shopSettings.penalty_30m;
-    } else if (shopSettings.penalty_15m > 0 && diffMins > 0) {
-        penalty = shopSettings.penalty_15m;
-    } else {
-        // Fallback to per-minute
-        penalty = diffMins * (shopSettings.late_penalty_per_minute || 0);
-    }
-
-    return { status, penalty };
-}
-
-/**
- * Normalize status values to ensure database constraint compliance ('present', 'late', 'absent')
- */
-const normalizeStatus = (status: string) => {
-    const lower = status.toLowerCase();
-    if (lower === 'late' || lower === 'lewat') return 'late';
-    if (lower === 'present' || lower === 'hadir') return 'present';
-    if (lower === 'absent' || lower === 'ponteng') return 'absent';
-    return lower;
-};
 
 /**
  * Adjust monthly points based on status change
@@ -164,9 +117,9 @@ export async function updateAttendanceAction(
 
         // 4. Calculate new penalty based on new clock-in time
         const newClockInDate = new Date(newClockIn);
-        const { status: calculatedStatus, penalty: calculatedPenalty } = calculatePenaltyFromTime(
+        const { status: calculatedStatus, penalty: calculatedPenalty } = calculatePenalty(
             newClockInDate,
-            shopSettings
+            shopSettings as any
         );
 
         // 5. Determine final status (use manual override if provided, otherwise use calculated)

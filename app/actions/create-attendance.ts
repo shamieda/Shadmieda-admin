@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase-server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { revalidatePath } from "next/cache";
+import { calculatePenalty, normalizeStatus } from "@/lib/attendance-utils";
 
 interface CreateAttendanceResult {
     success: boolean;
@@ -10,36 +11,6 @@ interface CreateAttendanceResult {
     error?: string;
 }
 
-/**
- * Calculate penalty based on clock-in time and shop settings
- * (Duplicated helper to ensure standalone consistency)
- */
-function calculatePenalty(clockInTime: Date, shopSettings: any) {
-    const [startH, startM, startS] = shopSettings.start_time.split(':').map(Number);
-    const startTimeDate = new Date(clockInTime);
-    startTimeDate.setHours(startH, startM, startS || 0, 0);
-
-    if (clockInTime <= startTimeDate) {
-        return { status: 'present', penalty: 0 };
-    }
-
-    const diffMs = clockInTime.getTime() - startTimeDate.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-
-    let penalty = 0;
-
-    if (shopSettings.penalty_max > 0 && diffMins > 30) {
-        penalty = shopSettings.penalty_max;
-    } else if (shopSettings.penalty_30m > 0 && diffMins > 15) {
-        penalty = shopSettings.penalty_30m;
-    } else if (shopSettings.penalty_15m > 0 && diffMins > 0) {
-        penalty = shopSettings.penalty_15m;
-    } else {
-        penalty = diffMins * (shopSettings.late_penalty_per_minute || 0);
-    }
-
-    return { status: 'late', penalty };
-}
 
 export async function createManualAttendanceAction(
     userId: string,
@@ -108,18 +79,10 @@ export async function createManualAttendanceAction(
             console.warn("⚠️ Shop settings NOT FOUND in DB. Using fallbacks (RM0 penalties).");
         }
 
-        // 4. Calculate Penalty
+        // 4. Calculate Penalty using centralized utility
         const { status: calculatedStatus, penalty } = calculatePenalty(clockInDate, shopSettings);
 
-        // Normalize status to ensure database constraint compliance ('present', 'late', 'absent')
-        const normalizeStatus = (status: string) => {
-            const lower = status.toLowerCase();
-            if (lower === 'late' || lower === 'lewat') return 'late';
-            if (lower === 'present' || lower === 'hadir') return 'present';
-            if (lower === 'absent' || lower === 'ponteng') return 'absent';
-            return lower;
-        };
-
+        // Normalize status using centralized utility
         const finalStatus = normalizeStatus(overrideStatus || calculatedStatus);
 
         // 5. Insert Record
