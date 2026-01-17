@@ -49,7 +49,7 @@ export default function ManagerDashboard() {
             const { count: staffCount, error: countError } = await supabase
                 .from('users')
                 .select('*', { count: 'exact', head: true })
-                .eq('role', 'staff');
+                .in('role', ['staff', 'supervisor']);
 
             if (countError) console.error("Staff count error:", countError);
             console.log("Staff count result:", staffCount);

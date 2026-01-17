@@ -41,7 +41,7 @@ export default function PayrollPage() {
             const { data: staffList } = await supabase
                 .from('users')
                 .select('*')
-                .eq('role', 'staff');
+                .in('role', ['staff', 'supervisor']);
 
             // 2b. Fetch existing payroll records for this month
             const { data: payrollRecords } = await supabase

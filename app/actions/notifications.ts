@@ -355,7 +355,7 @@ export async function notifyStationStaffAction(station: string, taskTitle: strin
         let query = supabaseAdmin
             .from("users")
             .select("id")
-            .eq("role", "staff"); // Base filter: Staff only
+            .in("role", ["staff", "supervisor"]); // Include supervisors in task notifications
 
         // Exclude self (Admin/Manager creating the task)
         if (currentUser) {

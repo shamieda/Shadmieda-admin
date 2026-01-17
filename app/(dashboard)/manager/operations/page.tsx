@@ -53,7 +53,7 @@ export default function OperationsPage() {
             const { data: staffMembers, error: staffError } = await supabase
                 .from('users')
                 .select('id, full_name, position')
-                .eq('role', 'staff')
+                .in('role', ['staff', 'supervisor'])
                 .order('full_name');
 
             if (staffError) throw staffError;

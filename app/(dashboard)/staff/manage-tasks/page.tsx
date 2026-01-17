@@ -130,7 +130,7 @@ export default function SupervisorManageTasksPage() {
             const { data: staffUsers, error: staffError } = await supabase
                 .from('users')
                 .select('id, position')
-                .eq('role', 'staff');
+                .in('role', ['staff', 'supervisor']);
 
             if (staffError) throw staffError;
 

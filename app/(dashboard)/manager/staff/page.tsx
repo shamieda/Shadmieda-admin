@@ -36,7 +36,7 @@ export default function StaffListPage() {
             const { data, error } = await supabase
                 .from('users')
                 .select('*')
-                .eq('role', 'staff')
+                .in('role', ['staff', 'supervisor'])
                 .order('full_name', { ascending: true });
 
             if (error) throw error;
@@ -260,9 +260,9 @@ export default function StaffListPage() {
                                         className="flex items-center gap-2 px-2 py-1 bg-white/5 hover:bg-white/10 rounded-lg transition-all group"
                                     >
                                         <span className={`text-xs font-bold uppercase ${s.role === 'supervisor' ? 'text-primary' :
-                                                s.role === 'manager' ? 'text-blue-400' :
-                                                    s.role === 'admin' || s.role === 'master' ? 'text-red-400' :
-                                                        'text-gray-400'
+                                            s.role === 'manager' ? 'text-blue-400' :
+                                                s.role === 'admin' || s.role === 'master' ? 'text-red-400' :
+                                                    'text-gray-400'
                                             }`}>
                                             {s.role || 'staff'}
                                         </span>
@@ -368,8 +368,8 @@ export default function StaffListPage() {
                                         key={role}
                                         onClick={() => handleUpdateRole(role)}
                                         className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${roleModal.currentRole === role
-                                                ? 'bg-primary/10 border-primary text-primary font-bold'
-                                                : 'bg-white/5 border-transparent hover:border-white/20 text-gray-300'
+                                            ? 'bg-primary/10 border-primary text-primary font-bold'
+                                            : 'bg-white/5 border-transparent hover:border-white/20 text-gray-300'
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">
