@@ -155,7 +155,7 @@ export default function AttendancePage() {
             </div>
 
             {/* Table */}
-            <div className="bg-surface border border-white/5 rounded-xl overflow-hidden">
+            <div className="bg-surface border border-white/5 rounded-xl overflow-x-auto">
                 {loading && !editingRecord ? (
                     <div className="flex flex-col items-center justify-center py-20 text-gray-500">
                         <Loader2 className="w-8 h-8 animate-spin mb-2" />
